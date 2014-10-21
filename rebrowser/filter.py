@@ -79,7 +79,7 @@ class OpenImmoFilter():
         for i in immobilie:
             try:
                 o, v = i    # Splits <immobilie> into old key and value pair ...
-            except ValueError:
+            except:
                 o = ()      # ... or initializes empty old key tuple ...
                 v = i       # ... and starts with real estate directly
             finally:
@@ -122,4 +122,6 @@ class OpenImmoFilter():
                 else:
                     pages.append(page)
                     page = []
+            if page:
+                pages.append(page)
             return pages
