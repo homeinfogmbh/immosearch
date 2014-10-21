@@ -106,7 +106,7 @@ class OpenImmoFilter():
             inverted = nodes[node]
             immobilie = self._index(immobilie, node, inverted)
         # Sort an remove indexes
-        return [i for __, i in sorted(immobilie)] if nodes else immobilie
+        return [i for _, i in sorted(immobilie)] if nodes else immobilie
     
     def page(self, immobilie, limit=None):
         """Splits a list of OpenImmo™-style <immobilie> into a list of lists, 

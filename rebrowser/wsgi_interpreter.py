@@ -91,6 +91,7 @@ class WSGIEnvInterpreter():
         result = ""
         for page in pages:
             result += "Page:<br/>"
-            result += str(page)
+            for re in page:
+                result += str(re)
             result += "<br/><br/>"
         return result
