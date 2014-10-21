@@ -90,8 +90,6 @@ class WSGIEnvInterpreter():
         pages = oif.page(immobilie, paging)
         result = ""
         for page in pages:
-            result += "Page:<br/>"
             for re in page:
                 result += str(re)
-            result += "<br/><br/>"
         return result
