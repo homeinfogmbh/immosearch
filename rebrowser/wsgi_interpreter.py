@@ -62,13 +62,9 @@ class WSGIEnvInterpreter():
         """
         return self.__ATTR_SEP
     
-    def parse(self, uri):
+    def parse(self, query_string):
         """Parses a URI for query commands"""
-        uri_path = uri.split(self.PARAM_SEP)
-        uri_end = uri_path[len(uri_path)-1]
-        req_path = uri_end.split(self.REQ_SEP)
-        req = req_path[1]
-        params = req.split(self.PARAM_SEP)
+        params = query_string.split(self.PARAM_SEP)
         filters = {}
         sorts = {}
         paging = None
