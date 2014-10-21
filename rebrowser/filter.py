@@ -118,7 +118,7 @@ class OpenImmoFilter():
             page = []
             while immobilie:
                 if len(page) < limit:
-                    page.appen(immobilie.pop())
+                    page.append(immobilie.pop())
                 else:
                     pages.append(page)
                     page = []
