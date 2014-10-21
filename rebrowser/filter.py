@@ -88,7 +88,7 @@ class OpenImmoFilter():
                 for e in node_path: # Gets the new key
                     k = getattr(k, e)
                 new_keys.append(k)  # Stores new keys
-                values.append((k, v))    # Stores new key, value pairs
+                values.append(((k), v))    # Stores new key, value pairs
         values = [v for _, v in sorted(values)] # Sorts new key / value pairs
         new_keys = sorted(new_keys) # Sorts new keys accordingly
         new_keys = reversed(new_keys) if inverted else new_keys
