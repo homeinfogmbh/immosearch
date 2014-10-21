@@ -89,7 +89,11 @@ class WSGIEnvInterpreter():
         immobilie = oif.sort(immobilie, sorts)
         pages = oif.page(immobilie, paging)
         result = ""
+        result += '<immolist>'
         for page in pages:
+            result += '<page>'
             for re in page:
                 result += str(re)
+            result += '</page>'
+        result += '</immolist>'
         return result
