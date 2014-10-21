@@ -88,12 +88,12 @@ class WSGIEnvInterpreter():
         immobilie = oif.filter(immobilie, filters)
         immobilie = oif.sort(immobilie, sorts)
         pages = oif.page(immobilie, paging)
-        result = ""
+        result = '<?xml version="1.0" ?>'
         result += '<immolist>'
         for page in pages:
             result += '<page>'
             for re in page:
-                result += str(re)
+                result += str(re).replace('<?xml version="1.0" ?>', '')
             result += '</page>'
         result += '</immolist>'
         return result
