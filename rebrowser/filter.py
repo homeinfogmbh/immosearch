@@ -8,6 +8,44 @@ __all__ = ['OpenImmoFilter']
 
 import openimmo
 
+class SortableRealEstate():
+    """
+    An OpenImmo™ immobilie wrapper, that can be sorted
+    """
+    keys = []
+    __immobilie = None
+    
+    def __init__(self, immobilie, keys=[]):
+        """Creates a new instance"""
+        self.__immobilie = immobilie
+        self.keys = keys
+        
+    @property
+    def immobilie(self):
+        """Returns the OpenImmo™ immobilie"""
+        return self.__immobilie
+        
+    def __eq__(self, other):
+        """Equality comparison"""
+        return self.keys == other.keys
+    
+    def __gt__(self, other):
+        """Greater-than comparison"""
+        return self.keys > other.keys
+    
+    def __lt__(self, other):
+        """Less-than comparison"""
+        return self.keys < other.keys
+    
+    def __ge__(self, other):
+        """Greater-than or equal comparison"""
+        return self.__eq__(other) or self.__gt__(other)
+    
+    def __le__(self, other):
+        """Less-than or equal comparison"""
+        return self.__eq__(other) or self.__lt__(other)
+    
+
 class OpenImmoFilter():
     """
     A class that filters OpenImmo™-formatted real estate data
@@ -66,47 +104,53 @@ class OpenImmoFilter():
             immobilie = self._filter(immobilie, node, values, inverted)
         return immobilie
     
-    def _index(self, immobilie, node, inverted):
-        """Indexes a list of OpenImmo™-style <immobilie> 
+    def _index(self, sres, node, inverted):
+        """Indexes a list of SortableRealEstates <sres> 
         for <node> either <inverted> or not.
         Returns an indexed list of immobilie, like:
         [((<k1>, <k2>, ..), <immobilie>), ..]"""
         node_path = node.split('.')
-        old_keys = []   # Already existing keys
         new_keys = []   # New keys
         values = []     # The actual real estates
-        result = []     # The result
-        for i in immobilie:
-            try:
-                o, v = i    # Splits <immobilie> into old key and value pair ...
-            except:
-                o = ()      # ... or initializes empty old key tuple ...
-                v = i       # ... and starts with real estate directly
-            finally:
-                old_keys.append(o)  # Stores old key
-                k = v               # Starts at real estate
-                for e in node_path: # Gets the new key
+        # Sets the new keys
+        for re in sres:
+                k = re.immobilie
+                for e in node_path:
                     k = getattr(k, e)
-                new_keys.append(k)  # Stores new keys
-                values.append(((k), v))    # Stores new key, value pairs
-        values = [v for _, v in sorted(values)] # Sorts new key / value pairs
-        new_keys = sorted(new_keys) # Sorts new keys accordingly
-        new_keys = reversed(new_keys) if inverted else new_keys
+                new_keys.append(k)
+                values.append(SortableRealEstate(re.immobilie, [k]))
+        sorted_values = sorted(values)
+        # Inverts keys if desired
+        if inverted:
+            c = 1
+            l = len(sorted_values)
+            inv = []
+            for s in sorted_values:
+                inv.append(SortableRealEstate(s.immobilie, 
+                                              sorted_values[l-c].keys))
+            sorted_values = inv
+            c += 1
+        # Appends new keys to sorted real estates
         c = 0
-        for n in new_keys:
-            k = old_keys[c] + (n,)
-            result.append((k, values[c]))
+        result = []
+        for s in sres:
+            result.append(SortableRealEstate(s.immobilie, 
+                                             s.keys + sorted_values[c].keys))
             c += 1
         return result
     
     def sort(self, immobilie, nodes):
         """Sorts a list of OpenImmo™-style <immobilie> by a dictionary like: 
         {<node>: <inverted>, ..}"""
-        for node in nodes:
-            inverted = nodes[node]
-            immobilie = self._index(immobilie, node, inverted)
-        # Sort an remove indexes
-        return [i for _, i in sorted(immobilie)] if nodes else immobilie
+        if nodes:
+            sres = [SortableRealEstate(i) for i in immobilie]
+            for node in nodes:
+                inverted = nodes[node]
+                sres = self._index(sres, node, inverted)
+            # Sort an remove indexes
+            return [s.immobilie for s in sorted(sres)] 
+        else:
+            return immobilie
     
     def page(self, immobilie, limit=None):
         """Splits a list of OpenImmo™-style <immobilie> into a list of lists, 

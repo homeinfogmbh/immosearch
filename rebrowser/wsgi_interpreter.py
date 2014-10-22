@@ -68,6 +68,7 @@ class WSGIEnvInterpreter():
         filters = {}
         sorts = {}
         paging = None
+        page = 0
         for p in params:
             param_path = p.split(self.ASS_SEP)
             pname = param_path[0]
@@ -81,8 +82,10 @@ class WSGIEnvInterpreter():
                 node, inverted_ = pval.split(self.ATTR_SEP)
                 inverted = True if inverted_.upper() == 'TRUE' else False
                 sorts[node] = inverted
-            elif pname == 'page':
+            elif pname == 'limit':
                 paging = int(pval)
+            elif pname == 'page':
+                page = int(pval)
         oif = OpenImmoFilter(1038007)
         immobilie = oif.immobilie
         immobilie = oif.filter(immobilie, filters)
@@ -90,10 +93,22 @@ class WSGIEnvInterpreter():
         pages = oif.page(immobilie, paging)
         result = '<?xml version="1.0" ?>'
         result += '<immolist>'
-        for page in pages:
-            result += '<page>'
-            for re in page:
-                result += str(re).replace('<?xml version="1.0" ?>', '')
-            result += '</page>'
+        if page:
+            self._print_page(pages[page])
+        else:
+            for p in pages:
+                self._print_page(p)
         result += '</immolist>'
         return result
+    
+    def _print_page(self, page):
+        """Prints a page"""
+        result = '<page>'
+        for re in page:
+            result += self._print_realestate(re)
+        result += '</page>'
+        return result
+    
+    def _print_realestate(self, re):
+        """Prints a real estate"""
+        return str(re).replace('<?xml version="1.0" ?>', '')
