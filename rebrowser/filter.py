@@ -8,7 +8,7 @@ __all__ = ['OpenImmoFilter']
 
 import openimmo
 
-def log(s):
+def _log(s):
     with open('/tmp/wgi.log', 'a') as f:
         f.write(str(s) + '\n')
         

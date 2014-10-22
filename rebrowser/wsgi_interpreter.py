@@ -8,6 +8,11 @@ __all__ = ['WSGIEnvInterpreter']
 
 from .filter import OpenImmoFilter
 
+def _log(s):
+    with open('/tmp/wgi.log', 'a') as f:
+        f.write(str(s) + '\n')
+        
+
 class WSGIEnvInterpreter():
     """
     Class that interprets and translates WSGI 
@@ -110,6 +115,7 @@ class WSGIEnvInterpreter():
     
     def _bool(self, s):
         """Converts a string to a booelan value"""
+        _log(s)
         return s.strip().upper() == 'TRUE'
     
     def _print_page(self, page, num, pages):
