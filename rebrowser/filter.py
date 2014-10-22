@@ -83,7 +83,7 @@ class OpenImmoFilter():
     def _filter(self, immobilie, node, values, inverted=False):
         """Filter a list of  OpenImmo™-style <immobilie> where <node> 
         is in <values> or their complement iff <inverted>"""
-        node_path = inverted(node.split('.'))
+        node_path = reversed(node.split('.'))
         positive_match = []
         negative_match = []
         for i in immobilie:
