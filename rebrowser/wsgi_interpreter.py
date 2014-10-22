@@ -92,6 +92,7 @@ class WSGIEnvInterpreter():
         immobilie = oif.sort(immobilie, sorts)
         pages = oif.page(immobilie, paging)
         result = '<?xml version="1.0" ?>'
+        result += self._style()
         result += '<immolist>'
         if page != None:
             result += self._print_page(pages[page], page, len(pages))
@@ -114,3 +115,7 @@ class WSGIEnvInterpreter():
     def _print_realestate(self, re):
         """Prints a real estate"""
         return str(re).replace('<?xml version="1.0" ?>', '')
+    
+    def _style(self):
+        """Sets the stylesheet"""
+        return '<?xml-stylesheet type="text/css" href="test.css" ?>'
