@@ -132,15 +132,15 @@ class OpenImmoFilter():
             for s in sorted_values:
                 inv.append(SortableRealEstate(s.immobilie, 
                                               sorted_values[l-c].keys))
-            sorted_values = inv
+            sorted_values = sorted(inv)
             c += 1
         # Appends new keys to sorted real estates
-        c = 0
         result = []
-        for s in sres:
-            result.append(SortableRealEstate(s.immobilie, 
-                                             s.keys + sorted_values[c].keys))
-            c += 1
+        for s in sorted_values:
+            for r in sres:
+                if s.immobilie == r.immobilie:
+                    result.append(SortableRealEstate(s.immobilie, 
+                                                     r.keys + s.keys))
         return result
     
     def sort(self, immobilie, nodes):
