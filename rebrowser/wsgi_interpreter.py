@@ -92,8 +92,8 @@ class WSGIEnvInterpreter():
         immobilie = oif.sort(immobilie, sorts)
         pages = oif.page(immobilie, paging)
         result = '<?xml version="1.0" ?>'
-        result += self._style()
         result += self._dtd()
+        result += self._style()
         result += '<immolist>'
         if page != None:
             result += self._print_page(pages[page], page, len(pages))
