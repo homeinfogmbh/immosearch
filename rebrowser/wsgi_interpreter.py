@@ -94,10 +94,10 @@ class WSGIEnvInterpreter():
         result = '<?xml version="1.0" ?>'
         result += '<immolist>'
         if page:
-            self._print_page(pages[page])
+            result += self._print_page(pages[page])
         else:
             for p in pages:
-                self._print_page(p)
+                result += self._print_page(p)
         result += '</immolist>'
         return result
     
