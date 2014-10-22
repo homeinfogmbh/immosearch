@@ -8,6 +8,11 @@ __all__ = ['OpenImmoFilter']
 
 import openimmo
 
+def _log(s):
+    with open('/tmp/wsgi.log', 'a') as f:
+        f.write(str(s) + '\n')
+        
+
 class SortableRealEstate():
     """
     An OpenImmo™ immobilie wrapper, that can be sorted
@@ -90,6 +95,9 @@ class OpenImmoFilter():
             n = i
             while node_path:
                 n = getattr(n, node_path.pop())
+            _log(n)
+            _log(str(n))
+            _log(values)
             if str(n) in values:
                 positive_match.append(i)
             else:
