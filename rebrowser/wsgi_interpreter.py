@@ -120,8 +120,8 @@ class WSGIEnvInterpreter():
     
     def _style(self):
         """Sets the stylesheet"""
-        return '<?xml-stylesheet type="text/css" href="test.css" ?>'
+        return '<?xml-stylesheet type="text/css" href="http://css.homeinfo.de/test.css" ?>'
     
     def _dtd(self):
         """Returns the document type definition"""
-        return '<!DOCTYPE openimmo SYSTEM "openimmo_127.xsd">'
+        return ''#'<!DOCTYPE openimmo SYSTEM "openimmo_127.xsd">'
