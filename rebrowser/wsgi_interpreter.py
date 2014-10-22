@@ -94,16 +94,18 @@ class WSGIEnvInterpreter():
         result = '<?xml version="1.0" ?>'
         result += '<immolist>'
         if page != None:
-            result += self._print_page(pages[page])
+            result += self._print_page(pages[page], page, len(pages))
         else:
+            c = 0
             for p in pages:
-                result += self._print_page(p)
+                result += self._print_page(p, c, len(pages))
+                c += 1
         result += '</immolist>'
         return result
     
-    def _print_page(self, page):
+    def _print_page(self, page, num, pages):
         """Prints a page"""
-        result = '<page>'
+        result = '<page ' + 'number=' + str(num) + 'pages=' + str(pages) + '>'
         for re in page:
             result += self._print_realestate(re)
         result += '</page>'

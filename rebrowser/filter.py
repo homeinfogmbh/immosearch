@@ -123,7 +123,6 @@ class OpenImmoFilter():
                     k = getattr(k, e)
                 values.append(SortableRealEstate(re.immobilie, [k]))
         sorted_values = sorted(values)
-        [log(sv.keys) for sv in sorted_values]
         # Inverts keys if desired
         if inverted:
             c = 1
