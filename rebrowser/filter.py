@@ -93,9 +93,9 @@ class OpenImmoFilter():
         negative_match = []
         for i in immobilie:
             n = i
+            _log(str(node_path))
             while node_path:
                 n = getattr(n, node_path.pop())
-            _log(str(node_path))
             _log(str(values))
             if str(n) in values:
                 positive_match.append(i)
