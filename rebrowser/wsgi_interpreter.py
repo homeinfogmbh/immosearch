@@ -68,7 +68,7 @@ class WSGIEnvInterpreter():
         filters = {}
         sorts = {}
         paging = None
-        page = 0
+        page = None
         for p in params:
             param_path = p.split(self.ASS_SEP)
             pname = param_path[0]
