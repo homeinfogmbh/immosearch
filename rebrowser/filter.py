@@ -10,7 +10,7 @@ import openimmo
 
 def log(s):
     with open('/tmp/wgi.log', 'a') as f:
-        f.write(s)
+        f.write(str(s) + '\n')
         
 
 class SortableRealEstate():
