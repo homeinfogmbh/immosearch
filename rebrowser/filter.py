@@ -115,17 +115,15 @@ class OpenImmoFilter():
         Returns an indexed list of immobilie, like:
         [((<k1>, <k2>, ..), <immobilie>), ..]"""
         node_path = node.split('.')
-        new_keys = []   # New keys
         values = []     # The actual real estates
         # Sets the new keys
         for re in sres:
                 k = re.immobilie
                 for e in node_path:
                     k = getattr(k, e)
-                log(k)
-                new_keys.append(k)
                 values.append(SortableRealEstate(re.immobilie, [k]))
         sorted_values = sorted(values)
+        [log(sv.keys) for sv in sorted_values]
         # Inverts keys if desired
         if inverted:
             c = 1
