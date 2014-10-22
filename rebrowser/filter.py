@@ -95,7 +95,7 @@ class OpenImmoFilter():
             n = i
             while node_path:
                 n = getattr(n, node_path.pop())
-            _log(str(n))
+            _log(str(node_path))
             _log(str(values))
             if str(n) in values:
                 positive_match.append(i)
