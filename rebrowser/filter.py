@@ -9,10 +9,8 @@ __all__ = ['OpenImmoFilter']
 import openimmo
 
 def _log(s):
-    with open('/tmp/wsgi.log', 'ab') as f:
-        if type(s) == str:
-            s = s.encode()
-        f.write(s + '\n'.encode())
+    with open('/tmp/wsgi.log', 'a') as f:
+        f.write(s + '\n')
         
 
 class SortableRealEstate():
@@ -97,9 +95,8 @@ class OpenImmoFilter():
             n = i
             while node_path:
                 n = getattr(n, node_path.pop())
-            _log(n)
             _log(str(n))
-            _log(values)
+            _log(str(values))
             if str(n) in values:
                 positive_match.append(i)
             else:
