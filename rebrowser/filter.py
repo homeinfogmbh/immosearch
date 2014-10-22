@@ -8,11 +8,6 @@ __all__ = ['OpenImmoFilter']
 
 import openimmo
 
-def _log(s):
-    with open('/tmp/wgi.log', 'a') as f:
-        f.write(str(s) + '\n')
-        
-
 class SortableRealEstate():
     """
     An OpenImmo™ immobilie wrapper, that can be sorted
