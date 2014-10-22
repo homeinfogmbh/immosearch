@@ -69,6 +69,7 @@ class WSGIEnvInterpreter():
         sorts = {}
         paging = None
         page = None
+        raw = False
         for p in params:
             param_path = p.split(self.ASS_SEP)
             pname = param_path[0]
@@ -76,16 +77,18 @@ class WSGIEnvInterpreter():
             if pname == 'filter':
                 node, values_, inverted_ = pval.split(self.ATTR_SEP)
                 values = values_.split(self.LIST_SEP)
-                inverted = True if inverted_.upper() == 'TRUE' else False
+                inverted = self._bool(inverted_)
                 filters[node] = (values, inverted)
             elif pname == 'sort':
                 node, inverted_ = pval.split(self.ATTR_SEP)
-                inverted = True if inverted_.upper() == 'TRUE' else False
+                inverted = self._bool(inverted_)
                 sorts[node] = inverted
             elif pname == 'limit':
                 paging = int(pval)
             elif pname == 'page':
                 page = int(pval)
+            elif raw == 'raw':
+                raw = self._bool(pval)
         oif = OpenImmoFilter(1038007)
         immobilie = oif.immobilie
         immobilie = oif.filter(immobilie, filters)
@@ -104,6 +107,10 @@ class WSGIEnvInterpreter():
                 c += 1
         result += '</immolist>'
         return result
+    
+    def _bool(self, s):
+        """Converts a string to a booelan value"""
+        return s.strip().upper() == 'TRUE'
     
     def _print_page(self, page, num, pages):
         """Prints a page"""
