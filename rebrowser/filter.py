@@ -117,6 +117,7 @@ class OpenImmoFilter():
                 k = re.immobilie
                 for e in node_path:
                     k = getattr(k, e)
+                print(k)
                 new_keys.append(k)
                 values.append(SortableRealEstate(re.immobilie, [k]))
         sorted_values = sorted(values)
