@@ -9,7 +9,8 @@ import openimmo
 
 class HTMLRealEstate():
     """
-    A wrapper that renders an OpenImmo™-<immobile>-style real estate data into an HTML template
+    A wrapper that renders an OpenImmo™-<immobile>-style 
+    real estate data into an HTML template
     """
     __immobilie = None
     __template = None
