@@ -9,8 +9,10 @@ __all__ = ['OpenImmoFilter']
 import openimmo
 
 def _log(s):
-    with open('/tmp/wsgi.log', 'a') as f:
-        f.write(str(s) + '\n')
+    with open('/tmp/wsgi.log', 'ab') as f:
+        if type(s) == str:
+            s = s.encode()
+        f.write(s + '\n'.encode())
         
 
 class SortableRealEstate():
