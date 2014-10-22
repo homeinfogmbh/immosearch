@@ -90,7 +90,7 @@ class OpenImmoFilter():
             n = i
             while node_path:
                 n = getattr(n, node_path.pop())
-            if n in values:
+            if str(n) in values:
                 positive_match.append(i)
             else:
                 negative_match.append(i)
