@@ -98,6 +98,7 @@ class WSGIEnvInterpreter():
         result += self._dtd() if not raw else ''
         result += self._style() if not raw else ''
         result += '<immolist>'
+        result += '<img src="http://pics.homeinfo.de/1038007/ccebeed8bdaf4156957fe4514fb23d2d.JPG">'
         if page != None:
             result += self._print_page(pages[page], page, len(pages))
         else:
