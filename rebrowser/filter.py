@@ -8,6 +8,11 @@ __all__ = ['OpenImmoFilter']
 
 import openimmo
 
+def log(s):
+    with open('/tmp/wgi.log', 'w+') as f:
+        f.write(s)
+        
+
 class SortableRealEstate():
     """
     An OpenImmo™ immobilie wrapper, that can be sorted
@@ -117,7 +122,7 @@ class OpenImmoFilter():
                 k = re.immobilie
                 for e in node_path:
                     k = getattr(k, e)
-                print(k)
+                log(k)
                 new_keys.append(k)
                 values.append(SortableRealEstate(re.immobilie, [k]))
         sorted_values = sorted(values)
