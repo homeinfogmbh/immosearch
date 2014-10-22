@@ -105,7 +105,7 @@ class WSGIEnvInterpreter():
     
     def _print_page(self, page, num, pages):
         """Prints a page"""
-        result = '<page ' + 'number=' + str(num) + 'pages=' + str(pages) + '>'
+        result = '<page ' + 'number=' + str(num) + ' pages=' + str(pages) + '>'
         for re in page:
             result += self._print_realestate(re)
         result += '</page>'
