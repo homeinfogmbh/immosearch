@@ -10,7 +10,10 @@ import openimmo
 
 def _log(s):
     with open('/tmp/wsgi.log', 'a') as f:
-        f.write(s + '\n')
+        try:
+            f.write(s + '\n')
+        except:
+            f.write('Failed to write <s>\n')
         
 
 class SortableRealEstate():
@@ -93,8 +96,8 @@ class OpenImmoFilter():
         negative_match = []
         for i in immobilie:
             n = i
-            _log(str(node_path))
             while node_path:
+                _log(str(n))
                 n = getattr(n, node_path.pop())
             _log(str(values))
             if str(n) in values:
