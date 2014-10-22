@@ -93,7 +93,7 @@ class WSGIEnvInterpreter():
         pages = oif.page(immobilie, paging)
         result = '<?xml version="1.0" ?>'
         result += '<immolist>'
-        if page:
+        if page != None:
             result += self._print_page(pages[page])
         else:
             for p in pages:
