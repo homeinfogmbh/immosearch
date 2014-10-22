@@ -1,20 +1,12 @@
 """
-Session management
+OpenImmo data querying
 """
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '10.10.2014'
 
-__all__ = ['OpenImmoFilter']
+__all__ = ['OpenImmoQuery']
 
-import openimmo
-
-def _log(s):
-    with open('/tmp/wsgi.log', 'a') as f:
-        try:
-            f.write(s + '\n')
-        except:
-            f.write('Failed to write <s>\n')
-        
+import openimmo        
 
 class SortableRealEstate():
     """
@@ -54,7 +46,7 @@ class SortableRealEstate():
         return self.__eq__(other) or self.__lt__(other)
     
 
-class OpenImmoFilter():
+class OpenImmoQuery():
     """
     A class that filters OpenImmo™-formatted real estate data
     """

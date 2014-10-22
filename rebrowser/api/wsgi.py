@@ -6,7 +6,7 @@ __date__ = '10.10.2014'
 
 __all__ = ['WSGIEnvInterpreter']
 
-from .filter import OpenImmoFilter
+from rebrowser.api.query import OpenImmoQuery
 
 class WSGIEnvInterpreter():
     """
@@ -89,16 +89,15 @@ class WSGIEnvInterpreter():
                 page = int(pval)
             elif pname == 'raw':
                 raw = self._bool(pval)
-        oif = OpenImmoFilter(1038007)
-        immobilie = oif.immobilie
-        immobilie = oif.filter(immobilie, filters)
-        immobilie = oif.sort(immobilie, sorts)
-        pages = oif.page(immobilie, paging)
+        query = OpenImmoQuery(1038007)
+        immobilie = query.immobilie
+        immobilie = query.query(immobilie, filters)
+        immobilie = query.sort(immobilie, sorts)
+        pages = query.page(immobilie, paging)
         result = '<?xml version="1.0" ?>'
         result += self._dtd() if not raw else ''
         result += self._style() if not raw else ''
         result += '<immolist>'
-        result += '<img src="http://pics.homeinfo.de/1038007/ccebeed8bdaf4156957fe4514fb23d2d.JPG"/>'
         if page != None:
             result += self._print_page(pages[page], page, len(pages))
         else:
