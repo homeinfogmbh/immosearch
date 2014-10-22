@@ -115,7 +115,8 @@ class WSGIEnvInterpreter():
     
     def _print_realestate(self, re):
         """Prints a real estate"""
-        return str(re).replace('<?xml version="1.0" ?>', '')
+        #return str(re).replace('<?xml version="1.0" ?>', '')
+        return re.verwaltung_techn.openimmo_obid.toxml().replace('<?xml version="1.0" ?>', '')
     
     def _style(self):
         """Sets the stylesheet"""
