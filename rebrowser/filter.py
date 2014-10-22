@@ -94,16 +94,12 @@ class OpenImmoFilter():
         node_path = node.split('.')
         positive_match = []
         negative_match = []
+        upper_values = [v.upper() for v in values]
         for i in immobilie:
             n = i
             for e in node_path:
-                _log('n')
-                _log(str(n))
-                _log('e')
-                _log(str(e))
                 n = getattr(n, e)
-            _log(str(values))
-            if str(n) in values:
+            if str(n).upper() in upper_values:
                 positive_match.append(i)
             else:
                 negative_match.append(i)
