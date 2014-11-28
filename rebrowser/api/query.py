@@ -1,12 +1,12 @@
 """
 OpenImmo data querying
 """
+import openimmo
+
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '10.10.2014'
-
 __all__ = ['OpenImmoQuery']
 
-import openimmo        
 
 class SortableRealEstate():
     """
