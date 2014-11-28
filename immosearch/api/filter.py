@@ -3,32 +3,31 @@ Real estate filtering
 """
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '28.11.2014'
-__all__ = ['FilterableRealEstate']
+__all__ = ['FilterOptions', 'FilterableRealEstate']
 
 
-# TODO: properties:
-"""
-Objektart
-
-Land
-Stadt
-Ort
-PLZ
-Straße
-Hausnummer
-
-Zimmer
-Etage
-Wohnfläche
-Grundstücksfläche
-Balkon
-Terrasse
-
-Kaltmiete
-Warmmiete
-Nebenkosten
-Kaufpreis
-"""
+class FilterOptions():
+    """
+    Options for filtering
+    """
+    OBJEKTART = 'OBJEKTART'
+    LAND = 'LAND'
+    STADT = 'STADT'
+    ORT = 'ORT'
+    PLZ = 'PLZ'
+    STRASSE = 'STRASSE'
+    HAUSNUMMER = 'HAUSNUMMER'
+    ZIMMER = 'ZIMMER'   # Number of rooms
+    ETAGE = 'ETAGE'     # The flat's / room's floor
+    ETAGEN = 'ETAGEN'   # The building's amount of floors
+    WOHNFLAECHE = 'WOHNFLAECHE'
+    GRUNDSTUECKSFLAECHE = 'GRUNDSTUECKSFLAECHE'
+    BALKON = 'BALKON'
+    TERRASSE = 'TERRASSE'
+    KALTMIETE = 'KALTMIETE'
+    WARMMIETE = 'WARMMIETE'
+    NEBENKOSTEN = 'NEBENKOSTEN'
+    KAUFPREIS = 'KAUFPREIS'
 
 
 class FilterableRealEstate():
