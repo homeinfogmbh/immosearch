@@ -50,7 +50,7 @@ class FilterableRealEstate():
         self.__immobilie = immobilie
 
     @property
-    def types(self):
+    def object_types(self):
         """Returns a generator of the object's types"""
         oa = self.immobilie.objektkategorie.objektart
         for zimmer in oa.zimmer:
@@ -97,3 +97,62 @@ class FilterableRealEstate():
             yield (str(zinshaus_renditeobjekt.zins_typ)
                    if zinshaus_renditeobjekt.zins_typ
                    else 'ZINSHAUS_RENDITEOBJEKT')
+
+    @property
+    def country(self):
+        """Returns the country"""
+        try:
+            if self.immobilie.geo.land.iso_land is not None:
+                return str(self.immobilie.geo.land.iso_land)
+            else:
+                return None
+        except:
+            return None
+
+    @property
+    def city(self):
+        """Returns the city"""
+        if self.immobilie.geo.ort is not None:
+            return str(self.immobilie.geo.ort)
+        else:
+            return None
+
+    @property
+    def district(self):
+        """Returns the city's district"""
+        if self.immobilie.geo.regionaler_zusatz is not None:
+            return str(self.immobilie.geo.regionaler_zusatz)
+        else:
+            return None
+
+    @property
+    def zip(self):
+        """Returns the ZIP code"""
+        if self.immobilie.geo.plz is not None:
+            return str(self.immobilie.geo.plz)
+        else:
+            return None
+
+    @property
+    def street(self):
+        """Returns the ZIP code"""
+        if self.immobilie.geo.strasse is not None:
+            return str(self.immobilie.geo.strasse)
+        else:
+            return None
+
+    @property
+    def house_number(self):
+        """Returns the house number"""
+        if self.immobilie.geo.hausnummer is not None:
+            return str(self.immobilie.geo.hausnummer)
+        else:
+            return None
+
+    @property
+    def rooms(self):
+        """Returns the number of rooms"""
+        if self.immobilie.flaechen.anzahl_zimmer is not None:
+            return float(self.immobilie.flaechen.anzahl_zimmer)
+        else:
+            return None
