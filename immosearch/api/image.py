@@ -1,7 +1,7 @@
 """
 Image encoding
 """
-from homie.api.util import MIMEUtil
+from homeinfo.util import MIMEUtil
 from base64 import b64encode
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'

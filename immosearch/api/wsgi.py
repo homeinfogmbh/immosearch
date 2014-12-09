@@ -6,11 +6,12 @@ __date__ = '10.10.2014'
 
 __all__ = ['WSGIEnvInterpreter']
 
-from rebrowser.api.query import OpenImmoQuery
+from .query import OpenImmoQuery
+
 
 class WSGIEnvInterpreter():
     """
-    Class that interprets and translates WSGI 
+    Class that interprets and translates WSGI
     environment variables into a filter query
     """
     __PATH_SEP = '/'
@@ -19,28 +20,28 @@ class WSGIEnvInterpreter():
     __ASS_SEP = '='
     __LIST_SEP = ','
     __ATTR_SEP = '%'
-    
+
     @property
     def PATH_SEP(self):
         """
         Returns the path separator
         """
         return self.__PATH_SEP
-    
+
     @property
     def REQ_SEP(self):
         """
         Returns the request separator
         """
         return self.__REQ_SEP
-    
+
     @property
     def PARAM_SEP(self):
         """
         Returns the parameter (= argument) separator
         """
         return self.__PARAM_SEP
-    
+
     @property
     def ASS_SEP(self):
         """
@@ -61,7 +62,7 @@ class WSGIEnvInterpreter():
         Returns the attribute separator
         """
         return self.__ATTR_SEP
-    
+
     def parse(self, query_string):
         """Parses a URI for query commands"""
         params = query_string.split(self.PARAM_SEP)
@@ -98,36 +99,38 @@ class WSGIEnvInterpreter():
         result += self._dtd() if not raw else ''
         result += self._style() if not raw else ''
         result += '<immolist>'
-        if page != None:
-            result += self._print_page(pages[page], page, len(pages))
-        else:
+        if page is None:
             c = 0
             for p in pages:
                 result += self._print_page(p, c, len(pages))
                 c += 1
+        else:
+            result += self._print_page(pages[page], page, len(pages))
         result += '</immolist>'
         return result
-    
+
     def _bool(self, s):
         """Converts a string to a booelan value"""
         return s.strip().upper() == 'TRUE'
-    
+
     def _print_page(self, page, num, pages):
         """Prints a page"""
-        result = '<page ' + 'number="' + str(num) + '" pages="' + str(pages) + '">'
+        result = ('<page ' + 'number="' + str(num)
+                  + '" pages="' + str(pages) + '">')
         for re in page:
             result += self._print_realestate(re)
         result += '</page>'
         return result
-    
+
     def _print_realestate(self, re):
         """Prints a real estate"""
         return str(re).replace('<?xml version="1.0" ?>', '')
-    
+
     def _style(self):
         """Sets the stylesheet"""
-        return '<?xml-stylesheet type="text/css" href="http://css.homeinfo.de/test.css" ?>'
-    
+        return ('<?xml-stylesheet type="text/css" '
+                'href="http://css.homeinfo.de/test.css" ?>')
+
     def _dtd(self):
         """Returns the document type definition"""
-        return ''#'<!DOCTYPE openimmo SYSTEM "openimmo_127.xsd">'
+        return ''   # '<!DOCTYPE openimmo SYSTEM "openimmo_127.xsd">'
