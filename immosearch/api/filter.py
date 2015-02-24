@@ -1,57 +1,79 @@
-"""
-Real estate filtering
-"""
+"""Real estate filtering"""
+
+from .lib import Delims, Operators
+
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
-__date__ = '28.11.2014'
-__all__ = ['FilterOptions', 'FilterableRealEstate']
+__date__ = '24.02.2015'
+__all__ = ['Filterable']
 
 
-class FilterMethods():
+operations = {Operators.EQ: lambda x, y: x == y,
+              # Operators.EG: ,
+              Operators.EC: lambda x, y: x.lower() == y.lower(),
+              Operators.NE: lambda x, y: x != y,
+              # Operators.NG: ,
+              Operators.NC: lambda x, y: x.lower() != y.lower(),
+              Operators.LT: lambda x, y: x < y,
+              Operators.NE: lambda x, y: x <= y,
+              Operators.GT: lambda x, y: x > y,
+              Operators.GE: lambda x, y: x >= y,
+              Operators.IN: lambda x, y: x in y,
+              Operators.IN: lambda x, y: x not in y}
+
+
+options = {'objektart': lambda f, op, v: op(f.object_types, v),
+           'land': lambda f, op, v: op(f.country, v),
+           'stadt': lambda f, op, v: op(f.city, v)}
+
+
+def parse(val, typ=None):
+    """Parse a raw string value for a certain type
+    XXX: Nested lists are not supported, yet
     """
-    Methods for filtering
-    """
-    EQ = '=='
-    NEQ = '!='
-    LT = '<'
-    LE = '<='
-    GT = '>'
-    GE = '>='
-    IN = '∈'
-    AND = '+'
+    if typ is None:  # Cast intelligent
+        # Check for list
+        if val.startswith(Delims.SL) and val.endswith(Delims.EL):
+            return [parse(elem.strip()) for elem in val[1:-1].split(Delims.IS)]
+        else:
+            # Check for integer
+            try:
+                i = int(val)
+            except ValueError:
+                # Check for float
+                try:
+                    f = float(val)
+                except ValueError:
+                    # Check for boolean
+                    lower_val = val.lower()
+                    if lower_val == 'true':
+                        return True
+                    elif lower_val == 'false':
+                        return False
+                    # Return raw string if nothing else fits
+                    else:
+                        return val
+                else:
+                    return f
+            else:
+                return i
+    else:
+        return typ(val)  # Cast with specified constructor method
 
 
-class FilterOptions():
-    """
-    Options for filtering
-    """
-    OBJEKTART = 'OBJEKTART'
-    LAND = 'LAND'
-    STADT = 'STADT'
-    ORT = 'ORT'
-    PLZ = 'PLZ'
-    STRASSE = 'STRASSE'
-    HAUSNUMMER = 'HAUSNUMMER'
-    ZIMMER = 'ZIMMER'   # Number of rooms
-    ETAGE = 'ETAGE'     # The flat's / room's floor
-    ETAGEN = 'ETAGEN'   # The building's amount of floors
-    WOHNFLAECHE = 'WOHNFLAECHE'
-    GRUNDSTUECKSFLAECHE = 'GRUNDSTUECKSFLAECHE'
-    BALKON = 'BALKON'
-    TERRASSE = 'TERRASSE'
-    KALTMIETE = 'KALTMIETE'
-    WARMMIETE = 'WARMMIETE'
-    NEBENKOSTEN = 'NEBENKOSTEN'
-    KAUFPREIS = 'KAUFPREIS'
-
-
-class FilterableRealEstate():
-    """
-    Wrapper class for an OpenImmo™-Immobilie
+class Filterable():
+    """Wrapper class for an OpenImmo™-Immobilie
     that can be filtered by certain attributes
     """
+
     def __init__(self, immobilie):
         """Sets the appropriate OpenImmo™-immobilie"""
         self.__immobilie = immobilie
+
+    @classmethod
+    def fromanbieter(cls, anbieter):
+        """Yields filterable real estates from a realtor"""
+        for immobilie in anbieter.immobilie:
+            yield cls(immobilie)
 
     @property
     def immobilie(self):
