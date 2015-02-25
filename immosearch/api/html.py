@@ -10,6 +10,10 @@ __date__ = '28.11.2014'
 __all__ = ['Image', 'RealEstate']
 
 
+# XXX: This is obsolete, since rendering
+# is being performed by Niko's front-end
+
+
 class Image():
     """HTML image file wrapping"""
 
