@@ -1,6 +1,6 @@
 """Real estate filtering"""
 
-from .lib import Delims, Operators
+from .lib import boolean, Delims, Operators
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '24.02.2015'
@@ -44,11 +44,9 @@ def parse(val, typ=None):
                     f = float(val)
                 except ValueError:
                     # Check for boolean
-                    lower_val = val.lower()
-                    if lower_val == 'true':
-                        return True
-                    elif lower_val == 'false':
-                        return False
+                    b = boolean.get(val.lower())
+                    if b is not None:
+                        return b
                     # Return raw string if nothing else fits
                     else:
                         return val

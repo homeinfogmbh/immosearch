@@ -1,87 +1,47 @@
-"""
-WSGI-environ interpreter
-"""
-__author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
-__date__ = '10.10.2014'
-
-__all__ = ['WSGIEnvInterpreter']
+"""WSGI-environ interpreter"""
 
 from .query import OpenImmoQuery
 
+__author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
+__date__ = '10.10.2014'
+__all__ = ['WSGIEnvInterpreter']
+
+
+class Separators():
+    """Special separation characters"""
+
+    PATH = '/'
+    REQ = '?'
+    PARAM = '&'
+    ASS = '='
+    LIST = ','
+    ATTR = '%'
+
 
 class WSGIEnvInterpreter():
-    """
-    Class that interprets and translates WSGI
+    """Class that interprets and translates WSGI
     environment variables into a filter query
     """
-    __PATH_SEP = '/'
-    __REQ_SEP = '?'
-    __PARAM_SEP = '&'
-    __ASS_SEP = '='
-    __LIST_SEP = ','
-    __ATTR_SEP = '%'
-
-    @property
-    def PATH_SEP(self):
-        """
-        Returns the path separator
-        """
-        return self.__PATH_SEP
-
-    @property
-    def REQ_SEP(self):
-        """
-        Returns the request separator
-        """
-        return self.__REQ_SEP
-
-    @property
-    def PARAM_SEP(self):
-        """
-        Returns the parameter (= argument) separator
-        """
-        return self.__PARAM_SEP
-
-    @property
-    def ASS_SEP(self):
-        """
-        Returns the assignment separator
-        """
-        return self.__ASS_SEP
-
-    @property
-    def LIST_SEP(self):
-        """
-        Returns the list separator
-        """
-        return self.__LIST_SEP
-
-    @property
-    def ATTR_SEP(self):
-        """
-        Returns the attribute separator
-        """
-        return self.__ATTR_SEP
 
     def parse(self, query_string):
         """Parses a URI for query commands"""
-        params = query_string.split(self.PARAM_SEP)
+        params = query_string.split(Separators.PARAM)
         filters = {}
         sorts = {}
         paging = None
         page = None
         raw = False
         for p in params:
-            param_path = p.split(self.ASS_SEP)
+            param_path = p.split(Separators.ASS)
             pname = param_path[0]
             pval = param_path[1]
             if pname == 'filter':
-                node, values_, inverted_ = pval.split(self.ATTR_SEP)
-                values = values_.split(self.LIST_SEP)
+                node, values_, inverted_ = pval.split(Separators.ATTR)
+                values = values_.split(Separators.LIST)
                 inverted = self._bool(inverted_)
                 filters[node] = (values, inverted)
             elif pname == 'sort':
-                node, inverted_ = pval.split(self.ATTR_SEP)
+                node, inverted_ = pval.split(Separators.ATTR)
                 inverted = self._bool(inverted_)
                 sorts[node] = inverted
             elif pname == 'limit':
@@ -90,7 +50,7 @@ class WSGIEnvInterpreter():
                 page = int(pval)
             elif pname == 'raw':
                 raw = self._bool(pval)
-        query = OpenImmoQuery(1038007)
+        query = OpenImmoQuery(1038007)  # Testing
         immobilie = query.immobilie
         immobilie = query.query(immobilie, filters)
         immobilie = query.sort(immobilie, sorts)
