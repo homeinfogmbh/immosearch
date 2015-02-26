@@ -18,17 +18,12 @@ class ScaledImage():
         XXX: resolution must be a tuple: (<width>, <height>)
         """
         self._file = file
-        self._resolution = resolution
+        self.resolution = resolution
 
     @property
     def file(self):
         """Returns the file's path"""
         return self._file
-
-    @property
-    def resolution(self):
-        """Returns the resolution"""
-        return self._resolution
 
     @property
     def data(self):
