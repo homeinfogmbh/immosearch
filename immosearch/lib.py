@@ -120,3 +120,10 @@ class Operators():
     GE = '>='   # Greater-than or equal
     IN = '∈'    # Element in iterable
     NI = '∉'    # Element not in iterable
+
+    @classmethod
+    def __iter__(cls):
+        """Iterates over the operators"""
+        for attr in dir(cls):
+            if attr.upper() == attr and len(attr == 2):
+                yield getattr(cls, attr)
