@@ -41,7 +41,7 @@ class ScaledImage():
             scaled_img = img.resize(self.resolution, ANTIALIAS)
             with NamedTemporaryFile('wb') as tmp:
                 scaled_img.save(tmp.name, img.format)
-                with open(tmp.name) as src:
+                with open(tmp.name, 'rb') as src:
                     data = src.read()
         return data
 
