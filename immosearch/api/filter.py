@@ -1,7 +1,7 @@
 """Real estate filtering"""
 
-from .lib import boolean, Delims, Operators
 from datetime import datetime
+from .lib import boolean, Delims, Operators
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '24.02.2015'
@@ -34,7 +34,7 @@ options = {'objektart': lambda f, op, v: op(f.objekttypen, v),
            'etagen': lambda f, op, v: op(f.etagen, v),
            'wohnflaeche': lambda f, op, v: op(f.wohnflaeche, v),
            'grundstuecksflaeche':
-           lambda f, op, v: op(f.grundstuecksflaeche, v),
+               lambda f, op, v: op(f.grundstuecksflaeche, v),
            'balkone': lambda f, op, v: op(f.balkone, v),
            'terrassen': lambda f, op, v: op(f.terrassen, v),
            'kaltmiete': lambda f, op, v: op(f.kaltmiete, v),
@@ -54,15 +54,26 @@ options = {'objektart': lambda f, op, v: op(f.objekttypen, v),
            'kaufbar': lambda f, op, v: op(f.kaufbar, v),
            'mietbar': lambda f, op, v: op(f.mietbar, v),
            'erbpachtbar': lambda f, op, v: op(f.erbpachtbar, v),
-           'plz': lambda f, op, v: op(f.plz, v),
-           'plz': lambda f, op, v: op(f.plz, v),
-           'plz': lambda f, op, v: op(f.plz, v),
-           'plz': lambda f, op, v: op(f.plz, v),
-           'plz': lambda f, op, v: op(f.plz, v),
-           'plz': lambda f, op, v: op(f.plz, v),
-           'plz': lambda f, op, v: op(f.plz, v),
-           'plz': lambda f, op, v: op(f.plz, v),
-           'plz': lambda f, op, v: op(f.plz, v)}
+           'leasing': lambda f, op, v: op(f.leasing, v),
+           'verfuegbar_ab': lambda f, op, v: op(f.verfuegbar_ab, v),
+           'abdatum': lambda f, op, v: op(f.abdatum, v),
+           'moebliert': lambda f, op, v: op(f.moebliert, v),
+           'seniorengerecht': lambda f, op, v: op(f.seniorengerecht, v),
+           'baujahr': lambda f, op, v: op(f.baujahr, v),
+           'zustand': lambda f, op, v: op(f.zustand, v),
+           'epart': lambda f, op, v: op(f.epart, v),
+           'energieverbrauchkennwert':
+               lambda f, op, v: op(f.energieverbrauchkennwert, v),
+           'endenergiebedarf': lambda f, op, v: op(f.endenergiebedarf, v),
+           'primaerenergietraeger':
+               lambda f, op, v: op(f.primaerenergietraeger, v),
+           'stromwert': lambda f, op, v: op(f.stromwert, v),
+           'waermewert': lambda f, op, v: op(f.waermewert, v),
+           'wertklasse': lambda f, op, v: op(f.wertklasse, v),
+           'min_mietdauer': lambda f, op, v: op(f.min_mietdauer, v),
+           'max_mietdauer': lambda f, op, v: op(f.max_mietdauer, v),
+           'laufzeit': lambda f, op, v: op(f.laufzeit, v),
+           'max_personen': lambda f, op, v: op(f.max_personen, v)}
 
 
 def parse(val, typ=None):
