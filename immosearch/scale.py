@@ -1,21 +1,24 @@
 """Image scaling"""
 
-from PIL import Image
 from tempfile import NamedTemporaryFile
 from base64 import b64encode
+from PIL import Image as Image
+from PIL.Image import ANTIALIAS
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '26.02.2015'
-__all__ = ['ImageScaler']
+__all__ = ['ScaledImage']
 
 
-class ImageScaler():
-    """HTML image file wrapping"""
+class ScaledImage():
+    """A scaled image wrapper"""
 
-    def __init__(self, file, scaling=None):
-        """Initializes with file"""
+    def __init__(self, file, resolution=None):
+        """Initializes with file and optional resolution
+        XXX: resolution must be a tuple: (<width>, <height>)
+        """
         self._file = file
-        self._scaling = scaling
+        self._resolution = resolution
 
     @property
     def file(self):
@@ -23,19 +26,19 @@ class ImageScaler():
         return self._file
 
     @property
-    def scaling(self):
-        """Returns the scaling"""
-        return self._scaling
+    def resolution(self):
+        """Returns the resolution"""
+        return self._resolution
 
     @property
     def data(self):
         """Returns the (scaled) image's data"""
-        if self._scaling is None:
+        if self.resolution is None:
             with open(self.file, 'rb') as f:
                 data = f.read()
         else:
             img = Image.open(self.file)
-            img = img.resize(self._scaling, Image.ANTIALIAS)
+            img = img.resize(self.resolution, ANTIALIAS)
             with NamedTemporaryFile('wb') as tmp:
                 img.save(tmp.name, img.format)
                 with open(tmp.name) as src:
@@ -43,6 +46,16 @@ class ImageScaler():
         return data
 
     @property
+    def size(self):
+        """Returns the file's size"""
+        return len(self.data)
+
+    @property
     def b64data(self):
         """Returns the file's data base64-encoded"""
         return b64encode(self.data)
+
+    @property
+    def b64size(self):
+        """Returns the file's size"""
+        return len(self.b64data)
