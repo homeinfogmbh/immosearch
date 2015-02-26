@@ -50,10 +50,10 @@ class SievingError(Exception):
         """Sets the option, operation and raw
         value where sieving has gone wrong
         """
-        super().__init__(' '.join(['Cannot filter real estate by',
-                                   str(option), 'with operation',
-                                   str(operation), 'for value',
-                                   str(value)]))
+        super().__init__(''.join(['Cannot filter real estate by "',
+                                  str(option), '" with operation "',
+                                  str(operation), '" for value "',
+                                  str(value), '"']))
         self._option = option
         self._operation = operation
         self._value = value
@@ -93,8 +93,8 @@ class RealtorSieve():
     OpenImmo™ document by certain filters
     """
 
-    options = {'openimmo_anid': lambda f, op, v: op(f.openimmo_anid, v),
-               'anbieternr': lambda f, op, v: op(f.anbieternr, v),
+    options = {'openimmo_anid': (str, lambda f, op, v: op(f.openimmo_anid, v)),
+               'anbieternr': (str, lambda f, op, v: op(f.anbieternr, v)),
                'firma': lambda f, op, v: op(f.firma, v)}
 
     def __init__(self, openimmo, *filters):
@@ -126,15 +126,20 @@ class RealtorSieve():
             match = True
             for f in self.filters:
                 option, operation, raw_value = f
-                value = parse(raw_value)
                 operation_func = operations.get(operation)
                 if operation_func is None:
                     raise InvalidOperation(operation)
                 else:
-                    option_func = self.options.get(option)
-                    if option_func is None:
+                    option_ = self.options.get(option)
+                    if option_ is None:
                         raise InvalidOption(option)
                     else:
+                        try:
+                            option_format, option_func = option_
+                        except ValueError:
+                            option_format = None
+                            option_func = option_
+                        value = parse(raw_value, typ=option_format)
                         try:
                             result = option_func(candidate, operation_func,
                                                  value)
@@ -176,9 +181,12 @@ class RealEstateSieve():
                'erbpacht': lambda f, op, v: op(f.erbpacht, v),
                'aussen_courtage': lambda f, op, v: op(f.aussen_courtage, v),
                'innen_courtage': lambda f, op, v: op(f.innen_courtage, v),
-               'openimmo_obid': lambda f, op, v: op(f.openimmo_obid, v),
-               'objektnr_intern': lambda f, op, v: op(f.objektnr_intern, v),
-               'objektnr_extern': lambda f, op, v: op(f.objektnr_extern, v),
+               'openimmo_obid':
+                   (str, lambda f, op, v: op(f.openimmo_obid, v)),
+               'objektnr_intern':
+                   (str, lambda f, op, v: op(f.objektnr_intern, v)),
+               'objektnr_extern':
+                   (str, lambda f, op, v: op(f.objektnr_extern, v)),
                'barrierefrei': lambda f, op, v: op(f.barrierefrei, v),
                'haustiere': lambda f, op, v: op(f.haustiere, v),
                'raucher': lambda f, op, v: op(f.raucher, v),
@@ -190,7 +198,7 @@ class RealEstateSieve():
                'abdatum': lambda f, op, v: op(f.abdatum, v),
                'moebliert': lambda f, op, v: op(f.moebliert, v),
                'seniorengerecht': lambda f, op, v: op(f.seniorengerecht, v),
-               'baujahr': lambda f, op, v: op(f.baujahr, v),
+               'baujahr': (str, lambda f, op, v: op(f.baujahr, v)),
                'zustand': lambda f, op, v: op(f.zustand, v),
                'epart': lambda f, op, v: op(f.epart, v),
                'energieverbrauchkennwert':
@@ -240,10 +248,16 @@ class RealEstateSieve():
                 if operation_func is None:
                     raise InvalidOperation(operation)
                 else:
-                    option_func = self.options.get(option)
-                    if option_func is None:
+                    option_ = self.options.get(option)
+                    if option_ is None:
                         raise InvalidOption(option)
                     else:
+                        try:
+                            option_format, option_func = option_
+                        except ValueError:
+                            option_format = None
+                            option_func = option_
+                        value = parse(raw_value, typ=option_format)
                         try:
                             result = option_func(candidate, operation_func,
                                                  value)

@@ -1,13 +1,20 @@
 """General API library"""
+from datetime import datetime
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '24.02.2015'
-__all__ = ['boolean', 'tags', 'parse', 'Sorting', 'Delims', 'Operators']
+__all__ = ['boolean', 'pdate', 'tags', 'parse',
+           'Sorting', 'Delims', 'Operators']
 
 
 boolean = {'true': True,
            'false': False}
 """Boolean string datatype"""
+
+
+def pdate(date_str):
+    """Parse a datetime string"""
+    return datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S')
 
 
 def tags(template, tag_open='<%', tag_close='%>'):
@@ -64,9 +71,15 @@ def parse(val, typ=None):
                     b = boolean.get(val.lower())
                     if b is not None:
                         return b
-                    # Return raw string if nothing else fits
                     else:
-                        return val
+                        # Try to parse a date string
+                        try:
+                            d = pdate(val)
+                        # Return raw string if nothing else fits
+                        except ValueError:
+                            return val
+                        else:
+                            return d
                 else:
                     return f
             else:
