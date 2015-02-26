@@ -1,7 +1,7 @@
 """Realtor and real estate filtering"""
 
 from datetime import datetime
-from .lib import boolean, Delims, Operators
+from .lib import parse, Operators
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '24.02.2015'
@@ -86,38 +86,6 @@ operations = {Operators.EQ: lambda x, y: x == y,
               Operators.GE: lambda x, y: x >= y,
               Operators.IN: lambda x, y: x in y,
               Operators.NI: lambda x, y: x not in y}
-
-
-def parse(val, typ=None):
-    """Parse a raw string value for a certain type
-    XXX: Nested lists are not supported, yet
-    """
-    if typ is None:  # Cast intelligent
-        # Check for list
-        if val.startswith(Delims.SL) and val.endswith(Delims.EL):
-            return [parse(elem.strip()) for elem in val[1:-1].split(Delims.IS)]
-        else:
-            # Check for integer
-            try:
-                i = int(val)
-            except ValueError:
-                # Check for float
-                try:
-                    f = float(val)
-                except ValueError:
-                    # Check for boolean
-                    b = boolean.get(val.lower())
-                    if b is not None:
-                        return b
-                    # Return raw string if nothing else fits
-                    else:
-                        return val
-                else:
-                    return f
-            else:
-                return i
-    else:
-        return typ(val)  # Cast with specified constructor method
 
 
 class RealtorSieve():

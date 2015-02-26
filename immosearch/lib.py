@@ -2,7 +2,7 @@
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '24.02.2015'
-__all__ = ['boolean', 'tags', 'Sorting', 'Delims', 'Operators']
+__all__ = ['boolean', 'tags', 'parse', 'Sorting', 'Delims', 'Operators']
 
 
 boolean = {'true': True,
@@ -41,6 +41,38 @@ def tags(template, tag_open='<%', tag_close='%>'):
             token = tag_open
             tag = ''
             yield tag_content
+
+
+def parse(val, typ=None):
+    """Parse a raw string value for a certain type
+    XXX: Nested lists are not supported, yet
+    """
+    if typ is None:  # Cast intelligent
+        # Check for list
+        if val.startswith(Delims.SL) and val.endswith(Delims.EL):
+            return [parse(elem.strip()) for elem in val[1:-1].split(Delims.IS)]
+        else:
+            # Check for integer
+            try:
+                i = int(val)
+            except ValueError:
+                # Check for float
+                try:
+                    f = float(val)
+                except ValueError:
+                    # Check for boolean
+                    b = boolean.get(val.lower())
+                    if b is not None:
+                        return b
+                    # Return raw string if nothing else fits
+                    else:
+                        return val
+                else:
+                    return f
+            else:
+                return i
+    else:
+        return typ(val)  # Cast with specified constructor method
 
 
 class Sorting():
