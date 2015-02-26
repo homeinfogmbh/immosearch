@@ -3,7 +3,7 @@ from datetime import datetime
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '24.02.2015'
-__all__ = ['boolean', 'pdate', 'tags', 'parse',
+__all__ = ['boolean', 'pdate', 'tags', 'cast',
            'Sorting', 'Delims', 'Operators']
 
 
@@ -50,14 +50,14 @@ def tags(template, tag_open='<%', tag_close='%>'):
             yield tag_content
 
 
-def parse(val, typ=None):
-    """Parse a raw string value for a certain type
+def cast(val, typ=None):
+    """Type cast a raw string value for a certain type
     XXX: Nested lists are not supported, yet
     """
     if typ is None:  # Cast intelligent
         # Check for list
         if val.startswith(Delims.SL) and val.endswith(Delims.EL):
-            return [parse(elem.strip()) for elem in val[1:-1].split(Delims.IS)]
+            return [cast(elem.strip()) for elem in val[1:-1].split(Delims.IS)]
         else:
             # Check for integer
             try:

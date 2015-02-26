@@ -1,7 +1,7 @@
 """Realtor and real estate filtering"""
 
 from datetime import datetime
-from .lib import parse, Operators
+from .lib import cast, Operators
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '24.02.2015'
@@ -139,7 +139,7 @@ class RealtorSieve():
                         except ValueError:
                             option_format = None
                             option_func = option_
-                        value = parse(raw_value, typ=option_format)
+                        value = cast(raw_value, typ=option_format)
                         try:
                             result = option_func(candidate, operation_func,
                                                  value)
@@ -243,7 +243,6 @@ class RealEstateSieve():
             match = True
             for f in self.filters:
                 option, operation, raw_value = f
-                value = parse(raw_value)
                 operation_func = operations.get(operation)
                 if operation_func is None:
                     raise InvalidOperation(operation)
@@ -257,7 +256,7 @@ class RealEstateSieve():
                         except ValueError:
                             option_format = None
                             option_func = option_
-                        value = parse(raw_value, typ=option_format)
+                        value = cast(raw_value, typ=option_format)
                         try:
                             result = option_func(candidate, operation_func,
                                                  value)
