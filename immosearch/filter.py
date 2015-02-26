@@ -136,7 +136,7 @@ class RealtorSieve():
                     else:
                         try:
                             option_format, option_func = option_
-                        except ValueError:
+                        except TypeError:
                             option_format = None
                             option_func = option_
                         value = cast(raw_value, typ=option_format)
@@ -253,7 +253,7 @@ class RealEstateSieve():
                     else:
                         try:
                             option_format, option_func = option_
-                        except ValueError:
+                        except TypeError:
                             option_format = None
                             option_func = option_
                         value = cast(raw_value, typ=option_format)
