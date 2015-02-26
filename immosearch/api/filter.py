@@ -1,10 +1,11 @@
 """Real estate filtering"""
 
 from .lib import boolean, Delims, Operators
+from datetime import datetime
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '24.02.2015'
-__all__ = ['Filterable']
+__all__ = ['FilterableRealtor', 'FilterableRealEstate']
 
 
 operations = {Operators.EQ: lambda x, y: x == y,
@@ -21,9 +22,47 @@ operations = {Operators.EQ: lambda x, y: x == y,
               Operators.NI: lambda x, y: x not in y}
 
 
-options = {'objektart': lambda f, op, v: op(f.object_types, v),
-           'land': lambda f, op, v: op(f.country, v),
-           'stadt': lambda f, op, v: op(f.city, v)}
+options = {'objektart': lambda f, op, v: op(f.objekttypen, v),
+           'land': lambda f, op, v: op(f.land, v),
+           'ort': lambda f, op, v: op(f.ort, v),
+           'ortsteil': lambda f, op, v: op(f.ortsteil, v),
+           'plz': lambda f, op, v: op(f.plz, v),
+           'strasse': lambda f, op, v: op(f.strasse, v),
+           'hausnummer': lambda f, op, v: op(f.hausnummer, v),
+           'zimmer': lambda f, op, v: op(f.zimmer, v),
+           'etage': lambda f, op, v: op(f.etage, v),
+           'etagen': lambda f, op, v: op(f.etagen, v),
+           'wohnflaeche': lambda f, op, v: op(f.wohnflaeche, v),
+           'grundstuecksflaeche':
+           lambda f, op, v: op(f.grundstuecksflaeche, v),
+           'balkone': lambda f, op, v: op(f.balkone, v),
+           'terrassen': lambda f, op, v: op(f.terrassen, v),
+           'kaltmiete': lambda f, op, v: op(f.kaltmiete, v),
+           'warmmiete': lambda f, op, v: op(f.warmmiete, v),
+           'nebenkosten': lambda f, op, v: op(f.nebenkosten, v),
+           'kaufpreis': lambda f, op, v: op(f.kaufpreis, v),
+           'pacht': lambda f, op, v: op(f.pacht, v),
+           'erbpacht': lambda f, op, v: op(f.erbpacht, v),
+           'aussen_courtage': lambda f, op, v: op(f.aussen_courtage, v),
+           'innen_courtage': lambda f, op, v: op(f.innen_courtage, v),
+           'openimmo_obid': lambda f, op, v: op(f.openimmo_obid, v),
+           'objektnr_intern': lambda f, op, v: op(f.objektnr_intern, v),
+           'objektnr_extern': lambda f, op, v: op(f.objektnr_extern, v),
+           'barrierefrei': lambda f, op, v: op(f.barrierefrei, v),
+           'haustiere': lambda f, op, v: op(f.haustiere, v),
+           'raucher': lambda f, op, v: op(f.raucher, v),
+           'kaufbar': lambda f, op, v: op(f.kaufbar, v),
+           'mietbar': lambda f, op, v: op(f.mietbar, v),
+           'erbpachtbar': lambda f, op, v: op(f.erbpachtbar, v),
+           'plz': lambda f, op, v: op(f.plz, v),
+           'plz': lambda f, op, v: op(f.plz, v),
+           'plz': lambda f, op, v: op(f.plz, v),
+           'plz': lambda f, op, v: op(f.plz, v),
+           'plz': lambda f, op, v: op(f.plz, v),
+           'plz': lambda f, op, v: op(f.plz, v),
+           'plz': lambda f, op, v: op(f.plz, v),
+           'plz': lambda f, op, v: op(f.plz, v),
+           'plz': lambda f, op, v: op(f.plz, v)}
 
 
 def parse(val, typ=None):
@@ -58,14 +97,53 @@ def parse(val, typ=None):
         return typ(val)  # Cast with specified constructor method
 
 
-class Filterable():
-    """Wrapper class for an OpenImmo™-Immobilie
+class FilterableRealtor():
+    """Wrapper class for an OpenImmo™-anbieter
+    that can be filtered by certain attributes
+    """
+
+    def __init__(self, anbieter):
+        """Sets the appropriate OpenImmo™-immobilie"""
+        self._anbieter = anbieter
+
+    @property
+    def anbieter(self):
+        """Returns the the realtor"""
+        return self._anbieter
+
+    @property
+    def openimmo_anid(self):
+        """Returns the realtor's UUID"""
+        return str(self.anbieter.openimmo_anid)
+
+    @property
+    def anbieternr(self):
+        """Realtor identifier"""
+        if self.anbieter.anbieternr:
+            return str(self.anbieter.anbieternr)
+        else:
+            return None
+
+    @property
+    def firma(self):
+        """Returns the company's name"""
+        return str(self.anbieter.firma)
+
+
+class FilterableRealEstate():
+    """Wrapper class for an OpenImmo™-immobilie
     that can be filtered by certain attributes
     """
 
     def __init__(self, immobilie):
         """Sets the appropriate OpenImmo™-immobilie"""
-        self.__immobilie = immobilie
+        self._immobilie = immobilie
+
+    @classmethod
+    def fromopenimmo(cls, openimmo):
+        """Yields filterable real estates from an OpenImmo™ document"""
+        for anbieter in openimmo.andbieter:
+            yield from cls.fromanbieter(anbieter)
 
     @classmethod
     def fromanbieter(cls, anbieter):
@@ -76,15 +154,10 @@ class Filterable():
     @property
     def immobilie(self):
         """Returns the appropriate immobilie"""
-        return self.__immobilie
-
-    @immobilie.setter
-    def _immobilie(self, immobilie):
-        """Sets the appropriate immobilie"""
-        self.__immobilie = immobilie
+        return self._immobilie
 
     @property
-    def object_types(self):
+    def objekttypen(self):
         """Returns a generator for the object's types"""
         oa = self.immobilie.objektkategorie.objektart
         for zimmer in oa.zimmer:
@@ -142,7 +215,7 @@ class Filterable():
                 yield 'ZINSHAUS_RENDITEOBJEKT'
 
     @property
-    def country(self):
+    def land(self):
         """Returns the country"""
         try:
             iso_land = self.immobilie.geo.land.iso_land
@@ -155,7 +228,7 @@ class Filterable():
                 return None
 
     @property
-    def city(self):
+    def ort(self):
         """Returns the city"""
         if self.immobilie.geo.ort is not None:
             return str(self.immobilie.geo.ort)
@@ -163,7 +236,7 @@ class Filterable():
             return None
 
     @property
-    def district(self):
+    def ortsteil(self):
         """Returns the city's district"""
         if self.immobilie.geo.regionaler_zusatz is not None:
             return str(self.immobilie.geo.regionaler_zusatz)
@@ -171,7 +244,7 @@ class Filterable():
             return None
 
     @property
-    def zip(self):
+    def plz(self):
         """Returns the ZIP code"""
         if self.immobilie.geo.plz is not None:
             return str(self.immobilie.geo.plz)
@@ -179,7 +252,7 @@ class Filterable():
             return None
 
     @property
-    def street(self):
+    def strasse(self):
         """Returns the ZIP code"""
         if self.immobilie.geo.strasse is not None:
             return str(self.immobilie.geo.strasse)
@@ -187,7 +260,7 @@ class Filterable():
             return None
 
     @property
-    def house_number(self):
+    def hausnummer(self):
         """Returns the house number"""
         if self.immobilie.geo.hausnummer is not None:
             return str(self.immobilie.geo.hausnummer)
@@ -195,7 +268,7 @@ class Filterable():
             return None
 
     @property
-    def rooms(self):
+    def zimmer(self):
         """Returns the number of rooms"""
         if self.immobilie.flaechen.anzahl_zimmer is not None:
             return float(self.immobilie.flaechen.anzahl_zimmer)
@@ -203,7 +276,7 @@ class Filterable():
             return None
 
     @property
-    def floor(self):
+    def etage(self):
         """Returns the floor of the flat / room"""
         if self.immobilie.geo.etage is not None:
             return int(self.immobilie.geo.etage)
@@ -211,7 +284,7 @@ class Filterable():
             return None
 
     @property
-    def floors(self):
+    def etagen(self):
         """Returns the number of floors of the building"""
         if self.immobilie.geo.anzahl_etagen is not None:
             return int(self.immobilie.geo.anzahl_etagen)
@@ -219,7 +292,7 @@ class Filterable():
             return None
 
     @property
-    def living_space(self):
+    def wohnflaeche(self):
         """Total living space"""
         try:
             wohnflaeche = self.immobilie.flaechen.wohnflaeche
@@ -232,7 +305,7 @@ class Filterable():
                 return None
 
     @property
-    def property_area(self):
+    def grundstuecksflaeche(self):
         """Total property area"""
         try:
             grundstuecksflaeche = self.immobilie.flaechen.grundstuecksflaeche
@@ -245,7 +318,7 @@ class Filterable():
                 return None
 
     @property
-    def balconies(self):
+    def balkone(self):
         """Amount of baconies"""
         try:
             anzahl_balkone = self.immobilie.flaechen.anzahl_balkone
@@ -258,7 +331,7 @@ class Filterable():
                 return None
 
     @property
-    def terraces(self):
+    def terrassen(self):
         """Amount of terraces"""
         try:
             anzahl_terrassen = self.immobilie.flaechen.anzahl_terrassen
@@ -271,7 +344,7 @@ class Filterable():
                 return None
 
     @property
-    def cold_rent(self):
+    def kaltmiete(self):
         """Return the price of the cold rent"""
         try:
             kaltmiete = self.immobilie.preise.kaltmiete
@@ -284,40 +357,321 @@ class Filterable():
                 return None
 
     @property
-    def warm_rent(self):
+    def warmmiete(self):
         """Returns the price of the warm rent"""
         try:
             warmmiete = self.immobilie.preise.warmmiete
         except AttributeError:
             return None
         else:
-            if warmmiete is not None:
-                return float(warmmiete)
-            else:
-                return None
+            return float(warmmiete) if warmmiete else None
 
     @property
-    def ancillary_expenses(self):
+    def nebenkosten(self):
         """Returns the price of the ancillary expenses"""
         try:
             nebenkosten = self.immobilie.preise.nebenkosten
         except AttributeError:
             return None
         else:
-            if nebenkosten is not None:
-                return float(nebenkosten)
-            else:
-                return None
+            return float(nebenkosten) if nebenkosten else None
 
     @property
-    def purchase_price(self):
+    def kaufpreis(self):
         """Returns the purchase price"""
         try:
             kaufpreis = self.immobilie.preise.kaufpreis
         except AttributeError:
             return None
         else:
-            if kaufpreis is not None:
-                return float(kaufpreis)
+            return float(kaufpreis) if kaufpreis else None
+
+    @property
+    def pacht(self):
+        """Returns the lease price"""
+        try:
+            pacht = self.immobilie.preise.pacht
+        except AttributeError:
+            return None
+        else:
+            return float(pacht) if pacht else None
+
+    @property
+    def erbpacht(self):
+        """Returns the emphyteusis price"""
+        try:
+            erbpacht = self.immobilie.preise.erbpacht
+        except AttributeError:
+            return None
+        else:
+            return float(erbpacht) if erbpacht else None
+
+    @property
+    def aussen_courtage(self):
+        """External finder's fee"""
+        try:
+            aussen_courtage = self.immobilie.preise.aussen_courtage
+        except AttributeError:
+            return None
+        else:
+            return str(aussen_courtage) if aussen_courtage else None
+
+    @property
+    def innen_courtage(self):
+        """Internal finder's fee"""
+        try:
+            innen_courtage = self.immobilie.preise.innen_courtage
+        except AttributeError:
+            return None
+        else:
+            return str(innen_courtage) if innen_courtage else None
+
+    @property
+    def openimmo_obid(self):
+        """Returns the UUID of the real estate"""
+        return str(self.immobilie.verwaltung_techn.openimmo_obid)
+
+    @property
+    def objektnr_intern(self):
+        """Returns the internal identifier of the real estate"""
+        if self.immobilie.verwaltung_techn.objektnr_intern:
+            return str(self.immobilie.verwaltung_techn.objektnr_intern)
+        else:
+            return None
+
+    @property
+    def objektnr_extern(self):
+        """Returns the external identifier of the real estate"""
+        return str(self.immobilie.verwaltung_techn.objektnr_extern)
+
+    @property
+    def barrierefrei(self):
+        """Returns whether the real estate is considered barrier free"""
+        try:
+            return bool(self.immobilie.ausstattung.barrierefrei)
+        except AttributeError:
+            return False
+
+    @property
+    def haustiere(self):
+        """Returns pets allowed flag"""
+        try:
+            return bool(self.immobilie.verwaltung_objekt.haustiere)
+        except AttributeError:
+            return False
+
+    @property
+    def raucher(self):
+        """Returns flag whether smoking is allowed"""
+        try:
+            return not bool(self.immobilie.verwaltung_objekt.nichtraucher)
+        except AttributeError:
+            return True
+
+    @property
+    def kaufbar(self):
+        """Returns whether the real estate is for sale"""
+        return bool(self.immobilie.objektkategorie.vermarktungsart.KAUF)
+
+    @property
+    def mietbar(self):
+        """Returns whether the real estate is for rent"""
+        return bool(self.immobilie.objektkategorie.vermarktungsart.MIETE_PACHT)
+
+    @property
+    def erbpachtbar(self):
+        """Returns whether the real estate is for emphyteusis"""
+        return bool(self.immobilie.objektkategorie.vermarktungsart.ERBPACHT)
+
+    @property
+    def leasing(self):
+        """Returns whether the real estate is for leasing"""
+        return bool(self.immobilie.objektkategorie.vermarktungsart.LEASING)
+
+    @property
+    def verfuegbar_ab(self):
+        """Returns from when on the real estate is obtainable"""
+        if self.immobilie.verwaltung_objekt.verfuegbar_ab:
+            return str(self.immobilie.verwaltung_objekt.verfuegbar_ab)
+        else:
+            return None
+
+    @property
+    def abdatum(self):
+        """Returns a date from when on the real estate is obtainable"""
+        if self.immobilie.verwaltung_objekt.abdatum:
+            return datetime(self.immobilie.verwaltung_objekt.abdatum)
+        else:
+            return None
+
+    @property
+    def moebliert(self):
+        """Returns whether and if how the real estate is furnished"""
+        if self.immobilie.ausstattung.moebliert:
+            if self.immobilie.ausstattung.moebliert.moeb:
+                return str(self.immobilie.ausstattung.moebliert.moeb)
+            else:
+                return True
+        else:
+            return False
+
+    @property
+    def seniorengerecht(self):
+        """Returns whether the real estate is senior-freindly"""
+        try:
+            return bool(self.immobilie.ausstattung.seniorengerecht)
+        except AttributeError:
+            return False
+
+    @property
+    def baujahr(self):
+        """Returns the year of construction"""
+        try:
+            baujahr = self.immobilie.zustand_angaben.baujahr
+        except AttributeError:
+            return None
+        else:
+            return str(baujahr) if baujahr else None
+
+    @property
+    def zustand(self):
+        """Returns the condition of the real estate"""
+        try:
+            zustand = self.immobilie.zustand_angaben.zustand.zustand_art
+        except AttributeError:
+            return None
+        else:
+            return str(zustand) if zustand else None
+
+    @property
+    def epart(self):
+        """Returns the energy certificate type"""
+        try:
+            epart = self.immobilie.zustand_angaben.energiepass.epart
+        except AttributeError:
+            return None
+        else:
+            return str(epart) if epart else None
+
+    @property
+    def energieverbrauchkennwert(self):
+        """Returns the energy consumption characteristic value"""
+        try:
+            energieverbrauchkennwert = (self.immobilie.zustand_angaben
+                                        .energiepass.energieverbrauchkennwert)
+        except AttributeError:
+            return None
+        else:
+            if energieverbrauchkennwert:
+                return str(energieverbrauchkennwert)
             else:
                 return None
+
+    @property
+    def endenergiebedarf(self):
+        """Returns the energy consumption value"""
+        try:
+            endenergiebedarf = (self.immobilie.zustand_angaben
+                                .energiepass.endenergiebedarf)
+        except AttributeError:
+            return None
+        else:
+            return str(endenergiebedarf) if endenergiebedarf else None
+
+    @property
+    def primaerenergietraeger(self):
+        """Returns the energy certificate type"""
+        try:
+            primaerenergietraeger = (self.immobilie.zustand_angaben
+                                     .energiepass.primaerenergietraeger)
+        except AttributeError:
+            return None
+        else:
+            if primaerenergietraeger:
+                return str(primaerenergietraeger)
+            else:
+                return None
+
+    @property
+    def stromwert(self):
+        """Returns the electricity value"""
+        try:
+            stromwert = self.immobilie.zustand_angaben.energiepass.stromwert
+        except AttributeError:
+            return None
+        else:
+            return str(stromwert) if stromwert else None
+
+    @property
+    def waermewert(self):
+        """Returns the heating value"""
+        try:
+            waermewert = self.immobilie.zustand_angaben.energiepass.waermewert
+        except AttributeError:
+            return None
+        else:
+            return str(waermewert) if waermewert else None
+
+    @property
+    def wertklasse(self):
+        """Returns the value class"""
+        try:
+            wertklasse = self.immobilie.zustand_angaben.energiepass.wertklasse
+        except AttributeError:
+            return None
+        else:
+            return str(wertklasse) if wertklasse else None
+
+    @property
+    def min_mietdauer(self):
+        """Minimum rental time"""
+        try:
+            min_mietdauer = self.immobilie.verwaltung_objekt.min_mietdauer
+        except AttributeError:
+            return None
+        else:
+            if min_mietdauer:
+                if min_mietdauer.min_dauer:
+                    return ' '.join([str(min_mietdauer),
+                                     str(min_mietdauer.min_dauer)])
+                else:
+                    return str(min_mietdauer)
+            else:
+                return None
+
+    @property
+    def max_mietdauer(self):
+        """Maximum rental time"""
+        try:
+            max_mietdauer = self.immobilie.verwaltung_objekt.max_mietdauer
+        except AttributeError:
+            return None
+        else:
+            if max_mietdauer:
+                if max_mietdauer.max_dauer:
+                    return ' '.join([str(max_mietdauer),
+                                     str(max_mietdauer.max_dauer)])
+                else:
+                    return str(max_mietdauer)
+            else:
+                return None
+
+    @property
+    def laufzeit(self):
+        """Remaining time of emphyteusis"""
+        try:
+            laufzeit = self.immobilie.verwaltung_objekt.laufzeit
+        except AttributeError:
+            return None
+        else:
+            return float(laufzeit) if laufzeit else None
+
+    @property
+    def max_personen(self):
+        """Maximum amount of persons"""
+        try:
+            max_personen = self.immobilie.verwaltung_objekt.max_personen
+        except AttributeError:
+            return None
+        else:
+            return int(max_personen) if max_personen else None
