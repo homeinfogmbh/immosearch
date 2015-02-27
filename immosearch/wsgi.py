@@ -69,7 +69,7 @@ class WSGI():
             status = '200 Internal Server Error'
             charset = 'UTF-8'
             content_type = 'text/plain'
-            response_body = format_exc.encode(encoding=charset)
+            response_body = format_exc().encode(encoding=charset)
         else:
             status = '200 OK'
             content_type = 'application/xml'
@@ -131,7 +131,7 @@ class WSGI():
 
     def _run(self, encoding):
         """Perform sieving, sorting and rendering"""
-        user = self.user()
+        user = self.user
         if self.chkuser(user):
             self.parse()
             immobilie = UserFilter(user, self._filters).filter()
