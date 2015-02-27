@@ -14,6 +14,7 @@ from .filter import UserFilter
 from .config import core
 from tempfile import NamedTemporaryFile
 from immosearch.imgscale import ScaledImage
+from contextlib import suppress
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '10.10.2014'
@@ -151,11 +152,8 @@ class Controller():
                         with NamedTemporaryFile('wb') as tmp:
                             tmp.write(a.data)
                             scaler = ScaledImage(tmp.name, (512, 341))
-                            try:
+                            with suppress(OSError):
                                 a.data = scaler.b64data
-                            except OSError:
-                                continue
-                            else:
                                 insourced.append(a)
                     i.anhaenge.anhang = insourced
                 immobilie.append(i)
