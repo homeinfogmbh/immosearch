@@ -10,7 +10,6 @@ from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     InvalidRenderingResolution, RenderingOptionsAlreadySet,\
     InvalidOperationError, UserNotAllowed
 from .filter import UserFilter
-from traceback import format_exc
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '10.10.2014'
@@ -69,7 +68,8 @@ class Controller():
             status = '200 Internal Server Error'
             charset = 'UTF-8'
             content_type = 'text/plain'
-            response_body = format_exc().encode(encoding=charset)
+            msg = 'Internal Server Error :-('
+            response_body = msg.encode(encoding=charset)
         else:
             status = '200 OK'
             content_type = 'application/xml'
