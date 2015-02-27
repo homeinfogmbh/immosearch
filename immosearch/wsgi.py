@@ -1,5 +1,6 @@
 """WSGI-environ interpreter"""
 
+from traceback import format_exc
 from peewee import DoesNotExist
 from homeinfolib.db import connection
 from openimmo import factories
@@ -10,6 +11,7 @@ from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     InvalidRenderingResolution, RenderingOptionsAlreadySet,\
     InvalidOperationError, UserNotAllowed
 from .filter import UserFilter
+from .config import core
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '10.10.2014'
@@ -69,6 +71,8 @@ class Controller():
             charset = 'UTF-8'
             content_type = 'text/plain'
             msg = 'Internal Server Error :-('
+            if core.get('DEBUG', False):
+                msg = '\n'.join([msg, format_exc()])
             response_body = msg.encode(encoding=charset)
         else:
             status = '200 OK'
