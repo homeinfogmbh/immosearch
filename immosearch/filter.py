@@ -42,7 +42,6 @@ class UserFilter():
     def _immobilie(self):
         """Returns valid, unfiltered real estates"""
         all_immobilie = Immobilie.immobilie(self.user.customer)
-        raise Exception(str([i for i in all_immobilie]))
         if self.user.override_realestate_restrictions:
             return all_immobilie
         else:
@@ -55,6 +54,7 @@ class UserFilter():
     @property
     def _sieve(self):
         """Returns an approriate real estate sieve"""
+        raise Exception(str([i for i in self._immobilie]))
         return RealEstateSieve(self._immobilie, self._filters)
 
     def filter(self):
