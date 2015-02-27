@@ -771,6 +771,7 @@ class RealEstateSieve():
         """Sets the respective realtor and filter tuples like:
         (<option>, <operation>, <target_value>)
         """
+        raise Exception(str([r for r in real_estates]))
         self._real_estates = real_estates
         self._filters = filters
 
