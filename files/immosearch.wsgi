@@ -1,11 +1,12 @@
 #! /usr/bin/env python3
 """WSGI main program for ImmoSearch"""
 
-from immosearch.wsgi import WSGI
+from immosearch.wsgi import Controller
 
 def application(environ, start_response):
     """Main WSGI method"""
-    wsgi = WSGI(environ.get('PATH_INFO', ''), environ.get('QUERY_STRING', ''))
+    wsgi = Controller(environ.get('PATH_INFO', ''),
+                      environ.get('QUERY_STRING', ''))
     status, response_body, content_type, charset = wsgi.run()
     response_headers = [('Content-Type',
                          '; '.join([content_type,

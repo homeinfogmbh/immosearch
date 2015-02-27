@@ -14,7 +14,7 @@ from traceback import format_exc
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '10.10.2014'
-__all__ = ['WSGI']
+__all__ = ['Controller']
 
 
 class Separators():
@@ -42,7 +42,7 @@ class PathNodes():
     CUSTOMER = 'customer'
 
 
-class WSGI():
+class Controller():
     """Class that interprets and translates WSGI environment
     variables into a filter, sort and scaling queries
     """
