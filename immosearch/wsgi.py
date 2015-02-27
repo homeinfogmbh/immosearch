@@ -145,9 +145,9 @@ class Controller():
             self.parse()
             immobilie = UserFilter(user, self._filters).filter()
             # immobilie = Sorter(self._sort_options).sort()
+            # Insource and scale pictures only
+            immobilie, immo = [], immobilie
             if self._pictures:
-                # Insource and scale pictures only
-                immobilie, immo = [], immobilie
                 for i in immo:
                     if i.anhaenge:
                         insourced = []
@@ -159,6 +159,11 @@ class Controller():
                                     a.data = scaler.b64data
                                     insourced.append(a)
                         i.anhaenge.anhang = insourced
+                    immobilie.append(i)
+            else:
+                for i in immo:
+                    if i.anhaenge:
+                        i.anhaenge.anhang = []
                     immobilie.append(i)
             # Generate anbieter
             anbieter = factories.anbieter(str(user.customer.id),
