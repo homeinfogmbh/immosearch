@@ -124,5 +124,5 @@ class Operators():
     def __iter__(self):
         """Iterates over the operators"""
         for attr in dir(self):
-            if attr.upper() == attr and len(attr == 2):
+            if (attr.upper() == attr) and (len(attr) == 2):
                 yield getattr(self, attr)
