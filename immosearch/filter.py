@@ -54,7 +54,6 @@ class UserFilter():
     @property
     def _sieve(self):
         """Returns an approriate real estate sieve"""
-        raise Exception('Type:' + str(type(self._immobilie)) + '\n' + str([i for i in self._immobilie]))
         return RealEstateSieve(self._immobilie, self._filters)
 
     def filter(self):
