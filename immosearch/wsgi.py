@@ -1,15 +1,17 @@
 """WSGI-environ interpreter"""
 
 from peewee import DoesNotExist
+from homeinfolib.db import connection
 from .lib import Operators
 from .db import ImmoSearchUser
-from .errors import InvalidCustomerID, InvalidPathLength, InvalidPathNode,\
-    NoValidFilterOperation, InvalidRenderingOptionsCount, \
-    InvalidRenderingResolution, RenderingOptionsAlreadySet
+from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
+    InvalidPathNode, NoValidFilterOperation, InvalidRenderingOptionsCount, \
+    InvalidRenderingResolution, RenderingOptionsAlreadySet,\
+    InvalidOperationError
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '10.10.2014'
-__all__ = ['WSGIEnvInterpreter']
+__all__ = ['WSGI']
 
 
 class Separators():
@@ -37,9 +39,9 @@ class PathNodes():
     CUSTOMER = 'customer'
 
 
-class WSGIEnvInterpreter():
-    """Class that interprets and translates WSGI
-    environment variables into a filter query
+class WSGI():
+    """Class that interprets and translates WSGI environment
+    variables into a filter, sort and scaling queries
     """
 
     def __init__(self, path_info, query_string):
@@ -49,6 +51,24 @@ class WSGIEnvInterpreter():
         self._filters = []
         self._sort_options = []
         self._rendering = None
+
+    def run(self):
+        try:
+            self._run()
+        except RenderableError as r:
+            status = '400 Bad Request'
+            charset = 'UTF-8'
+            content_type = 'application/xml'
+            response_body = r.render(encoding=charset)
+        except:
+            status = '200 Internal Server Error'
+            charset = 'UTF-8'
+            content_type = 'text/plain'
+            response_body = 'Internal Server Error'.encode(encoding=charset)
+        else:
+            status = '200 OK'
+        finally:
+            return (status, response_body, content_type, charset)
 
     @property
     def path_info(self):
@@ -70,9 +90,7 @@ class WSGIEnvInterpreter():
         """Extracts the customer ID from the query path"""
         path = [p for p in self.path_info.split(Separators.PATH) if p.strip()]
         if len(path) > 1:
-            if path[1] == PathNodes.OPENIMMO:
-                pass    # TODO: Implement
-            elif path[1] == PathNodes.CUSTOMER:
+            if path[1] == PathNodes.CUSTOMER:
                 if len(path) == 3:
                     cid_str = path[2]
                     try:
@@ -90,20 +108,29 @@ class WSGIEnvInterpreter():
     def user(self):
         """Returns the user"""
         try:
-            user = ImmoSearchUser.get(self.cid)
+            with connection(ImmoSearchUser):
+                user = ImmoSearchUser.get(self.cid)
         except DoesNotExist:
             return None
         else:
             return user
 
-    def run(self):
-        """Perform sieving, sorting and rendering"""
-        self.chkuser()
-        self.parse()
-
-    def chkuser(self):
+    def chkuser(self, user):
         """Check whether user is allowed to retrieve real estates"""
-        pass    # TODO: Implement
+        if user is None:
+            return False
+        elif user.enabled:
+            return True
+        else:
+            return False
+
+    def _run(self):
+        """Perform sieving, sorting and rendering"""
+        user = self.user()
+        if self.chkuser(user):
+            self.parse()
+            self.filter(user)
+
 
     def parse(self):
         """Parses a URI for query commands"""
@@ -119,7 +146,7 @@ class WSGIEnvInterpreter():
                 elif operation == Operations.RENDER:
                     self._render(value)
                 else:
-                    pass    # TODO: raise Exception
+                    raise InvalidOperationError(operation)
 
     def _filter(self, value):
         """Generate filtering data"""

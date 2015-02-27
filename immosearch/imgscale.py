@@ -2,8 +2,7 @@
 
 from tempfile import NamedTemporaryFile
 from base64 import b64encode
-from PIL import Image as Image
-from PIL.Image import ANTIALIAS
+from PIL import Image
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '26.02.2015'
@@ -33,7 +32,7 @@ class ScaledImage():
                 data = f.read()
         else:
             img = Image.open(self.file)
-            scaled_img = img.resize(self.resolution, ANTIALIAS)
+            scaled_img = img.resize(self.resolution, Image.ANTIALIAS)
             with NamedTemporaryFile('wb') as tmp:
                 scaled_img.save(tmp.name, img.format)
                 with open(tmp.name, 'rb') as src:

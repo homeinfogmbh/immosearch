@@ -1,5 +1,7 @@
 """Errors of immosearch"""
 
+from .error_xml import error
+
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '27.02.2015'
 __all__ = ['InvalidCustomerID', 'InvalidPathLength', 'InvalidPathNode',
@@ -7,6 +9,12 @@ __all__ = ['InvalidCustomerID', 'InvalidPathLength', 'InvalidPathNode',
            'RenderingOptionsAlreadySet', 'NoValidFilterOperation',
            'InvalidFilterOption', 'FilterOperationNotImplemented',
            'SievingError']
+
+# Error codes:
+# <nn>    WSGI top-level errors
+# 1<nn>   Filtering errors
+# 2<nn>   Sorting errors
+# 3<nn>   Scaling errors
 
 
 class RenderableError(Exception):
@@ -18,19 +26,12 @@ class RenderableError(Exception):
         self._ident = ident
         self._msg = msg
 
-    @property
-    def ident(self):
-        """Returns the ID"""
-        return self._ident
-
-    @property
-    def msg(self):
-        """Returns the message"""
-        return self._msg
-
-    def render(self):
+    def render(self, encoding='utf-8'):
         """Returns a tuple of ID and message"""
-        return (self.ident, self.msg)
+        result = error()
+        result.code = self._ident
+        result.msg = self._msg
+        return result.toxml(encoding=encoding)
 
 
 class InvalidCustomerID(RenderableError):
@@ -59,6 +60,14 @@ class InvalidPathNode(RenderableError):
     def __init__(self, node):
         """Sets the message"""
         super().__init__(13, ' '.join(['Invalid path length:', node]))
+
+
+class InvalidOperationError(RenderableError):
+    """Indicates that an invalid operation was requested"""
+
+    def __init__(self, operation):
+        """Sets the message"""
+        super().__init__(14, ' '.join(['Invalid operation:', operation]))
 
 
 class InvalidRenderingOptionsCount(RenderableError):
@@ -112,12 +121,6 @@ class InvalidFilterOption(RenderableError):
         """Initializes with the faulty option"""
         super().__init__(102, ' '.join(['Invalid filtering option:',
                                         str(option)]))
-        self._option = option
-
-    @property
-    def option(self):
-        """Returns the faulty option"""
-        return self._option
 
 
 class FilterOperationNotImplemented(RenderableError):
@@ -129,12 +132,6 @@ class FilterOperationNotImplemented(RenderableError):
         """Initializes with the faulty option"""
         super().__init__(103, ' '.join(['Invalid filtering operation:',
                                         str(operation)]))
-        self._operation = operation
-
-    @property
-    def operation(self):
-        """Returns the faulty operation"""
-        return self._operation
 
 
 class SievingError(RenderableError):
@@ -148,21 +145,3 @@ class SievingError(RenderableError):
                                        str(option), '" with operation "',
                                        str(operation), '" for value "',
                                        str(value), '"']))
-        self._option = option
-        self._operation = operation
-        self._value = value
-
-    @property
-    def option(self):
-        """Returns the sieving option"""
-        return self._option
-
-    @property
-    def operation(self):
-        """Returns the sieving operation"""
-        return self._operation
-
-    @property
-    def value(self):
-        """Returns the sieving value"""
-        return self._value

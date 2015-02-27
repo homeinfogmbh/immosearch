@@ -1,14 +1,15 @@
 """Realtor and real estate filtering"""
 
 from datetime import datetime
+from openimmodb2.immobilie import Immobilie
 from .lib import cast, Operators
 from .errors import FilterOperationNotImplemented, InvalidFilterOption,\
     SievingError
+from .config import core
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '24.02.2015'
-__all__ = ['RealtorSieve', 'RealEstateSieve']
-
+__all__ = ['UserFilter']
 
 operations = {Operators.EQ: lambda x, y: x == y,
               # Operators.EG: ,
@@ -24,6 +25,76 @@ operations = {Operators.EQ: lambda x, y: x == y,
               Operators.NI: lambda x, y: x not in y}
 
 
+class UserFilter():
+    """Class that filters real estates of a user"""
+
+    def __init__(self, user, filters):
+        """Initializes with a user record"""
+        self._user = user
+        self._filters = filters
+
+    @property
+    def user(self):
+        """Returns the user record"""
+        return self._user
+
+    @property
+    def _immobilie(self):
+        """Returns valid, unfiltered real estates"""
+        all_immobilie = Immobilie.immobilie(self.user.customer)
+        if self.user.override_realestate_restrictions:
+            return all_immobilie
+        else:
+            for immobilie in all_immobilie:
+                if immobilie.approve(core['name']):
+                    yield immobilie
+                else:
+                    continue    # Restricted!
+
+    @property
+    def _sieve(self):
+        """Returns an approriate real estate sieve"""
+        return RealEstateSieve(self._immobilie, self._filters)
+
+    @property
+    def immobilie(self):
+        """Returns valid, filtered real estates"""
+        return self._sieve.immobilie
+
+
+class FilterableRealtor():
+    """Wrapper class for an OpenImmo™-anbieter
+    that can be filtered by certain attributes
+    """
+
+    def __init__(self, anbieter):
+        """Sets the appropriate OpenImmo™-immobilie"""
+        self._anbieter = anbieter
+
+    @property
+    def anbieter(self):
+        """Returns the the realtor"""
+        return self._anbieter
+
+    @property
+    def openimmo_anid(self):
+        """Returns the realtor's UUID"""
+        return str(self.anbieter.openimmo_anid)
+
+    @property
+    def anbieternr(self):
+        """Realtor identifier"""
+        if self.anbieter.anbieternr:
+            return str(self.anbieter.anbieternr)
+        else:
+            return None
+
+    @property
+    def firma(self):
+        """Returns the company's name"""
+        return str(self.anbieter.firma)
+
+
 class RealtorSieve():
     """Class that sieves realtors of an
     OpenImmo™ document by certain filters
@@ -33,7 +104,7 @@ class RealtorSieve():
                'anbieternr': (str, lambda f, op, v: op(f.anbieternr, v)),
                'firma': lambda f, op, v: op(f.firma, v)}
 
-    def __init__(self, openimmo, *filters):
+    def __init__(self, openimmo, filters):
         """Sets the respective realtor and filter tuples like:
         (<option>, <operation>, <target_value>)
         """
@@ -87,156 +158,6 @@ class RealtorSieve():
                                 break
             if match:
                 yield anbieter
-
-
-class RealEstateSieve():
-    """Class that sieves real estates
-    of a realtor by certain filters
-    """
-
-    options = {'objektart': lambda f, op, v: op(f.objekttypen, v),
-               'land': lambda f, op, v: op(f.land, v),
-               'ort': lambda f, op, v: op(f.ort, v),
-               'ortsteil': lambda f, op, v: op(f.ortsteil, v),
-               'plz': lambda f, op, v: op(f.plz, v),
-               'strasse': lambda f, op, v: op(f.strasse, v),
-               'hausnummer': lambda f, op, v: op(f.hausnummer, v),
-               'zimmer': lambda f, op, v: op(f.zimmer, v),
-               'etage': lambda f, op, v: op(f.etage, v),
-               'etagen': lambda f, op, v: op(f.etagen, v),
-               'wohnflaeche': lambda f, op, v: op(f.wohnflaeche, v),
-               'grundstuecksflaeche':
-                   lambda f, op, v: op(f.grundstuecksflaeche, v),
-               'balkone': lambda f, op, v: op(f.balkone, v),
-               'terrassen': lambda f, op, v: op(f.terrassen, v),
-               'kaltmiete': lambda f, op, v: op(f.kaltmiete, v),
-               'warmmiete': lambda f, op, v: op(f.warmmiete, v),
-               'nebenkosten': lambda f, op, v: op(f.nebenkosten, v),
-               'kaufpreis': lambda f, op, v: op(f.kaufpreis, v),
-               'pacht': lambda f, op, v: op(f.pacht, v),
-               'erbpacht': lambda f, op, v: op(f.erbpacht, v),
-               'aussen_courtage': lambda f, op, v: op(f.aussen_courtage, v),
-               'innen_courtage': lambda f, op, v: op(f.innen_courtage, v),
-               'openimmo_obid':
-                   (str, lambda f, op, v: op(f.openimmo_obid, v)),
-               'objektnr_intern':
-                   (str, lambda f, op, v: op(f.objektnr_intern, v)),
-               'objektnr_extern':
-                   (str, lambda f, op, v: op(f.objektnr_extern, v)),
-               'barrierefrei': lambda f, op, v: op(f.barrierefrei, v),
-               'haustiere': lambda f, op, v: op(f.haustiere, v),
-               'raucher': lambda f, op, v: op(f.raucher, v),
-               'kaufbar': lambda f, op, v: op(f.kaufbar, v),
-               'mietbar': lambda f, op, v: op(f.mietbar, v),
-               'erbpachtbar': lambda f, op, v: op(f.erbpachtbar, v),
-               'leasing': lambda f, op, v: op(f.leasing, v),
-               'verfuegbar_ab': lambda f, op, v: op(f.verfuegbar_ab, v),
-               'abdatum': lambda f, op, v: op(f.abdatum, v),
-               'moebliert': lambda f, op, v: op(f.moebliert, v),
-               'seniorengerecht': lambda f, op, v: op(f.seniorengerecht, v),
-               'baujahr': (str, lambda f, op, v: op(f.baujahr, v)),
-               'zustand': lambda f, op, v: op(f.zustand, v),
-               'epart': lambda f, op, v: op(f.epart, v),
-               'energieverbrauchkennwert':
-                   lambda f, op, v: op(f.energieverbrauchkennwert, v),
-               'endenergiebedarf': lambda f, op, v: op(f.endenergiebedarf, v),
-               'primaerenergietraeger':
-                   lambda f, op, v: op(f.primaerenergietraeger, v),
-               'stromwert': lambda f, op, v: op(f.stromwert, v),
-               'waermewert': lambda f, op, v: op(f.waermewert, v),
-               'wertklasse': lambda f, op, v: op(f.wertklasse, v),
-               'min_mietdauer': lambda f, op, v: op(f.min_mietdauer, v),
-               'max_mietdauer': lambda f, op, v: op(f.max_mietdauer, v),
-               'laufzeit': lambda f, op, v: op(f.laufzeit, v),
-               'max_personen': lambda f, op, v: op(f.max_personen, v)}
-
-    def __init__(self, anbieter, *filters):
-        """Sets the respective realtor and filter tuples like:
-        (<option>, <operation>, <target_value>)
-        """
-        self._anbieter = anbieter
-        self._filters = filters
-
-    @property
-    def anbieter(self):
-        """Returns the realtor"""
-        return self._anbieter
-
-    @property
-    def filters(self):
-        """Returns the filters"""
-        return self._filters
-
-    @property
-    def immobilie(self):
-        """Property alias to sieve()"""
-        return self.sieve()
-
-    def sieve(self):
-        """Sieve real estates by the given filters"""
-        for immobilie in self.anbieter.immobilie:
-            candidate = FilterableRealEstate(immobilie)
-            match = True
-            for f in self.filters:
-                option, operation, raw_value = f
-                operation_func = operations.get(operation)
-                if operation_func is None:
-                    raise FilterOperationNotImplemented(operation)
-                else:
-                    option_ = self.options.get(option)
-                    if option_ is None:
-                        raise InvalidFilterOption(option)
-                    else:
-                        try:
-                            option_format, option_func = option_
-                        except TypeError:
-                            option_format = None
-                            option_func = option_
-                        value = cast(raw_value, typ=option_format)
-                        try:
-                            result = option_func(candidate, operation_func,
-                                                 value)
-                        except (AttributeError, TypeError, ValueError):
-                            raise SievingError(option, operation, raw_value)
-                        else:
-                            if not result:
-                                match = False
-                                break
-            if match:
-                yield immobilie
-
-
-class FilterableRealtor():
-    """Wrapper class for an OpenImmo™-anbieter
-    that can be filtered by certain attributes
-    """
-
-    def __init__(self, anbieter):
-        """Sets the appropriate OpenImmo™-immobilie"""
-        self._anbieter = anbieter
-
-    @property
-    def anbieter(self):
-        """Returns the the realtor"""
-        return self._anbieter
-
-    @property
-    def openimmo_anid(self):
-        """Returns the realtor's UUID"""
-        return str(self.anbieter.openimmo_anid)
-
-    @property
-    def anbieternr(self):
-        """Realtor identifier"""
-        if self.anbieter.anbieternr:
-            return str(self.anbieter.anbieternr)
-        else:
-            return None
-
-    @property
-    def firma(self):
-        """Returns the company's name"""
-        return str(self.anbieter.firma)
 
 
 class FilterableRealEstate():
@@ -784,3 +705,120 @@ class FilterableRealEstate():
             return None
         else:
             return int(max_personen) if max_personen else None
+
+
+class RealEstateSieve():
+    """Class that sieves real estates
+    of a realtor by certain filters
+    """
+
+    options = {'objektart': lambda f, op, v: op(f.objekttypen, v),
+               'land': lambda f, op, v: op(f.land, v),
+               'ort': lambda f, op, v: op(f.ort, v),
+               'ortsteil': lambda f, op, v: op(f.ortsteil, v),
+               'plz': lambda f, op, v: op(f.plz, v),
+               'strasse': lambda f, op, v: op(f.strasse, v),
+               'hausnummer': lambda f, op, v: op(f.hausnummer, v),
+               'zimmer': lambda f, op, v: op(f.zimmer, v),
+               'etage': lambda f, op, v: op(f.etage, v),
+               'etagen': lambda f, op, v: op(f.etagen, v),
+               'wohnflaeche': lambda f, op, v: op(f.wohnflaeche, v),
+               'grundstuecksflaeche':
+                   lambda f, op, v: op(f.grundstuecksflaeche, v),
+               'balkone': lambda f, op, v: op(f.balkone, v),
+               'terrassen': lambda f, op, v: op(f.terrassen, v),
+               'kaltmiete': lambda f, op, v: op(f.kaltmiete, v),
+               'warmmiete': lambda f, op, v: op(f.warmmiete, v),
+               'nebenkosten': lambda f, op, v: op(f.nebenkosten, v),
+               'kaufpreis': lambda f, op, v: op(f.kaufpreis, v),
+               'pacht': lambda f, op, v: op(f.pacht, v),
+               'erbpacht': lambda f, op, v: op(f.erbpacht, v),
+               'aussen_courtage': lambda f, op, v: op(f.aussen_courtage, v),
+               'innen_courtage': lambda f, op, v: op(f.innen_courtage, v),
+               'openimmo_obid':
+                   (str, lambda f, op, v: op(f.openimmo_obid, v)),
+               'objektnr_intern':
+                   (str, lambda f, op, v: op(f.objektnr_intern, v)),
+               'objektnr_extern':
+                   (str, lambda f, op, v: op(f.objektnr_extern, v)),
+               'barrierefrei': lambda f, op, v: op(f.barrierefrei, v),
+               'haustiere': lambda f, op, v: op(f.haustiere, v),
+               'raucher': lambda f, op, v: op(f.raucher, v),
+               'kaufbar': lambda f, op, v: op(f.kaufbar, v),
+               'mietbar': lambda f, op, v: op(f.mietbar, v),
+               'erbpachtbar': lambda f, op, v: op(f.erbpachtbar, v),
+               'leasing': lambda f, op, v: op(f.leasing, v),
+               'verfuegbar_ab': lambda f, op, v: op(f.verfuegbar_ab, v),
+               'abdatum': lambda f, op, v: op(f.abdatum, v),
+               'moebliert': lambda f, op, v: op(f.moebliert, v),
+               'seniorengerecht': lambda f, op, v: op(f.seniorengerecht, v),
+               'baujahr': (str, lambda f, op, v: op(f.baujahr, v)),
+               'zustand': lambda f, op, v: op(f.zustand, v),
+               'epart': lambda f, op, v: op(f.epart, v),
+               'energieverbrauchkennwert':
+                   lambda f, op, v: op(f.energieverbrauchkennwert, v),
+               'endenergiebedarf': lambda f, op, v: op(f.endenergiebedarf, v),
+               'primaerenergietraeger':
+                   lambda f, op, v: op(f.primaerenergietraeger, v),
+               'stromwert': lambda f, op, v: op(f.stromwert, v),
+               'waermewert': lambda f, op, v: op(f.waermewert, v),
+               'wertklasse': lambda f, op, v: op(f.wertklasse, v),
+               'min_mietdauer': lambda f, op, v: op(f.min_mietdauer, v),
+               'max_mietdauer': lambda f, op, v: op(f.max_mietdauer, v),
+               'laufzeit': lambda f, op, v: op(f.laufzeit, v),
+               'max_personen': lambda f, op, v: op(f.max_personen, v)}
+
+    def __init__(self, real_estates, filters):
+        """Sets the respective realtor and filter tuples like:
+        (<option>, <operation>, <target_value>)
+        """
+        self._real_estates = real_estates
+        self._filters = filters
+
+    @property
+    def real_estates(self):
+        """Returns the real estates"""
+        return self._real_estates
+
+    @property
+    def filters(self):
+        """Returns the filters"""
+        return self._filters
+
+    @property
+    def immobilie(self):
+        """Property alias to sieve()"""
+        return self.sieve()
+
+    def sieve(self):
+        """Sieve real estates by the given filters"""
+        for immobilie in self.real_estates:
+            candidate = FilterableRealEstate(immobilie)
+            match = True
+            for f in self.filters:
+                option, operation, raw_value = f
+                operation_func = operations.get(operation)
+                if operation_func is None:
+                    raise FilterOperationNotImplemented(operation)
+                else:
+                    option_ = self.options.get(option)
+                    if option_ is None:
+                        raise InvalidFilterOption(option)
+                    else:
+                        try:
+                            option_format, option_func = option_
+                        except TypeError:
+                            option_format = None
+                            option_func = option_
+                        value = cast(raw_value, typ=option_format)
+                        try:
+                            result = option_func(candidate, operation_func,
+                                                 value)
+                        except (AttributeError, TypeError, ValueError):
+                            raise SievingError(option, operation, raw_value)
+                        else:
+                            if not result:
+                                match = False
+                                break
+            if match:
+                yield immobilie
