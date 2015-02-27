@@ -43,7 +43,7 @@ class UserFilter():
         """Returns valid, unfiltered real estates"""
         all_immobilie = Immobilie.immobilie(self.user.customer)
         if self.user.override_realestate_restrictions:
-            return all_immobilie
+            yield from all_immobilie
         else:
             for immobilie in all_immobilie:
                 if immobilie.approve(core['name']):
