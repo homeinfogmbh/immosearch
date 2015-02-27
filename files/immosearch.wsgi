@@ -5,8 +5,8 @@ from immosearch.wsgi import WSGI
 
 def application(environ, start_response):
     """Main WSGI method"""
-    wsgi_result = WSGI(environ['PATH_INFO'], environ['QUERY_STRING']).run()
-    status, response_body, content_type, charset = wsgi_result
+    wsgi = WSGI(environ.get('PATH_INFO', ''), environ.get('QUERY_STRING', ''))
+    status, response_body, content_type, charset = wsgi.run()
     response_headers = [('Content-Type',
                          '; '.join([content_type,
                                     '='.join(['charset', charset])])),
