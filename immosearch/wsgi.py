@@ -1,6 +1,8 @@
 """WSGI-environ interpreter"""
 
 from .lib import Operators
+from .db import ImmoSearchUser
+from peewee import DoesNotExist
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '10.10.2014'
@@ -70,12 +72,18 @@ class WSGIEnvInterpreter():
     environment variables into a filter query
     """
 
-    def __init__(self, query_string):
+    def __init__(self, query_path, query_string):
         """Initializes the WSGI application with a query string"""
+        self._query_path = query_path
         self._query_string = query_string
         self._filters = []
         self._sort_options = []
         self._rendering = None
+
+    @property
+    def query_path(self):
+        """Returns the query path"""
+        return self._query_path
 
     @property
     def query_string(self):
@@ -87,9 +95,29 @@ class WSGIEnvInterpreter():
         """Returns a list of queries"""
         return self.query_string.split(Separators.QUERY)
 
+    @property
+    def cid(self):
+        """Extracts the customer ID from the query path"""
+        pass    # TODO: Impement
+
+    @property
+    def user(self):
+        """Returns the user"""
+        try:
+            user = ImmoSearchUser.get(self.cid)
+        except DoesNotExist:
+            return None
+        else:
+            return user
+
     def run(self):
         """Perform sieving, sorting and rendering"""
-        
+        self.chkuser()
+        self.parse()
+
+    def chkuser(self):
+        """Check whether user is allowed to retrieve real estates"""
+        pass    # TODO: Implement
 
     def parse(self):
         """Parses a URI for query commands"""
