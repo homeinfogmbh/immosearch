@@ -56,8 +56,7 @@ class UserFilter():
         """Returns an approriate real estate sieve"""
         return RealEstateSieve(self._immobilie, self._filters)
 
-    @property
-    def immobilie(self):
+    def filter(self):
         """Returns valid, filtered real estates"""
         return self._sieve.immobilie
 

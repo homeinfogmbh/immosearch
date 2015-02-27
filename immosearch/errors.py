@@ -5,6 +5,7 @@ from .error_xml import error
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '27.02.2015'
 __all__ = ['InvalidCustomerID', 'InvalidPathLength', 'InvalidPathNode',
+           'InvalidOperationError', 'UserNotAllowed',
            'InvalidRenderingOptionsCount', 'InvalidRenderingResolution',
            'RenderingOptionsAlreadySet', 'NoValidFilterOperation',
            'InvalidFilterOption', 'FilterOperationNotImplemented',
@@ -68,6 +69,14 @@ class InvalidOperationError(RenderableError):
     def __init__(self, operation):
         """Sets the message"""
         super().__init__(14, ' '.join(['Invalid operation:', operation]))
+
+
+class UserNotAllowed(RenderableError):
+    """Indicates that a user is not allowed to use immosearch"""
+
+    def __init__(self, cid):
+        """Sets the message"""
+        super().__init__(15, ' '.join(['User not allowed:', str(cid)]))
 
 
 class InvalidRenderingOptionsCount(RenderableError):

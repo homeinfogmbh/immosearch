@@ -2,12 +2,14 @@
 
 from peewee import DoesNotExist
 from homeinfolib.db import connection
+from openimmo import factories
 from .lib import Operators
 from .db import ImmoSearchUser
 from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     InvalidPathNode, NoValidFilterOperation, InvalidRenderingOptionsCount, \
     InvalidRenderingResolution, RenderingOptionsAlreadySet,\
-    InvalidOperationError
+    InvalidOperationError, UserNotAllowed
+from .filter import UserFilter
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '10.10.2014'
@@ -53,8 +55,10 @@ class WSGI():
         self._rendering = None
 
     def run(self):
+        """Main method to call"""
+        charset = 'UTF-8'
         try:
-            self._run()
+            response_body = self._run(charset)
         except RenderableError as r:
             status = '400 Bad Request'
             charset = 'UTF-8'
@@ -67,8 +71,8 @@ class WSGI():
             response_body = 'Internal Server Error'.encode(encoding=charset)
         else:
             status = '200 OK'
-        finally:
-            return (status, response_body, content_type, charset)
+            content_type = 'application/xml'
+        return (status, response_body, content_type, charset)
 
     @property
     def path_info(self):
@@ -124,13 +128,21 @@ class WSGI():
         else:
             return False
 
-    def _run(self):
+    def _run(self, encoding):
         """Perform sieving, sorting and rendering"""
         user = self.user()
         if self.chkuser(user):
             self.parse()
-            self.filter(user)
-
+            immobilie = UserFilter(user, self._filters).filter()
+            # immobilie = Sorter(self._sort_options).sort()
+            # immobilie = Scaler(self._rendering).scale()
+            anbieter = factories.anbieter(user.customer.id,
+                                          user.customer.name,
+                                          user.customer.id)
+            anbieter.immobilie = [i for i in immobilie]
+            return anbieter.toxml(encoding=encoding)
+        else:
+            raise UserNotAllowed(user.id)
 
     def parse(self):
         """Parses a URI for query commands"""
