@@ -46,10 +46,15 @@ class UserFilter():
             if i.anhaenge:
                 for a in i.anhaenge.anhang:
                     a.data = a.data
+            yield i
+
+    @property
+    def immobilie(self):
+        """Yields filteres real estates"""
         if self.user.override_realestate_restrictions:
-            yield from all_immobilie
+            yield from self._immobilie
         else:
-            for immobilie in all_immobilie:
+            for immobilie in self._immobilie:
                 if immobilie.approve(core['name']):
                     yield immobilie
                 else:
@@ -58,7 +63,7 @@ class UserFilter():
     @property
     def _sieve(self):
         """Returns an approriate real estate sieve"""
-        return RealEstateSieve(self._immobilie, self._filters)
+        return RealEstateSieve(self.immobilie, self._filters)
 
     def filter(self):
         """Returns valid, filtered real estates"""
