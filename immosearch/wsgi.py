@@ -118,7 +118,7 @@ class Controller():
         """Returns the user"""
         try:
             with connection(ImmoSearchUser):
-                user = ImmoSearchUser.get(self.cid)
+                user = ImmoSearchUser.get(ImmoSearchUser.customer == self.cid)
         except DoesNotExist:
             return None
         else:
