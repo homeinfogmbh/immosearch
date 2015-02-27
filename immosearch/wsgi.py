@@ -170,7 +170,7 @@ class Controller():
         option_assignments = value.split(Separators.OPTION)
         for option_assignment in option_assignments:
             operator = None
-            for operator_ in Operators:
+            for operator_ in Operators():
                 split_assignment = option_assignment.split(operator_)
                 if len(split_assignment) == 2:
                     option = split_assignment[0]

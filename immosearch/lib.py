@@ -121,9 +121,8 @@ class Operators():
     IN = '∈'    # Element in iterable
     NI = '∉'    # Element not in iterable
 
-    @classmethod
-    def __iter__(cls):
+    def __iter__(self):
         """Iterates over the operators"""
-        for attr in dir(cls):
+        for attr in dir(self):
             if attr.upper() == attr and len(attr == 2):
-                yield getattr(cls, attr)
+                yield getattr(self, attr)
