@@ -37,6 +37,7 @@ class Operations():
     FILTER = 'filter'
     SORT = 'sort'
     RENDER = 'render'
+    PICTURES = 'pics'
 
 
 class PathNodes():
@@ -58,6 +59,7 @@ class Controller():
         self._filters = []
         self._sort_options = []
         self._rendering = None
+        self._pictures = False
 
     def run(self):
         """Main method to call"""
@@ -143,23 +145,22 @@ class Controller():
             self.parse()
             immobilie = UserFilter(user, self._filters).filter()
             # immobilie = Sorter(self._sort_options).sort()
-            """
-            # Insource and scale pictures only
-            immobilie, immo = [], immobilie
-            for i in immo:
-                if i.anhaenge:
-                    insourced = []
-                    for a in i.anhaenge.anhang:
-                        with NamedTemporaryFile('wb') as tmp:
-                            tmp.write(a.data)
-                            scaler = ScaledImage(tmp.name, (512, 341))
-                            with suppress(OSError):
-                                a.data = scaler.b64data
-                                insourced.append(a)
-                    i.anhaenge.anhang = insourced
-                immobilie.append(i)
+            if self._pics:
+                # Insource and scale pictures only
+                immobilie, immo = [], immobilie
+                for i in immo:
+                    if i.anhaenge:
+                        insourced = []
+                        for a in i.anhaenge.anhang:
+                            with NamedTemporaryFile('wb') as tmp:
+                                tmp.write(a.data)
+                                scaler = ScaledImage(tmp.name, (512, 341))
+                                with suppress(OSError):
+                                    a.data = scaler.b64data
+                                    insourced.append(a)
+                        i.anhaenge.anhang = insourced
+                    immobilie.append(i)
             # Generate anbieter
-            """
             anbieter = factories.anbieter(str(user.customer.id),
                                           user.customer.name,
                                           str(user.customer.id))
@@ -181,6 +182,8 @@ class Controller():
                     self._sort(value)
                 elif operation == Operations.RENDER:
                     self._render(value)
+                elif operation == Operations.PICTURES:
+                    self._pictures = True
                 else:
                     raise InvalidOperationError(operation)
 
