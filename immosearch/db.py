@@ -4,6 +4,7 @@ from peewee import MySQLDatabase, Model, IntegerField, BooleanField,\
     ForeignKeyField
 from homeinfo.crm import Customer
 from .config import db
+from homeinfolib.db import create
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '24.02.2015'
@@ -21,6 +22,7 @@ class ImmoSearchModel(Model):
         schema = database.database
 
 
+@create
 class ImmoSearchUser(ImmoSearchModel):
     """User entry for immosearch control data"""
 
