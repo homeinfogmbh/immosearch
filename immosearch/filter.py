@@ -2,76 +2,12 @@
 
 from datetime import datetime
 from .lib import cast, Operators
+from .errors import FilterOperationNotImplemented, InvalidFilterOption,\
+    SievingError
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '24.02.2015'
-__all__ = ['InvalidOption', 'InvalidOperation', 'SievingError',
-           'RealtorSieve', 'RealEstateSieve']
-
-
-class InvalidOption(Exception):
-    """Indicates that an invalid filtering
-    option has been provided
-    """
-
-    def __init__(self, option):
-        """Initializes with the faulty option"""
-        super().__init__(' '.join(['Invalid filtering option:',
-                                   str(option)]))
-        self._option = option
-
-    @property
-    def option(self):
-        """Returns the faulty option"""
-        return self._option
-
-
-class InvalidOperation(Exception):
-    """Indicates that an invalid filtering
-    option has been provided
-    """
-
-    def __init__(self, operation):
-        """Initializes with the faulty option"""
-        super().__init__(' '.join(['Invalid filtering operation:',
-                                   str(operation)]))
-        self._operation = operation
-
-    @property
-    def operation(self):
-        """Returns the faulty operation"""
-        return self._operation
-
-
-class SievingError(Exception):
-    """Indicates an error during sieving"""
-
-    def __init__(self, option, operation, value):
-        """Sets the option, operation and raw
-        value where sieving has gone wrong
-        """
-        super().__init__(''.join(['Cannot filter real estate by "',
-                                  str(option), '" with operation "',
-                                  str(operation), '" for value "',
-                                  str(value), '"']))
-        self._option = option
-        self._operation = operation
-        self._value = value
-
-    @property
-    def option(self):
-        """Returns the sieving option"""
-        return self._option
-
-    @property
-    def operation(self):
-        """Returns the sieving operation"""
-        return self._operation
-
-    @property
-    def value(self):
-        """Returns the sieving value"""
-        return self._value
+__all__ = ['RealtorSieve', 'RealEstateSieve']
 
 
 operations = {Operators.EQ: lambda x, y: x == y,
@@ -128,11 +64,11 @@ class RealtorSieve():
                 option, operation, raw_value = f
                 operation_func = operations.get(operation)
                 if operation_func is None:
-                    raise InvalidOperation(operation)
+                    raise FilterOperationNotImplemented(operation)
                 else:
                     option_ = self.options.get(option)
                     if option_ is None:
-                        raise InvalidOption(option)
+                        raise InvalidFilterOption(option)
                     else:
                         try:
                             option_format, option_func = option_
@@ -245,11 +181,11 @@ class RealEstateSieve():
                 option, operation, raw_value = f
                 operation_func = operations.get(operation)
                 if operation_func is None:
-                    raise InvalidOperation(operation)
+                    raise FilterOperationNotImplemented(operation)
                 else:
                     option_ = self.options.get(option)
                     if option_ is None:
-                        raise InvalidOption(option)
+                        raise InvalidFilterOption(option)
                     else:
                         try:
                             option_format, option_func = option_

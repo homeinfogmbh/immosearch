@@ -1,53 +1,15 @@
 """WSGI-environ interpreter"""
 
+from peewee import DoesNotExist
 from .lib import Operators
 from .db import ImmoSearchUser
-from peewee import DoesNotExist
+from .errors import InvalidCustomerID, InvalidPathLength, InvalidPathNode,\
+    NoValidFilterOperation, InvalidRenderingOptionsCount, \
+    InvalidRenderingResolution, RenderingOptionsAlreadySet
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '10.10.2014'
 __all__ = ['WSGIEnvInterpreter']
-
-
-class InvalidRenderingOptionsCount(Exception):
-    """Indicates that not exactly one
-    render option was specified"""
-
-    def __init__(self, n):
-        """Sets the message"""
-        super().__init__(' '.join(['Need exactly one rendering option, but',
-                                   str(n), 'where given']))
-
-
-class InvalidRenderingResolution(Exception):
-    """Indicates that an invalid rendering resolution was specified"""
-
-    def __init__(self, resolution):
-        """Sets the message"""
-        super().__init__(' '.join(['Got invalid rendering resolution:',
-                                   resolution,
-                                   '- must be like <width>x<heigth>']))
-
-
-class RenderingOptionsAlreadySet(Exception):
-    """Indicates that rendering options have already been set"""
-
-    def __init__(self, resolution):
-        """Sets the message"""
-        super().__init__(' '.join(['Rendering resolution has',
-                                   'already been set to:',
-                                   'x'.join([str(n) for n in resolution])]))
-
-
-class NoValidOperationSpecified(Exception):
-    """Indicates that no valid operation
-    was specified in a filter query"""
-
-    def __init__(self, option_assignment):
-        """Sets the message"""
-        super().__init__(' '.join(['No valid operation was',
-                                   'found in filter query:',
-                                   str(option_assignment)]))
 
 
 class Separators():
@@ -57,6 +19,7 @@ class Separators():
     ASS = '='
     OPTION = ','
     ATTR = '%'
+    PATH = '/'
 
 
 class Operations():
@@ -67,23 +30,30 @@ class Operations():
     RENDER = 'render'
 
 
+class PathNodes():
+    """Valid path nodes"""
+
+    OPENIMMO = 'openimmo'
+    CUSTOMER = 'customer'
+
+
 class WSGIEnvInterpreter():
     """Class that interprets and translates WSGI
     environment variables into a filter query
     """
 
-    def __init__(self, query_path, query_string):
+    def __init__(self, path_info, query_string):
         """Initializes the WSGI application with a query string"""
-        self._query_path = query_path
+        self._path_info = path_info
         self._query_string = query_string
         self._filters = []
         self._sort_options = []
         self._rendering = None
 
     @property
-    def query_path(self):
-        """Returns the query path"""
-        return self._query_path
+    def path_info(self):
+        """Returns the path info"""
+        return self._path_info
 
     @property
     def query_string(self):
@@ -98,7 +68,23 @@ class WSGIEnvInterpreter():
     @property
     def cid(self):
         """Extracts the customer ID from the query path"""
-        pass    # TODO: Impement
+        path = [p for p in self.path_info.split(Separators.PATH) if p.strip()]
+        if len(path) > 1:
+            if path[1] == PathNodes.OPENIMMO:
+                pass    # TODO: Implement
+            elif path[1] == PathNodes.CUSTOMER:
+                if len(path) == 3:
+                    cid_str = path[2]
+                    try:
+                        cid = int(cid_str)
+                    except ValueError:
+                        raise InvalidCustomerID(cid_str)
+                    else:
+                        return cid
+                else:
+                    raise InvalidPathLength(len(path))
+            else:
+                raise InvalidPathNode(path[1])
 
     @property
     def user(self):
@@ -148,7 +134,7 @@ class WSGIEnvInterpreter():
                     value = split_assignment[1]
                     break
             if operator is None:
-                raise NoValidOperationSpecified(option_assignment)
+                raise NoValidFilterOperation(option_assignment)
             else:
                 filter_ = (option, operator, value)
                 self._filters.append(filter_)
