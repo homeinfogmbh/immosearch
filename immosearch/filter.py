@@ -43,10 +43,8 @@ class UserFilter():
         """Returns valid, unfiltered real estates"""
         all_immobilie = Immobilie.immobilie(self.user.customer)
         if self.user.override_realestate_restrictions:
-            raise Exception('Override!\n' + str([i for i in all_immobilie]))
             return all_immobilie
         else:
-            raise Exception('NO Override!\n' + str([i for i in all_immobilie]))
             for immobilie in all_immobilie:
                 if immobilie.approve(core['name']):
                     yield immobilie
@@ -56,6 +54,7 @@ class UserFilter():
     @property
     def _sieve(self):
         """Returns an approriate real estate sieve"""
+        raise Exception('Type:' + str(type(self._immobilie)) + '\n' + str([i for i in self._immobilie]))
         return RealEstateSieve(self._immobilie, self._filters)
 
     def filter(self):
