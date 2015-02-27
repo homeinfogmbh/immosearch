@@ -42,6 +42,10 @@ class UserFilter():
     def _immobilie(self):
         """Returns valid, unfiltered real estates"""
         all_immobilie = Immobilie.immobilie(self.user.customer)
+        for i in all_immobilie:
+            if i.anhaenge:
+                for a in i.anhaenge.anhang:
+                    a.data = a.data
         if self.user.override_realestate_restrictions:
             yield from all_immobilie
         else:
