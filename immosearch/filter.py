@@ -41,12 +41,7 @@ class UserFilter():
     @property
     def _immobilie(self):
         """Returns valid, unfiltered real estates"""
-        all_immobilie = Immobilie.immobilie(self.user.customer)
-        for i in all_immobilie:
-            if i.anhaenge:
-                for a in i.anhaenge.anhang:
-                    a.data = a.data
-            yield i
+        return Immobilie.immobilie(self.user.customer)
 
     @property
     def immobilie(self):

@@ -12,6 +12,8 @@ from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     InvalidOperationError, UserNotAllowed
 from .filter import UserFilter
 from .config import core
+from tempfile import NamedTemporaryFile
+from immosearch.imgscale import ScaledImage
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '10.10.2014'
@@ -140,7 +142,22 @@ class Controller():
             self.parse()
             immobilie = UserFilter(user, self._filters).filter()
             # immobilie = Sorter(self._sort_options).sort()
-            # immobilie = Scaler(self._rendering).scale()
+            # Insource and scale pictures only
+            for i in immobilie:
+                if i.anhaenge:
+                    insourced = []
+                    for a in i.anhaenge.anhang:
+                        with NamedTemporaryFile('wb') as tmp:
+                            tmp.write(a.data)
+                            scaler = ScaledImage(tmp.name, (512, 341))
+                            try:
+                                a.data = scaler.b64data
+                            except OSError:
+                                continue
+                            else:
+                                insourced.append(a)
+                    i.anhaenge.anhang = insourced
+            # Generate anbieter
             anbieter = factories.anbieter(str(user.customer.id),
                                           user.customer.name,
                                           str(user.customer.id))
