@@ -141,9 +141,9 @@ class Controller():
             immobilie = UserFilter(user, self._filters).filter()
             # immobilie = Sorter(self._sort_options).sort()
             # immobilie = Scaler(self._rendering).scale()
-            anbieter = factories.anbieter(user.customer.id,
+            anbieter = factories.anbieter(str(user.customer.id),
                                           user.customer.name,
-                                          user.customer.id)
+                                          str(user.customer.id))
             anbieter.immobilie = [i for i in immobilie]
             return anbieter.toxml(encoding=encoding)
         else:
