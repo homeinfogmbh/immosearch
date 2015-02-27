@@ -163,6 +163,7 @@ class Controller():
             else:
                 for i in immo:
                     i.anhaenge = None
+                    i.freitexte = None  # TODO: DEBUG
                     immobilie.append(i)
             # Generate anbieter
             anbieter = factories.anbieter(str(user.customer.id),
