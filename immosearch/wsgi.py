@@ -145,7 +145,7 @@ class Controller():
             self.parse()
             immobilie = UserFilter(user, self._filters).filter()
             # immobilie = Sorter(self._sort_options).sort()
-            if self._pics:
+            if self._pictures:
                 # Insource and scale pictures only
                 immobilie, immo = [], immobilie
                 for i in immo:
