@@ -143,7 +143,7 @@ class Controller():
             anbieter.immobilie = [i for i in immobilie]
             return anbieter.toxml(encoding=encoding)
         else:
-            raise UserNotAllowed(user.id)
+            raise UserNotAllowed(self.cid)
 
     def parse(self):
         """Parses a URI for query commands"""
