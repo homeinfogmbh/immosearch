@@ -278,5 +278,5 @@ class Controller():
             if len(auth_opts) != 1:
                 raise InvalidAuthenticationOptions()    # Do not propagate data
             else:
-                self._auth_token = auth_opts
+                self._auth_token = auth_opts[0]
                 debug(auth_opts, 'auth_opts')
