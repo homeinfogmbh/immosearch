@@ -201,6 +201,12 @@ class Controller():
             if len(splitted_query) >= 2:
                 operation = splitted_query[0]
                 raw_value = Separators.ASS.join(splitted_query[1:])
+                with open('/tmp/auth.txt', 'a') as f:
+                    f.write('\t'.join([str(datetime.now()),
+                                       'operation', operation]))
+                with open('/tmp/auth.txt', 'a') as f:
+                    f.write('\t'.join([str(datetime.now()),
+                                       'raw_value', raw_value]))
                 value = unquote(raw_value).decode()
                 if operation == Operations.FILTER:
                     self._filter(value)
