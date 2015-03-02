@@ -82,37 +82,6 @@ class UserNotAllowed(RenderableError):
         super().__init__(15, ' '.join(['User not allowed:', str(cid)]))
 
 
-class InvalidRenderingOptionsCount(RenderableError):
-    """Indicates that not exactly one
-    render option was specified"""
-
-    def __init__(self, n):
-        """Sets the message"""
-        super().__init__(301, ' '.join(['Need exactly one rendering option,',
-                                        'but', str(n), 'where given']))
-
-
-class InvalidRenderingResolution(RenderableError):
-    """Indicates that an invalid rendering resolution was specified"""
-
-    def __init__(self, resolution):
-        """Sets the message"""
-        super().__init__(302, ' '.join(['Got invalid rendering resolution:',
-                                        resolution,
-                                        '- must be like <width>x<heigth>']))
-
-
-class RenderingOptionsAlreadySet(RenderableError):
-    """Indicates that rendering options have already been set"""
-
-    def __init__(self, resolution):
-        """Sets the message"""
-        super().__init__(303, ' '.join(['Rendering resolution has',
-                                        'already been set to:',
-                                        'x'.join([str(n) for n in
-                                                  resolution])]))
-
-
 class NoValidFilterOperation(RenderableError):
     """Indicates that no valid operation
     was specified in a filter query"""
@@ -159,6 +128,45 @@ class SievingError(RenderableError):
                                        str(value), '"']))
 
 
+class InvalidRenderingOptionsCount(RenderableError):
+    """Indicates that not exactly one
+    render option was specified"""
+
+    def __init__(self, n):
+        """Sets the message"""
+        super().__init__(301, ' '.join(['Need exactly one rendering option,',
+                                        'but', str(n), 'where given']))
+
+
+class InvalidRenderingResolution(RenderableError):
+    """Indicates that an invalid rendering resolution was specified"""
+
+    def __init__(self, resolution):
+        """Sets the message"""
+        super().__init__(302, ' '.join(['Got invalid rendering resolution:',
+                                        resolution,
+                                        '- must be like <width>x<heigth>']))
+
+
+class RenderingOptionsAlreadySet(RenderableError):
+    """Indicates that rendering options have already been set"""
+
+    def __init__(self, resolution):
+        """Sets the message"""
+        super().__init__(303, ' '.join(['Rendering resolution has',
+                                        'already been set to:',
+                                        'x'.join([str(n) for n in
+                                                  resolution])]))
+
+
+class NoScalingProvided(RenderableError):
+    """Indicates that no scaling resolution was provided"""
+
+    def __init__(self):
+        """Creates a basic message"""
+        super().__init__(304, 'No scaling provided')
+
+
 class InvalidAuthenticationOptions(RenderableError):
     """Indicates that invalid authentication
     options have been provided
@@ -184,7 +192,7 @@ class HandlersExhausted(RenderableError):
     """
 
     def __init__(self, n):
-        """Indicates that invalid credentials have been supplied"""
+        """Creates message with max. handlers count"""
         h = str(n)
         super().__init__(501, ' '.join(['Handlers exhausted:',
                                         '/'.join([h, h])]))
@@ -196,7 +204,7 @@ class MemoryExhausted(RenderableError):
     """
 
     def __init__(self, n):
-        """Indicates that invalid credentials have been supplied"""
+        """Creates message with memory limit info"""
         b = str(n)
         super().__init__(502, ' '.join(['Memory limit exhausted:',
                                         '/'.join([b, b])]))

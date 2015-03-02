@@ -4,6 +4,7 @@ from contextlib import suppress
 from tempfile import NamedTemporaryFile
 from base64 import b64encode
 from PIL import Image
+from .errors import NoScalingProvided
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '26.02.2015'
@@ -37,7 +38,7 @@ class AttachmentScaler():
                 for a in i.anhaenge.anhang:
                     if a.external:
                         if self.resolution is None:
-                            a.data = a.data  # Insource data
+                            raise NoScalingProvided()
                         else:
                             with NamedTemporaryFile('wb') as tmp:
                                 tmp.write(a.data)
