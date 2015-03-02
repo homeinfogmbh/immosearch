@@ -180,12 +180,11 @@ class Controller():
             # Filter real estates
             immobilie = UserFilter(user, self._filters).filter()
             # Select appropriate data
-            if self._select_opts:
-                selector = RealEstateSelector(immobilie, self._select_opts)
-                immobilie = selector.immobilie
+            selector = RealEstateSelector(immobilie, self._select_opts)
+            immobilie = selector.immobilie
             # Render attachments
-            if self._rendering:
-                scaler = AttachmentScaler(immobilie, self._rendering)
+            if self._scaling:
+                scaler = AttachmentScaler(immobilie, self._scaling)
                 immobilie = scaler.immobilie
             # immobilie = Sorter(self._sort_options).sort()
             # TODO: Implement sorting
