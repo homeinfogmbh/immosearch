@@ -24,6 +24,13 @@ __date__ = '10.10.2014'
 __all__ = ['Controller']
 
 
+def debug(s, d=None):
+    """Write debug data"""
+    with open('/tmp/auth.txt', 'a') as f:
+        msg = '\t'.join([s, d] if d is not None else [s])
+        f.write(''.join([str(datetime.now()), '\t', msg, '\n']))
+
+
 class Separators():
     """Special separation characters"""
 
@@ -196,17 +203,11 @@ class Controller():
         """Parses a URI for query commands"""
         for query in self.queries:
             splitted_query = query.split(Separators.ASS)
-            with open('/tmp/auth.txt', 'a') as f:
-                f.write('\t'.join([str(datetime.now()), 'query', query]))
             if len(splitted_query) >= 2:
                 operation = splitted_query[0]
                 raw_value = Separators.ASS.join(splitted_query[1:])
-                with open('/tmp/auth.txt', 'a') as f:
-                    f.write('\t'.join([str(datetime.now()),
-                                       'operation', operation]))
-                with open('/tmp/auth.txt', 'a') as f:
-                    f.write('\t'.join([str(datetime.now()),
-                                       'raw_value', raw_value]))
+                debug(operation, 'operation')
+                debug(raw_value, 'raw_value')
                 value = unquote(raw_value).decode()
                 if operation == Operations.FILTER:
                     self._filter(value)
@@ -270,13 +271,10 @@ class Controller():
     def _auth(self, value):
         """Extract authentication data"""
         if self._auth_token is None:
-            with open('/tmp/auth.txt', 'a') as f:
-                f.write('\t'.join([str(datetime.now()), 'value', value]))
+            debug(value, 'value')
             auth_opts = value.split(Separators.OPTION)
             if len(auth_opts) != 1:
                 raise InvalidAuthenticationOptions()    # Do not propagate data
             else:
                 self._auth_token = auth_opts
-                with open('/tmp/auth.txt', 'a') as f:
-                    f.write('\t'.join([str(datetime.now()),
-                                       'auth_opts', auth_opts]))
+                debug(auth_opts, 'auth_opts')
