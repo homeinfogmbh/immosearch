@@ -46,7 +46,7 @@ class UserFilter():
     @property
     def immobilie(self):
         """Yields filteres real estates"""
-        if self.user.override_realestate_restrictions:
+        if self.user.ignore_restrictions:
             yield from self._immobilie
         else:
             for immobilie in self._immobilie:

@@ -15,6 +15,7 @@ from .config import core
 from tempfile import NamedTemporaryFile
 from immosearch.imgscale import ScaledImage
 from contextlib import suppress
+from urllib.parse import unquote
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '10.10.2014'
@@ -25,7 +26,7 @@ class Separators():
     """Special separation characters"""
 
     QUERY = '&'
-    ASS = '='
+    ASS = ':'
     OPTION = ','
     ATTR = '%'
     PATH = '/'
@@ -38,6 +39,7 @@ class Operations():
     SORT = 'sort'
     RENDER = 'render'
     PICTURES = 'pics'
+    AUTH_TOKEN = 'auth_token'
 
 
 class PathNodes():
@@ -179,7 +181,8 @@ class Controller():
             splitted_query = query.split(Separators.ASS)
             if len(splitted_query) >= 2:
                 operation = splitted_query[0]
-                value = Separators.ASS.join(splitted_query[1:])
+                raw_value = Separators.ASS.join(splitted_query[1:])
+                value = unquote(raw_value)
                 if operation == Operations.FILTER:
                     self._filter(value)
                 elif operation == Operations.SORT:

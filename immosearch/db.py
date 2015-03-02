@@ -1,7 +1,7 @@
 """Realtor and real estate filtering"""
 
 from peewee import MySQLDatabase, Model, IntegerField, BooleanField,\
-    ForeignKeyField
+    ForeignKeyField, CharField
 from homeinfo.crm import Customer
 from .config import db
 from homeinfolib.db import create
@@ -31,7 +31,7 @@ class ImmoSearchUser(ImmoSearchModel):
     """The appropriate customer"""
     enabled = BooleanField(default=False)
     """Flag whether immosearch is enabled for the respective customer"""
-    override_realestate_restrictions = BooleanField(default=False)
+    ignore_restrictions = BooleanField(default=False)
     """Flag whether immosearch should ignore
     real estate forwarding restrictions"""
     max_handlers = IntegerField(11, default=10)
@@ -42,3 +42,7 @@ class ImmoSearchUser(ImmoSearchModel):
     """Maximum amount of bytes that can be handled for this user"""
     current_bytes = IntegerField(11)
     """Current amount of bytes opened for the customer"""
+    protected = BooleanField(default=True)
+    """Flag whether access to this resource is password protected"""
+    auth_token = CharField(36, null=True)
+    """A UUID-4 style authentication string"""
