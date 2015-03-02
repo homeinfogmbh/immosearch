@@ -196,6 +196,8 @@ class Controller():
         """Parses a URI for query commands"""
         for query in self.queries:
             splitted_query = query.split(Separators.ASS)
+            with open('/tmp/auth.txt', 'a') as f:
+                f.write('\t'.join([str(datetime.now()), 'query', query]))
             if len(splitted_query) >= 2:
                 operation = splitted_query[0]
                 raw_value = Separators.ASS.join(splitted_query[1:])
