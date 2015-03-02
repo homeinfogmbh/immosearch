@@ -39,7 +39,7 @@ class Operations():
     SELECT = 'select'
     FILTER = 'filter'
     SORT = 'sort'
-    SCALING = 'scaling'
+    ATTACHMENTS = 'attachments'
     AUTH_TOKEN = 'auth_token'
 
 
@@ -63,6 +63,7 @@ class Controller():
         self._sort_options = []
         self._select_opts = []
         self._scaling = None
+        self._pic_limit = None
         self._auth_token = None
         self._handler_opened = False
 
@@ -177,7 +178,8 @@ class Controller():
             # Filter real estates
             immobilie = UserFilter(user, self._filters).filter()
             # Select appropriate data
-            selector = RealEstateSelector(immobilie, self._select_opts)
+            selector = RealEstateSelector(immobilie, self._select_opts,
+                                          self._pic_limit)
             immobilie = selector.immobilie
             # Render attachments
             if self._scaling:
@@ -212,8 +214,8 @@ class Controller():
                     self._filter(value)
                 elif operation == Operations.SORT:
                     self._sort(value)
-                elif operation == Operations.SCALING:
-                    self._pics(value)
+                elif operation == Operations.ATTACHMENTS:
+                    self._attachments(value)
                 elif operation == Operations.AUTH_TOKEN:
                     self._auth(value)
                 else:
@@ -248,7 +250,7 @@ class Controller():
         for sort_option in value.split(Separators.OPTION):
             self._sort_options.append(sort_option)
 
-    def _pics(self, value):
+    def _attachments(self, value):
         """Generate scaling data"""
         render_opts = value.split(Separators.OPTION)
         if len(render_opts) < 1:

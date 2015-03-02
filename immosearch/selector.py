@@ -15,10 +15,13 @@ class Selections():
 class RealEstateSelector():
     """Class that filters real estates of a user"""
 
-    def __init__(self, real_estates, selections):
-        """Initializes with a user record"""
+    def __init__(self, real_estates, selections, attachment_limit):
+        """Initializes with a real estate,
+        selection options and a picture limit
+        """
         self._real_estates = real_estates
         self._selections = selections
+        self._attachment_limit = attachment_limit
 
     @property
     def real_estates(self):
@@ -31,6 +34,11 @@ class RealEstateSelector():
         return self._selections
 
     @property
+    def attachment_limit(self):
+        """Returns the attachment limit"""
+        return self._attachment_limit
+
+    @property
     def immobilie(self):
         """Returns real estates limited to the selections"""
         for real_estate in self.real_estates:
@@ -38,4 +46,13 @@ class RealEstateSelector():
                 real_estate.freitexte = None
             if Selections.ATATCHMENTS not in self.selections:
                 real_estate.anhaenge = None
+            if self.attachment_limit is not None:
+                if real_estate.anhaenge:
+                    limited_atts = []
+                    for c, att in enumerate(real_estate.anhaenge.anhang):
+                        if c < self.attachment_limit:
+                            limited_atts.append(att)
+                        else:
+                            break
+                    real_estate.anhaenge.anhang = limited_atts
             yield real_estate
