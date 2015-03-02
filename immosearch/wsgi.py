@@ -201,7 +201,7 @@ class Controller():
             if len(splitted_query) >= 2:
                 operation = splitted_query[0]
                 raw_value = Separators.ASS.join(splitted_query[1:])
-                value = unquote(raw_value)
+                value = unquote(raw_value).decode()
                 if operation == Operations.FILTER:
                     self._filter(value)
                 elif operation == Operations.SORT:
