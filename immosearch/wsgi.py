@@ -141,8 +141,8 @@ class Controller():
             user = self.user
             if user.protected:
                 auth_token = self._auth_token
-                if auth_token is not None:
-                    if user.auth_token is not None:
+                if auth_token:
+                    if user.auth_token:
                         if auth_token == user.auth_token:
                             return True
                         else:
