@@ -10,13 +10,15 @@ __all__ = ['InvalidCustomerID', 'InvalidPathLength', 'InvalidPathNode',
            'RenderingOptionsAlreadySet', 'NoValidFilterOperation',
            'InvalidFilterOption', 'FilterOperationNotImplemented',
            'SievingError', 'InvalidAuthenticationOptions',
-           'InvalidCredentials']
+           'InvalidCredentials', 'HandlersExhausted', 'MemoryExhausted']
 
 # Error codes:
 # <nn>    WSGI top-level errors
 # 1<nn>   Filtering errors
 # 2<nn>   Sorting errors
 # 3<nn>   Scaling errors
+# 4<nn>   Authentication errors
+# 5<nn>   Limitation errors
 
 
 class RenderableError(Exception):
@@ -158,19 +160,43 @@ class SievingError(RenderableError):
 
 
 class InvalidAuthenticationOptions(RenderableError):
-    """Indicates an error during sieving"""
+    """Indicates that invalid authentication
+    options have been provided
+    """
 
     def __init__(self, opts):
-        """Indicates that invalid authentication
-        options have been provided
-        """
-        super().__init__(104, ''.join(['Invalid authentication options:',
+        """Create"""
+        super().__init__(401, ''.join(['Invalid authentication options:',
                                        opts]))
 
 
 class InvalidCredentials(RenderableError):
-    """Indicates an error during sieving"""
+    """Indicates that invalid credentials have been suppliedg"""
 
     def __init__(self):
         """Indicates that invalid credentials have been supplied"""
-        super().__init__(104, 'Invalid credetials')
+        super().__init__(402, 'Invalid credetials')
+
+
+class HandlersExhausted(RenderableError):
+    """Indicates that all available event handlers
+    for the customer have been exhausted
+    """
+
+    def __init__(self, n):
+        """Indicates that invalid credentials have been supplied"""
+        h = str(n)
+        super().__init__(501, ' '.join(['Handlers exhausted:',
+                                        '/'.join([h, h])]))
+
+
+class MemoryExhausted(RenderableError):
+    """Indicates that all available memory
+    for the customer have been exhausted
+    """
+
+    def __init__(self, n):
+        """Indicates that invalid credentials have been supplied"""
+        b = str(n)
+        super().__init__(502, ' '.join(['Memory limit exhausted:',
+                                        '/'.join([b, b])]))

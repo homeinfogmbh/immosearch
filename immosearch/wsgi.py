@@ -13,7 +13,7 @@ from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     InvalidPathNode, NoValidFilterOperation, InvalidRenderingOptionsCount,\
     InvalidRenderingResolution, RenderingOptionsAlreadySet,\
     InvalidOperationError, UserNotAllowed, InvalidAuthenticationOptions,\
-    InvalidCredentials
+    InvalidCredentials, HandlersExhausted
 from .filter import UserFilter
 from .config import core
 from .imgscale import ScaledImage
@@ -65,6 +65,7 @@ class Controller():
         self._rendering = None
         self._pictures = False
         self._auth_token = None
+        self._handler_opened = False
 
     def run(self):
         """Main method to call"""
@@ -87,6 +88,9 @@ class Controller():
         else:
             status = '200 OK'
             content_type = 'application/xml'
+        finally:
+            if self._handler_opened:
+                self.user.current_handlers -= 1
         return (status, response_body, content_type, charset)
 
     @property
@@ -153,7 +157,12 @@ class Controller():
                 else:
                     raise InvalidCredentials()
             else:
-                return True
+                if user.current_handlers < user.max_handlers:
+                    user.current_handlers += 1
+                    self._handler_opened = True
+                    return True
+                else:
+                    raise HandlersExhausted(user.max_handlers)
         else:
             return False
 
@@ -188,7 +197,8 @@ class Controller():
                                           user.customer.name,
                                           str(user.customer.id))
             anbieter.immobilie = [i for i in immobilie]
-            return anbieter.toxml(encoding=encoding)
+            xml_data = anbieter.toxml(encoding=encoding)
+            return xml_data
         else:
             raise UserNotAllowed(self.cid)
 
