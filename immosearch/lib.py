@@ -1,15 +1,24 @@
 """General API library"""
+
 from datetime import datetime
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '24.02.2015'
-__all__ = ['boolean', 'pdate', 'tags', 'cast',
+__all__ = ['boolean', 'debug', 'pdate', 'tags', 'cast',
            'Sorting', 'Delims', 'Operators']
 
 
 boolean = {'true': True,
            'false': False}
 """Boolean string datatype"""
+
+
+def debug(s, d=None):
+    """Write debug data"""
+    msg = ''.join([str(datetime.now()), '\t',
+                   str(s) if d is None else '\t'.join([d, str(s)]), '\n'])
+    with open('/tmp/auth.txt', 'a') as f:
+        f.write(msg)
 
 
 def pdate(date_str):

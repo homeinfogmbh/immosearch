@@ -4,7 +4,6 @@ from traceback import format_exc
 from peewee import DoesNotExist
 from contextlib import suppress
 from urllib.parse import unquote
-from datetime import datetime
 from tempfile import NamedTemporaryFile
 from homeinfolib.db import connection
 from openimmo import factories
@@ -18,25 +17,18 @@ from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
 from .filter import UserFilter
 from .config import core
 from .imgscale import ScaledImage
+from .lib import debug
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '10.10.2014'
 __all__ = ['Controller']
 
 
-def debug(s, d=None):
-    """Write debug data"""
-    msg = ''.join([str(datetime.now()), '\t',
-                   str(s) if d is None else '\t'.join([d, str(s)]), '\n'])
-    with open('/tmp/auth.txt', 'a') as f:
-        f.write(msg)
-
-
 class Separators():
     """Special separation characters"""
 
     QUERY = '&'
-    ASS = ':'
+    ASS = '='
     OPTION = ','
     ATTR = '%'
     PATH = '/'
