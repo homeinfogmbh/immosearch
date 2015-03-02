@@ -1,12 +1,51 @@
 """Image scaling"""
 
+from contextlib import suppress
 from tempfile import NamedTemporaryFile
 from base64 import b64encode
 from PIL import Image
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '26.02.2015'
-__all__ = ['ScaledImage']
+__all__ = ['AttachmentScaler']
+
+
+class AttachmentScaler():
+    """Class that scales an attachment"""
+
+    def __init__(self, real_estates, resolution):
+        """Class to scale attachments of real estates"""
+        self._real_estates = real_estates
+        self._resolution = resolution
+
+    @property
+    def real_estates(self):
+        """Returns the real estates"""
+        return self._real_estates
+
+    @property
+    def resolution(self):
+        """Returns the targeted resolution"""
+        return self._resolution
+
+    @property
+    def immobilie(self):
+        """Returns the real estates with scaled attachments"""
+        for i in self.real_estates:
+            if i.anhaenge:
+                processed = []
+                for a in i.anhaenge.anhang:
+                    if a.external:
+                        with NamedTemporaryFile('wb') as tmp:
+                            tmp.write(a.data)
+                            scaler = ScaledImage(tmp.name, self.resolution)
+                            with suppress(OSError):
+                                a.data = scaler.b64data
+                                processed.append(a)
+                    else:
+                        processed.append(a)
+                i.anhaenge.anhang = processed
+            yield i
 
 
 class ScaledImage():

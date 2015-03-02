@@ -16,8 +16,9 @@ from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     InvalidCredentials, HandlersExhausted
 from .filter import UserFilter
 from .config import core
-from .imgscale import ScaledImage
+from .imgscale import AttachmentScaler
 from .lib import debug
+from immosearch.selector import RealEstateSelector
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '10.10.2014'
@@ -37,10 +38,10 @@ class Separators():
 class Operations():
     """Valid query operations"""
 
+    SELECT = 'select'
     FILTER = 'filter'
     SORT = 'sort'
-    RENDER = 'render'
-    PICTURES = 'pics'
+    SCALING = 'scale'
     AUTH_TOKEN = 'auth_token'
 
 
@@ -62,8 +63,9 @@ class Controller():
         self._query_string = query_string
         self._filters = []
         self._sort_options = []
+        self._select_opts = []
+        self._scaling = None
         self._rendering = None
-        self._pictures = False
         self._auth_token = None
         self._handler_opened = False
 
@@ -147,7 +149,7 @@ class Controller():
         else:
             raise HandlersExhausted(user.max_handlers)
 
-    def chkuser(self, user):
+    def _chkuser(self, user):
         """Check whether user is allowed to retrieve real estates"""
         if user is None:
             return False
@@ -174,28 +176,19 @@ class Controller():
         """Perform sieving, sorting and rendering"""
         user = self.user
         self.parse()
-        if self.chkuser(user):
+        if self._chkuser(user):
+            # Filter real estates
             immobilie = UserFilter(user, self._filters).filter()
+            # Select appropriate data
+            if self._select_opts:
+                selector = RealEstateSelector(immobilie, self._select_opts)
+                immobilie = selector.immobilie
+            # Render attachments
+            if self._rendering:
+                scaler = AttachmentScaler(immobilie, self._rendering)
+                immobilie = scaler.immobilie
             # immobilie = Sorter(self._sort_options).sort()
-            # Insource and scale pictures only
-            immobilie, immo = [], immobilie
-            if self._pictures:
-                for i in immo:
-                    if i.anhaenge:
-                        insourced = []
-                        for a in i.anhaenge.anhang:
-                            with NamedTemporaryFile('wb') as tmp:
-                                tmp.write(a.data)
-                                scaler = ScaledImage(tmp.name, (512, 341))
-                                with suppress(OSError):
-                                    a.data = scaler.b64data
-                                    insourced.append(a)
-                        i.anhaenge.anhang = insourced
-                    immobilie.append(i)
-            else:
-                for i in immo:
-                    i.anhaenge = None
-                    immobilie.append(i)
+            # TODO: Implement sorting
             # Generate anbieter
             anbieter = factories.anbieter(str(user.customer.id),
                                           user.customer.name,
@@ -217,18 +210,24 @@ class Controller():
                 debug(operation, 'operation')
                 debug(raw_value, 'raw_value')
                 value = unquote(raw_value)
-                if operation == Operations.FILTER:
+                if operation == Operations.SELECT:
+                    self._select(value)
+                elif operation == Operations.FILTER:
                     self._filter(value)
                 elif operation == Operations.SORT:
                     self._sort(value)
-                elif operation == Operations.RENDER:
-                    self._render(value)
-                elif operation == Operations.PICTURES:
-                    self._pictures = True
+                elif operation == Operations.SCALING:
+                    self._scale(value)
                 elif operation == Operations.AUTH_TOKEN:
                     self._auth(value)
                 else:
                     raise InvalidOperationError(operation)
+
+    def _select(self, value):
+        """Select options"""
+        select_opts = value.split(Separators.OPTION)
+        for select_opt in select_opts:
+            self._select_opts.append(select_opt)
 
     def _filter(self, value):
         """Generate filtering data"""
@@ -253,9 +252,9 @@ class Controller():
         for sort_option in value.split(Separators.OPTION):
             self._sort_options.append(sort_option)
 
-    def _render(self, value):
-        """Generate filtering data"""
-        if self._rendering is None:
+    def _scale(self, value):
+        """Generate scaling data"""
+        if self._scaling is None:
             render_opts = value.split(Separators.OPTION)
             if len(render_opts) != 1:
                 raise InvalidRenderingOptionsCount()
@@ -272,9 +271,9 @@ class Controller():
                     except:
                         raise InvalidRenderingResolution(render_opt)
                     else:
-                        self._rendering = (x, y)
+                        self._scaling = (x, y)
         else:
-            raise RenderingOptionsAlreadySet(self._rendering)
+            raise RenderingOptionsAlreadySet(self._scaling)
 
     def _auth(self, value):
         """Extract authentication data"""
