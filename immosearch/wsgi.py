@@ -9,7 +9,7 @@ from .lib import Operators
 from .db import ImmoSearchUser
 from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     InvalidPathNode, NoValidFilterOperation, InvalidRenderingOptionsCount,\
-    InvalidRenderingResolution, RenderingOptionsAlreadySet,\
+    InvalidRenderingResolution, InvalidPictureLimit, OptionAlreadySet,\
     InvalidOperationError, UserNotAllowed, InvalidAuthenticationOptions,\
     InvalidCredentials, HandlersExhausted
 from .filter import UserFilter
@@ -213,7 +213,7 @@ class Controller():
                 elif operation == Operations.SORT:
                     self._sort(value)
                 elif operation == Operations.SCALING:
-                    self._scale(value)
+                    self._pics(value)
                 elif operation == Operations.AUTH_TOKEN:
                     self._auth(value)
                 else:
@@ -248,28 +248,42 @@ class Controller():
         for sort_option in value.split(Separators.OPTION):
             self._sort_options.append(sort_option)
 
-    def _scale(self, value):
+    def _pics(self, value):
         """Generate scaling data"""
-        if self._scaling is None:
-            render_opts = value.split(Separators.OPTION)
-            if len(render_opts) != 1:
-                raise InvalidRenderingOptionsCount()
-            else:
-                render_opt = render_opts[0]
-                try:
-                    str_x, str_y = render_opt.split('x')
-                except ValueError:
-                    raise InvalidRenderingResolution(render_opt)
-                else:
-                    try:
-                        x = int(str_x)
-                        y = int(str_y)
-                    except:
-                        raise InvalidRenderingResolution(render_opt)
-                    else:
-                        self._scaling = (x, y)
+        render_opts = value.split(Separators.OPTION)
+        if len(render_opts) < 1:
+            raise InvalidRenderingOptionsCount()
         else:
-            raise RenderingOptionsAlreadySet(self._scaling)
+            for render_opt in render_opts:
+                split_option = render_opt.split(Separators.ASS)
+                option = split_option[0]
+                value = Separators.ASS.join(split_option[1:])
+                if option == 'scale':
+                    if self._scaling is None:
+                        try:
+                            str_x, str_y = value.split('x')
+                        except ValueError:
+                            raise InvalidRenderingResolution(value)
+                        else:
+                            try:
+                                x = int(str_x)
+                                y = int(str_y)
+                            except:
+                                raise InvalidRenderingResolution(value)
+                            else:
+                                self._scaling = (x, y)
+                    else:
+                        raise OptionAlreadySet('scaling', self._scaling)
+                elif option == 'limit':
+                    if self._pic_limit is None:
+                        try:
+                            limit = int(value)
+                        except (ValueError, TypeError):
+                            raise InvalidPictureLimit(value)
+                        else:
+                            self._pic_limit = limit
+                    else:
+                        raise OptionAlreadySet('limit', self._scaling)
 
     def _auth(self, value):
         """Extract authentication data"""

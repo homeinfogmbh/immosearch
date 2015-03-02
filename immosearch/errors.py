@@ -5,9 +5,9 @@ from .error_xml import error
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '27.02.2015'
 __all__ = ['InvalidCustomerID', 'InvalidPathLength', 'InvalidPathNode',
-           'InvalidOperationError', 'UserNotAllowed',
+           'InvalidOperationError', 'UserNotAllowed', 'OptionAlreadySet',
            'InvalidRenderingOptionsCount', 'InvalidRenderingResolution',
-           'RenderingOptionsAlreadySet', 'NoValidFilterOperation',
+           'InvalidPictureLimit', 'NoValidFilterOperation',
            'InvalidFilterOption', 'FilterOperationNotImplemented',
            'SievingError', 'InvalidAuthenticationOptions',
            'InvalidCredentials', 'HandlersExhausted', 'MemoryExhausted']
@@ -82,6 +82,16 @@ class UserNotAllowed(RenderableError):
         super().__init__(15, ' '.join(['User not allowed:', str(cid)]))
 
 
+class OptionAlreadySet(RenderableError):
+    """Indicates that a user is not allowed to use immosearch"""
+
+    def __init__(self, option, value):
+        """Sets the message"""
+        super().__init__(16, ' '.join(['Option:', option,
+                                       'has already been set to:',
+                                       str(value)]))
+
+
 class NoValidFilterOperation(RenderableError):
     """Indicates that no valid operation
     was specified in a filter query"""
@@ -148,15 +158,13 @@ class InvalidRenderingResolution(RenderableError):
                                         '- must be like <width>x<heigth>']))
 
 
-class RenderingOptionsAlreadySet(RenderableError):
+class InvalidPictureLimit(RenderableError):
     """Indicates that rendering options have already been set"""
 
-    def __init__(self, resolution):
+    def __init__(self, limit):
         """Sets the message"""
-        super().__init__(303, ' '.join(['Rendering resolution has',
-                                        'already been set to:',
-                                        'x'.join([str(n) for n in
-                                                  resolution])]))
+        super().__init__(303, ' '.join(['Invalid picture limit:',
+                                        str(limit)]))
 
 
 class NoScalingProvided(RenderableError):
