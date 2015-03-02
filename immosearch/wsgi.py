@@ -28,7 +28,8 @@ def debug(s, d=None):
     """Write debug data"""
     with open('/tmp/auth.txt', 'a') as f:
         f.write(''.join([str(datetime.now()), '\t',
-                         s if d is None else '\t'.join([d, s]), '\n']))
+                         str(s) if d is None else '\t'.join([d, str(s)]),
+                         '\n']))
 
 
 class Separators():
