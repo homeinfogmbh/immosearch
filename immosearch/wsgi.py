@@ -65,7 +65,6 @@ class Controller():
         self._sort_options = []
         self._select_opts = []
         self._scaling = None
-        self._rendering = None
         self._auth_token = None
         self._handler_opened = False
 
