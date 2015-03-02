@@ -63,6 +63,7 @@ class Controller():
         self._sort_options = []
         self._rendering = None
         self._pictures = False
+        self._auth_token = None
 
     def run(self):
         """Main method to call"""
@@ -137,15 +138,29 @@ class Controller():
         if user is None:
             return False
         elif user.enabled:
-            return True
+            user = self.user
+            if user.protected:
+                auth_token = self._auth_token
+                if auth_token is not None:
+                    if user.auth_token is not None:
+                        if auth_token == user.auth_token:
+                            return True
+                        else:
+                            raise InvalidCredentials()
+                    else:
+                        raise InvalidCredentials()
+                else:
+                    raise InvalidCredentials()
+            else:
+                return True
         else:
             return False
 
     def _run(self, encoding):
         """Perform sieving, sorting and rendering"""
         user = self.user
+        self.parse()
         if self.chkuser(user):
-            self.parse()
             immobilie = UserFilter(user, self._filters).filter()
             # immobilie = Sorter(self._sort_options).sort()
             # Insource and scale pictures only
@@ -248,20 +263,4 @@ class Controller():
             if len(auth_opts) != 1:
                 raise InvalidAuthenticationOptions()    # Do not propagate data
             else:
-                user = self.user
-                if user.protected:
-                    auth_token = auth_opts
-                    if auth_token is not None:
-                        if user.auth_token is not None:
-                            if auth_token == user.auth_token:
-                                return True
-                            else:
-                                raise InvalidCredentials()
-                        else:
-                            raise InvalidCredentials()
-                    else:
-                        raise InvalidCredentials()
-                else:
-                    return True
-        else:
-            raise InvalidCredentials()
+                self._auth_token = auth_opts
