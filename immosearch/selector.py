@@ -37,5 +37,5 @@ class RealEstateSelector():
             if Selections.FREITEXTE not in self.selections:
                 real_estate.freitexte = None
             if Selections.ATATCHMENTS not in self.selections:
-                real_estate.anhang = None
+                real_estate.anhaenge = None
             yield real_estate
