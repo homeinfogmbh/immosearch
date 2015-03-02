@@ -2,9 +2,7 @@
 
 from traceback import format_exc
 from peewee import DoesNotExist
-from contextlib import suppress
 from urllib.parse import unquote
-from tempfile import NamedTemporaryFile
 from homeinfolib.db import connection
 from openimmo import factories
 from .lib import Operators
@@ -41,7 +39,7 @@ class Operations():
     SELECT = 'select'
     FILTER = 'filter'
     SORT = 'sort'
-    SCALING = 'scale'
+    SCALING = 'scaling'
     AUTH_TOKEN = 'auth_token'
 
 
