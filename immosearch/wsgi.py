@@ -38,6 +38,7 @@ class Operations():
 
     SELECT = 'select'
     FILTER = 'filter'
+    INCLUDE = 'include'
     SORT = 'sort'
     ATTACHMENTS = 'attachments'
     AUTH_TOKEN = 'auth_token'
@@ -61,7 +62,7 @@ class Controller():
         self._query_string = query_string
         self._filters = []
         self._sort_options = []
-        self._select_opts = []
+        self._includes = []
         self._scaling = None
         self._pic_limit = None
         self._auth_token = None
@@ -178,7 +179,7 @@ class Controller():
             # Filter real estates
             immobilie = UserFilter(user, self._filters).filter()
             # Select appropriate data
-            selector = RealEstateSelector(immobilie, self._select_opts,
+            selector = RealEstateSelector(immobilie, self._includes,
                                           self._pic_limit)
             immobilie = selector.immobilie
             # Handle attachments
@@ -207,8 +208,8 @@ class Controller():
                 debug(operation, 'operation')
                 debug(raw_value, 'raw_value')
                 value = unquote(raw_value)
-                if operation == Operations.SELECT:
-                    self._select(value)
+                if operation == Operations.INCLUDE:
+                    self._include(value)
                 elif operation == Operations.FILTER:
                     self._filter(value)
                 elif operation == Operations.SORT:
@@ -220,11 +221,11 @@ class Controller():
                 else:
                     raise InvalidOperationError(operation)
 
-    def _select(self, value):
+    def _include(self, value):
         """Select options"""
-        select_opts = value.split(Separators.OPTION)
-        for select_opt in select_opts:
-            self._select_opts.append(select_opt)
+        includes = value.split(Separators.OPTION)
+        for include in includes:
+            self._includes.append(include)
 
     def _filter(self, value):
         """Generate filtering data"""
