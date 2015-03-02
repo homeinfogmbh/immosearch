@@ -259,7 +259,7 @@ class Controller():
                 split_option = render_opt.split(Separators.ASS)
                 option = split_option[0]
                 value = Separators.ASS.join(split_option[1:])
-                if option == 'scale':
+                if option == 'scaling':
                     if self._scaling is None:
                         try:
                             str_x, str_y = value.split('x')
@@ -285,6 +285,8 @@ class Controller():
                             self._pic_limit = limit
                     else:
                         raise OptionAlreadySet('limit', self._scaling)
+                else:
+                    raise InvalidOperationError(option)
 
     def _auth(self, value):
         """Extract authentication data"""
