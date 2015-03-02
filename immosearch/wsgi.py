@@ -181,10 +181,9 @@ class Controller():
             selector = RealEstateSelector(immobilie, self._select_opts,
                                           self._pic_limit)
             immobilie = selector.immobilie
-            # Render attachments
-            if self._scaling:
-                scaler = AttachmentScaler(immobilie, self._scaling)
-                immobilie = scaler.immobilie
+            # Handle attachments
+            scaler = AttachmentScaler(immobilie, self._scaling)
+            immobilie = scaler.immobilie
             # immobilie = Sorter(self._sort_options).sort()
             # TODO: Implement sorting
             # Generate anbieter
