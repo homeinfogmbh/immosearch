@@ -17,6 +17,7 @@ from tempfile import NamedTemporaryFile
 from immosearch.imgscale import ScaledImage
 from contextlib import suppress
 from urllib.parse import unquote
+from datetime import datetime
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '10.10.2014'
@@ -261,10 +262,13 @@ class Controller():
     def _auth(self, value):
         """Extract authentication data"""
         if self._auth_token is None:
+            with open('/tmp/auth.txt', 'a') as f:
+                f.write('\t'.join([str(datetime.now()), 'value', value]))
             auth_opts = value.split(Separators.OPTION)
             if len(auth_opts) != 1:
                 raise InvalidAuthenticationOptions()    # Do not propagate data
             else:
                 self._auth_token = auth_opts
-                with open('/tmp/auth.txt', 'w') as f:
-                    f.write(auth_opts)
+                with open('/tmp/auth.txt', 'a') as f:
+                    f.write('\t'.join([str(datetime.now()),
+                                       'auth_opts', auth_opts]))
