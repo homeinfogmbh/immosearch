@@ -27,8 +27,8 @@ __all__ = ['Controller']
 def debug(s, d=None):
     """Write debug data"""
     with open('/tmp/auth.txt', 'a') as f:
-        msg = '\t'.join([s, d] if d is not None else [s])
-        f.write(''.join([str(datetime.now()), '\t', msg, '\n']))
+        f.write(''.join([str(datetime.now()), '\t',
+                         s if d is None else '\t'.join([s, d]), '\n']))
 
 
 class Separators():
@@ -202,6 +202,7 @@ class Controller():
     def parse(self):
         """Parses a URI for query commands"""
         for query in self.queries:
+            debug(query, 'query')
             splitted_query = query.split(Separators.ASS)
             if len(splitted_query) >= 2:
                 operation = splitted_query[0]
