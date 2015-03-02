@@ -266,3 +266,5 @@ class Controller():
                 raise InvalidAuthenticationOptions()    # Do not propagate data
             else:
                 self._auth_token = auth_opts
+                with open('/tmp/auth.txt', 'w') as f:
+                    f.write(auth_opts)
