@@ -138,6 +138,15 @@ class Controller():
         else:
             return user
 
+    def _chkhandlers(self, user):
+        """Check for used handlers"""
+        if user.current_handlers < user.max_handlers:
+            user.current_handlers += 1
+            self._handler_opened = True
+            return True
+        else:
+            raise HandlersExhausted(user.max_handlers)
+
     def chkuser(self, user):
         """Check whether user is allowed to retrieve real estates"""
         if user is None:
@@ -149,7 +158,7 @@ class Controller():
                 if auth_token:
                     if user.auth_token:
                         if auth_token == user.auth_token:
-                            return True
+                            return self._chkhandlers(user)
                         else:
                             raise InvalidCredentials()
                     else:
@@ -157,12 +166,7 @@ class Controller():
                 else:
                     raise InvalidCredentials()
             else:
-                if user.current_handlers < user.max_handlers:
-                    user.current_handlers += 1
-                    self._handler_opened = True
-                    return True
-                else:
-                    raise HandlersExhausted(user.max_handlers)
+                return self._chkhandlers(user)
         else:
             return False
 
