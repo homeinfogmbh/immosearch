@@ -90,7 +90,7 @@ class Controller():
             content_type = 'application/xml'
         finally:
             if self._handler_opened:
-                self.user.current_handlers -= 1
+                self.user.current_handlers += -1
         return (status, response_body, content_type, charset)
 
     @property
