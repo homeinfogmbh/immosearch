@@ -2,6 +2,10 @@
 
 from traceback import format_exc
 from peewee import DoesNotExist
+from contextlib import suppress
+from urllib.parse import unquote
+from datetime import datetime
+from tempfile import NamedTemporaryFile
 from homeinfolib.db import connection
 from openimmo import factories
 from .lib import Operators
@@ -13,11 +17,7 @@ from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     InvalidCredentials
 from .filter import UserFilter
 from .config import core
-from tempfile import NamedTemporaryFile
-from immosearch.imgscale import ScaledImage
-from contextlib import suppress
-from urllib.parse import unquote
-from datetime import datetime
+from .imgscale import ScaledImage
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '10.10.2014'
@@ -26,10 +26,10 @@ __all__ = ['Controller']
 
 def debug(s, d=None):
     """Write debug data"""
+    msg = ''.join([str(datetime.now()), '\t',
+                   str(s) if d is None else '\t'.join([d, str(s)]), '\n'])
     with open('/tmp/auth.txt', 'a') as f:
-        f.write(''.join([str(datetime.now()), '\t',
-                         str(s) if d is None else '\t'.join([d, str(s)]),
-                         '\n']))
+        f.write(msg)
 
 
 class Separators():
