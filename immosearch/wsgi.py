@@ -28,7 +28,7 @@ def debug(s, d=None):
     """Write debug data"""
     with open('/tmp/auth.txt', 'a') as f:
         f.write(''.join([str(datetime.now()), '\t',
-                         s if d is None else '\t'.join([s, d]), '\n']))
+                         s if d is None else '\t'.join([d, s]), '\n']))
 
 
 class Separators():
@@ -84,7 +84,7 @@ class Controller():
             content_type = 'application/xml'
             response_body = r.render(encoding=charset)
         except:
-            status = '200 Internal Server Error'
+            status = '500 Internal Server Error'
             charset = 'UTF-8'
             content_type = 'text/plain'
             msg = 'Internal Server Error :-('
@@ -209,7 +209,7 @@ class Controller():
                 raw_value = Separators.ASS.join(splitted_query[1:])
                 debug(operation, 'operation')
                 debug(raw_value, 'raw_value')
-                value = unquote(raw_value).decode()
+                value = unquote(raw_value)
                 if operation == Operations.FILTER:
                     self._filter(value)
                 elif operation == Operations.SORT:
