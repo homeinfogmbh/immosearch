@@ -43,7 +43,7 @@ class AttachmentScaler():
                                 tmp.write(a.data)
                                 scaled = ScaledImage(tmp.name, self.resolution)
                                 with suppress(OSError):
-                                    a.data = scaled.b64data
+                                    a.data = scaled.data
                                     processed.append(a)
                     else:
                         processed.append(a)
