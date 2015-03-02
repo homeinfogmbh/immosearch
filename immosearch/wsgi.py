@@ -207,6 +207,8 @@ class Controller():
                     self._render(value)
                 elif operation == Operations.PICTURES:
                     self._pictures = True
+                elif operation == Operations.AUTH_TOKEN:
+                    self._auth(value)
                 else:
                     raise InvalidOperationError(operation)
 
