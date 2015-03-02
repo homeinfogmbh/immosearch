@@ -7,9 +7,10 @@ from openimmo import factories
 from .lib import Operators
 from .db import ImmoSearchUser
 from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
-    InvalidPathNode, NoValidFilterOperation, InvalidRenderingOptionsCount, \
+    InvalidPathNode, NoValidFilterOperation, InvalidRenderingOptionsCount,\
     InvalidRenderingResolution, RenderingOptionsAlreadySet,\
-    InvalidOperationError, UserNotAllowed
+    InvalidOperationError, UserNotAllowed, InvalidAuthenticationOptions,\
+    InvalidCredentials
 from .filter import UserFilter
 from .config import core
 from tempfile import NamedTemporaryFile
@@ -239,3 +240,28 @@ class Controller():
                         self._rendering = (x, y)
         else:
             raise RenderingOptionsAlreadySet(self._rendering)
+
+    def _auth(self, value):
+        """Extract authentication data"""
+        if self._auth_token is None:
+            auth_opts = value.split(Separators.OPTION)
+            if len(auth_opts) != 1:
+                raise InvalidAuthenticationOptions()    # Do not propagate data
+            else:
+                user = self.user
+                if user.protected:
+                    auth_token = auth_opts
+                    if auth_token is not None:
+                        if user.auth_token is not None:
+                            if auth_token == user.auth_token:
+                                return True
+                            else:
+                                raise InvalidCredentials()
+                        else:
+                            raise InvalidCredentials()
+                    else:
+                        raise InvalidCredentials()
+                else:
+                    return True
+        else:
+            raise InvalidCredentials()

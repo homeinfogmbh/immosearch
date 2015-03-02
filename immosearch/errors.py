@@ -9,7 +9,8 @@ __all__ = ['InvalidCustomerID', 'InvalidPathLength', 'InvalidPathNode',
            'InvalidRenderingOptionsCount', 'InvalidRenderingResolution',
            'RenderingOptionsAlreadySet', 'NoValidFilterOperation',
            'InvalidFilterOption', 'FilterOperationNotImplemented',
-           'SievingError']
+           'SievingError', 'InvalidAuthenticationOptions',
+           'InvalidCredentials']
 
 # Error codes:
 # <nn>    WSGI top-level errors
@@ -154,3 +155,22 @@ class SievingError(RenderableError):
                                        str(option), '" with operation "',
                                        str(operation), '" for value "',
                                        str(value), '"']))
+
+
+class InvalidAuthenticationOptions(RenderableError):
+    """Indicates an error during sieving"""
+
+    def __init__(self, opts):
+        """Indicates that invalid authentication
+        options have been provided
+        """
+        super().__init__(104, ''.join(['Invalid authentication options:',
+                                       opts]))
+
+
+class InvalidCredentials(RenderableError):
+    """Indicates an error during sieving"""
+
+    def __init__(self):
+        """Indicates that invalid credentials have been supplied"""
+        super().__init__(104, 'Invalid credetials')
