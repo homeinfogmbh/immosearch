@@ -36,12 +36,15 @@ class AttachmentScaler():
                 processed = []
                 for a in i.anhaenge.anhang:
                     if a.external:
-                        with NamedTemporaryFile('wb') as tmp:
-                            tmp.write(a.data)
-                            scaler = ScaledImage(tmp.name, self.resolution)
-                            with suppress(OSError):
-                                a.data = scaler.b64data
-                                processed.append(a)
+                        if self.resolution is None:
+                            a.data = a.data  # Insource data
+                        else:
+                            with NamedTemporaryFile('wb') as tmp:
+                                tmp.write(a.data)
+                                scaled = ScaledImage(tmp.name, self.resolution)
+                                with suppress(OSError):
+                                    a.data = scaled.b64data
+                                    processed.append(a)
                     else:
                         processed.append(a)
                 i.anhaenge.anhang = processed
