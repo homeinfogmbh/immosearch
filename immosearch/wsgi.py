@@ -36,12 +36,12 @@ class Separators():
 class Operations():
     """Valid query operations"""
 
+    AUTH_TOKEN = 'auth_token'
     SELECT = 'select'
     FILTER = 'filter'
     INCLUDE = 'include'
     SORT = 'sort'
     ATTACHMENTS = 'attachments'
-    AUTH_TOKEN = 'auth_token'
 
 
 class PathNodes():

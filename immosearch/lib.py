@@ -109,7 +109,7 @@ class Delims():
 
     SL = '['    # Start list
     EL = ']'    # End list
-    IS = ','    # Item separator
+    IS = ';'    # Item separator
     BEGIN_INDEX = '['
     END_INDEX = ']'
 
