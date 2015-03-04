@@ -27,9 +27,9 @@ class Separators():
     """Special separation characters"""
 
     QUERY = '&'
-    ASS = '='
+    ASS = ':'
     OPTION = ','
-    ATTR = '%'
+    ATTR = '='
     PATH = '/'
 
 
@@ -258,9 +258,9 @@ class Controller():
             raise InvalidRenderingOptionsCount()
         else:
             for render_opt in render_opts:
-                split_option = render_opt.split(Separators.ASS)
+                split_option = render_opt.split(Separators.ATTR)
                 option = split_option[0]
-                value = Separators.ASS.join(split_option[1:])
+                value = Separators.ATTR.join(split_option[1:])
                 if option == 'scaling':
                     if self._scaling is None:
                         try:
