@@ -190,62 +190,81 @@ class FilterableRealEstate():
         return self._immobilie
 
     @property
+    def objektart(self):
+        """Returns the OpenImmo™oObjektart
+        XXX: This can only be one for one real estate according to OpenImmo™
+        """
+        oa = self.immobilie.objektkategorie.objektart
+        if oa.zimmer:
+            return 'zimmer'
+        elif oa.wohnung:
+            return 'wohnung'
+        elif oa.haus:
+            return 'haus'
+        elif oa.grundstueck:
+            return 'grundstueck'
+        elif oa.buero_praxen:
+            return 'buero_praxen'
+        elif oa.einzelhandel:
+            return 'einzelhandel'
+        elif oa.gastgewerbe:
+            return 'gastgewerbe'
+        elif oa.hallen_lager_prod:
+            return 'hallen_lager_prod'
+        elif oa.land_und_forstwirtschaft:
+            return 'land_und_forstwirtschaft'
+        elif oa.parken:
+            return 'parken'
+        elif oa.sonstige:
+            return 'sonstige'
+        elif oa.freizeitimmobilie_gewerblich:
+            return 'freizeitimmobilie_gewerblich'
+        elif oa.zinshaus_renditeobjekt:
+            return 'zinshaus_renditeobjekt'
+
+    @property
     def objekttypen(self):
         """Returns a generator for the object's types"""
         oa = self.immobilie.objektkategorie.objektart
         for zimmer in oa.zimmer:
-            yield str(zimmer.zimmertyp) if zimmer.zimmertyp else 'ZIMMER'
+            if zimmer.zimmertyp:
+                yield str(zimmer.zimmertyp)
         for wohnung in oa.wohnung:
-            yield str(wohnung.wohnungtyp) if wohnung.wohnungtyp else 'WOHNUNG'
+            if wohnung.wohnungtyp:
+                yield str(wohnung.wohnungtyp)
         for haus in oa.haus:
-            yield str(haus.haustyp) if haus.haustyp else 'HAUS'
+            if haus.haustyp:
+                yield str(haus.haustyp)
         for grundstueck in oa.grundstueck:
             if grundstueck.grundst_typ:
                 yield str(grundstueck.grundst_typ)
-            else:
-                yield 'GRUNDSTUECK'
         for buero_praxen in oa.buero_praxen:
             if buero_praxen.buero_typ:
                 yield str(buero_praxen.buero_typ)
-            else:
-                yield 'BUERO_PRAXEN'
         for einzelhandel in oa.einzelhandel:
             if einzelhandel.handel_typ:
                 yield str(einzelhandel.handel_typ)
-            else:
-                yield 'EINZELHANDEL'
         for gastgewerbe in oa.gastgewerbe:
             if gastgewerbe.gastgew_typ:
                 str(gastgewerbe.gastgew_typ)
-            else:
-                yield 'GASTGEWERBE'
         for hallen_lager_prod in oa.hallen_lager_prod:
             if hallen_lager_prod.hallen_typ:
                 yield str(hallen_lager_prod.hallen_typ)
-            else:
-                yield 'HALLEN_LAGER_PROD'
         for land_und_forstwirtschaft in oa.land_und_forstwirtschaft:
             if land_und_forstwirtschaft.land_typ:
                 yield str(land_und_forstwirtschaft.land_typ)
-            else:
-                yield 'LAND_UND_FORSTWIRTSCHAFT'
         for parken in oa.parken:
-            yield str(parken.parken_typ) if parken.parken_typ else 'PARKEN'
+            if parken.parken_typ:
+                yield str(parken.parken_typ)
         for sonstige in oa.sonstige:
             if sonstige.sonstige_typ:
                 yield str(sonstige.sonstige_typ)
-            else:
-                yield 'SONSTIGE'
         for freizeitimmobilie_gewerblich in oa.freizeitimmobilie_gewerblich:
             if freizeitimmobilie_gewerblich.freizeit_typ:
                 yield str(freizeitimmobilie_gewerblich.freizeit_typ)
-            else:
-                yield 'FREIZEITIMMOBILIE_GEWERBLICH'
         for zinshaus_renditeobjekt in oa.zinshaus_renditeobjekt:
             if zinshaus_renditeobjekt.zins_typ:
                 yield str(zinshaus_renditeobjekt.zins_typ)
-            else:
-                yield 'ZINSHAUS_RENDITEOBJEKT'
 
     @property
     def land(self):
@@ -716,6 +735,7 @@ class RealEstateSieve():
     """
 
     options = {'objektart': lambda f, op, v: op(f.objekttypen, v),
+               'objekttyp': lambda f, op, v: op(f.objektart, v),
                'land': lambda f, op, v: op(f.land, v),
                'ort': lambda f, op, v: op(f.ort, v),
                'ortsteil': lambda f, op, v: op(f.ortsteil, v),
