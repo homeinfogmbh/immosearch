@@ -42,7 +42,7 @@ class InvalidCustomerID(RenderableError):
     """Indicates that an invalid customer ID has been specified"""
 
     def __init__(self, cid_str):
-        """Sets the message"""
+        """Initializes error code an message"""
         super().__init__(11, ' '.join(['Invalid customer ID:', cid_str]))
 
 
@@ -52,7 +52,7 @@ class InvalidPathLength(RenderableError):
     """
 
     def __init__(self, length):
-        """Sets the message"""
+        """Initializes error code an message"""
         super().__init__(12, ' '.join(['Invalid path length:', str(length)]))
 
 
@@ -62,7 +62,7 @@ class InvalidPathNode(RenderableError):
     """
 
     def __init__(self, node):
-        """Sets the message"""
+        """Initializes error code an message"""
         super().__init__(13, ' '.join(['Invalid path node:', node]))
 
 
@@ -70,7 +70,7 @@ class InvalidOperationError(RenderableError):
     """Indicates that an invalid operation was requested"""
 
     def __init__(self, operation):
-        """Sets the message"""
+        """Initializes error code an message"""
         super().__init__(14, ' '.join(['Invalid operation:', operation]))
 
 
@@ -78,7 +78,7 @@ class UserNotAllowed(RenderableError):
     """Indicates that a user is not allowed to use immosearch"""
 
     def __init__(self, cid):
-        """Sets the message"""
+        """Initializes error code an message"""
         super().__init__(15, ' '.join(['User not allowed:', str(cid)]))
 
 
@@ -86,7 +86,7 @@ class OptionAlreadySet(RenderableError):
     """Indicates that a user is not allowed to use immosearch"""
 
     def __init__(self, option, value):
-        """Sets the message"""
+        """Initializes error code an message"""
         super().__init__(16, ' '.join(['Option:', option,
                                        'has already been set to:',
                                        str(value)]))
@@ -97,7 +97,7 @@ class NoValidFilterOperation(RenderableError):
     was specified in a filter query"""
 
     def __init__(self, option_assignment):
-        """Sets the message"""
+        """Initializes error code an message"""
         super().__init__(101, ' '.join(['No valid operation was',
                                         'found in filtering query:',
                                         str(option_assignment)]))
@@ -143,7 +143,7 @@ class InvalidRenderingOptionsCount(RenderableError):
     render option was specified"""
 
     def __init__(self, n):
-        """Sets the message"""
+        """Initializes error code an message"""
         super().__init__(301, ' '.join(['Need exactly one rendering option,',
                                         'but', str(n), 'where given']))
 
@@ -152,7 +152,7 @@ class InvalidRenderingResolution(RenderableError):
     """Indicates that an invalid rendering resolution was specified"""
 
     def __init__(self, resolution):
-        """Sets the message"""
+        """Initializes error code an message"""
         super().__init__(302, ' '.join(['Got invalid rendering resolution:',
                                         resolution,
                                         '- must be like <width>x<height>']))
@@ -162,7 +162,7 @@ class InvalidPictureLimit(RenderableError):
     """Indicates that rendering options have already been set"""
 
     def __init__(self, limit):
-        """Sets the message"""
+        """Initializes error code an message"""
         super().__init__(303, ' '.join(['Invalid picture limit:',
                                         str(limit)]))
 
@@ -171,7 +171,7 @@ class NoScalingProvided(RenderableError):
     """Indicates that no scaling resolution was provided"""
 
     def __init__(self):
-        """Creates a basic message"""
+        """Initializes error code an message"""
         super().__init__(304, 'No scaling provided')
 
 
@@ -181,7 +181,7 @@ class InvalidAuthenticationOptions(RenderableError):
     """
 
     def __init__(self):
-        """Create"""
+        """Initializes error code an message"""
         super().__init__(401, 'Invalid authentication options')
 
 
