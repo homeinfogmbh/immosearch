@@ -22,7 +22,9 @@ operations = {Operators.EQ: lambda x, y: x == y,
               Operators.GT: lambda x, y: x > y,
               Operators.GE: lambda x, y: x >= y,
               Operators.IN: lambda x, y: x in y,
-              Operators.NI: lambda x, y: x not in y}
+              Operators.NI: lambda x, y: x not in y,
+              Operators.CO: lambda x, y: y in x,
+              Operators.CN: lambda x, y: y not in x}
 
 
 class UserFilter():

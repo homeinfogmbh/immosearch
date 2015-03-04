@@ -129,6 +129,8 @@ class Operators():
     GE = '>='   # Greater-than or equal
     IN = '∈'    # Element in iterable
     NI = '∉'    # Element not in iterable
+    CO = '∋'    # List contains element
+    CN = '∌'    # List does not contain element
 
     def __iter__(self):
         """Iterates over the operators"""
