@@ -48,6 +48,12 @@ class ImmoSearchUser(ImmoSearchModel):
     """A UUID-4 style authentication string"""
 
     @property
+    def cid(self):
+        """Returns the customer ID"""
+        with connection(Customer):
+            return self.customer.id
+
+    @property
     def current_handlers(self):
         """Returns the current handlers"""
         return self._current_handlers

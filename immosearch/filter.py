@@ -41,7 +41,7 @@ class UserFilter():
     @property
     def _immobilie(self):
         """Returns valid, unfiltered real estates"""
-        return Immobilie.immobilie(self.user.customer)
+        return Immobilie.immobilie(self.user.cid)
 
     @property
     def immobilie(self):

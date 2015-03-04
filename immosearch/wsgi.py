@@ -131,11 +131,12 @@ class Controller():
     @property
     def user(self):
         """Returns the user"""
+        cid = self.cid
         try:
             with connection(ImmoSearchUser):
-                user = ImmoSearchUser.get(ImmoSearchUser.customer == self.cid)
+                user = ImmoSearchUser.get(ImmoSearchUser.customer == cid)
         except DoesNotExist:
-            return None
+            raise InvalidCustomerID(str(cid))
         else:
             return user
 
