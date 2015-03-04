@@ -734,8 +734,8 @@ class RealEstateSieve():
     of a realtor by certain filters
     """
 
-    options = {'objektart': lambda f, op, v: op(f.objekttypen, v),
-               'objekttyp': lambda f, op, v: op(f.objektart, v),
+    options = {'objektart': lambda f, op, v: op(f.objektart, v),
+               'objekttyp': lambda f, op, v: op(f.objekttypen, v),
                'land': lambda f, op, v: op(f.land, v),
                'ort': lambda f, op, v: op(f.ort, v),
                'ortsteil': lambda f, op, v: op(f.ortsteil, v),
