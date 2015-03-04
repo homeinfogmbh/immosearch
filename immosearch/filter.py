@@ -735,7 +735,7 @@ class RealEstateSieve():
     """
 
     options = {'objektart': lambda f, op, v: op(f.objektart, v),
-               'objekttyp': lambda f, op, v: op(f.objekttypen, v),
+               'objekttyp': lambda f, op, v: op(v, f.objekttypen),
                'land': lambda f, op, v: op(f.land, v),
                'ort': lambda f, op, v: op(f.ort, v),
                'ortsteil': lambda f, op, v: op(f.ortsteil, v),
