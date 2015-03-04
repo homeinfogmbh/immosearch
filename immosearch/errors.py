@@ -180,10 +180,9 @@ class InvalidAuthenticationOptions(RenderableError):
     options have been provided
     """
 
-    def __init__(self, opts):
+    def __init__(self):
         """Create"""
-        super().__init__(401, ''.join(['Invalid authentication options:',
-                                       opts]))
+        super().__init__(401, 'Invalid authentication options')
 
 
 class InvalidCredentials(RenderableError):
