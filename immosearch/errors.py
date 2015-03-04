@@ -63,7 +63,7 @@ class InvalidPathNode(RenderableError):
 
     def __init__(self, node):
         """Sets the message"""
-        super().__init__(13, ' '.join(['Invalid path length:', node]))
+        super().__init__(13, ' '.join(['Invalid path node:', node]))
 
 
 class InvalidOperationError(RenderableError):
@@ -99,7 +99,7 @@ class NoValidFilterOperation(RenderableError):
     def __init__(self, option_assignment):
         """Sets the message"""
         super().__init__(101, ' '.join(['No valid operation was',
-                                        'found in filter query:',
+                                        'found in filtering query:',
                                         str(option_assignment)]))
 
 
@@ -155,7 +155,7 @@ class InvalidRenderingResolution(RenderableError):
         """Sets the message"""
         super().__init__(302, ' '.join(['Got invalid rendering resolution:',
                                         resolution,
-                                        '- must be like <width>x<heigth>']))
+                                        '- must be like <width>x<height>']))
 
 
 class InvalidPictureLimit(RenderableError):
@@ -191,7 +191,7 @@ class InvalidCredentials(RenderableError):
 
     def __init__(self):
         """Indicates that invalid credentials have been supplied"""
-        super().__init__(402, 'Invalid credetials')
+        super().__init__(402, 'Invalid credentials')
 
 
 class HandlersExhausted(RenderableError):
