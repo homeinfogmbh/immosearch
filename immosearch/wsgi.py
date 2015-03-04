@@ -27,9 +27,9 @@ class Separators():
     """Special separation characters"""
 
     QUERY = '&'
-    ASS = ':'
+    ASS = '='
     OPTION = ','
-    ATTR = '='
+    ATTR = ':'
     PATH = '/'
 
 
