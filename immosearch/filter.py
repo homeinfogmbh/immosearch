@@ -47,7 +47,7 @@ class UserFilter():
 
     @property
     def immobilie(self):
-        """Yields filteres real estates"""
+        """Yields filtered real estates"""
         if self.user.ignore_restrictions:
             yield from self._immobilie
         else:
@@ -59,7 +59,7 @@ class UserFilter():
 
     @property
     def _sieve(self):
-        """Returns an approriate real estate sieve"""
+        """Returns an appropriate real estate sieve"""
         return RealEstateSieve(self.immobilie, self._filters)
 
     def filter(self):
@@ -193,7 +193,7 @@ class FilterableRealEstate():
 
     @property
     def objektart(self):
-        """Returns the OpenImmo™oObjektart
+        """Returns the OpenImmo™-Objektart
         XXX: This can only be one for one real estate according to OpenImmo™
         """
         oa = self.immobilie.objektkategorie.objektart
@@ -248,7 +248,7 @@ class FilterableRealEstate():
                 yield str(einzelhandel.handel_typ)
         for gastgewerbe in oa.gastgewerbe:
             if gastgewerbe.gastgew_typ:
-                str(gastgewerbe.gastgew_typ)
+                yield str(gastgewerbe.gastgew_typ)
         for hallen_lager_prod in oa.hallen_lager_prod:
             if hallen_lager_prod.hallen_typ:
                 yield str(hallen_lager_prod.hallen_typ)

@@ -54,6 +54,12 @@ class ImmoSearchUser(ImmoSearchModel):
             return self.customer.id
 
     @property
+    def name(self):
+        """Returns the customer's name"""
+        with connection(Customer):
+            return self.customer.name
+
+    @property
     def current_handlers(self):
         """Returns the current handlers"""
         return self._current_handlers

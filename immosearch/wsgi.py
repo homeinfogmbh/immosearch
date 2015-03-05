@@ -189,9 +189,9 @@ class Controller():
             # immobilie = Sorter(self._sort_options).sort()
             # TODO: Implement sorting
             # Generate anbieter
-            anbieter = factories.anbieter(str(user.customer.id),
-                                          user.customer.name,
-                                          str(user.customer.id))
+            anbieter = factories.anbieter(str(user.cid),
+                                          user.name,
+                                          str(user.cid))
             anbieter.immobilie = [i for i in immobilie]
             xml_data = anbieter.toxml(encoding=encoding)
             return xml_data
