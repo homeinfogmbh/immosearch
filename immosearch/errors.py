@@ -6,7 +6,7 @@ __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '27.02.2015'
 __all__ = ['InvalidCustomerID', 'InvalidPathLength', 'InvalidPathNode',
            'InvalidOperationError', 'UserNotAllowed', 'OptionAlreadySet',
-           'InvalidRenderingOptionsCount', 'InvalidRenderingResolution',
+           'InvalidOptionsCount', 'NotAnInteger', 'InvalidRenderingResolution',
            'InvalidPictureLimit', 'NoValidFilterOperation',
            'InvalidFilterOption', 'FilterOperationNotImplemented',
            'SievingError', 'InvalidAuthenticationOptions',
@@ -92,6 +92,24 @@ class OptionAlreadySet(RenderableError):
                                        str(value)]))
 
 
+class InvalidOptionsCount(RenderableError):
+    """Indicates that not exactly one
+    render option was specified"""
+
+    def __init__(self):
+        """Initializes error code an message"""
+        super().__init__(17, 'Invalid options count')
+
+
+class NotAnInteger(RenderableError):
+    """Indicates that not exactly one
+    render option was specified"""
+
+    def __init__(self, i):
+        """Initializes error code an message"""
+        super().__init__(17, ' '.join(['Not an integer:', str(i)]))
+
+
 class NoValidFilterOperation(RenderableError):
     """Indicates that no valid operation
     was specified in a filter query"""
@@ -136,16 +154,6 @@ class SievingError(RenderableError):
                                        str(option), '" with operation "',
                                        str(operation), '" for value "',
                                        str(value), '"']))
-
-
-class InvalidRenderingOptionsCount(RenderableError):
-    """Indicates that not exactly one
-    render option was specified"""
-
-    def __init__(self, n):
-        """Initializes error code an message"""
-        super().__init__(301, ' '.join(['Need exactly one rendering option,',
-                                        'but', str(n), 'where given']))
 
 
 class InvalidRenderingResolution(RenderableError):

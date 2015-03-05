@@ -8,15 +8,16 @@ from openimmo import factories
 from .lib import Operators
 from .db import ImmoSearchUser
 from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
-    InvalidPathNode, NoValidFilterOperation, InvalidRenderingOptionsCount,\
+    InvalidPathNode, NoValidFilterOperation, InvalidOptionsCount,\
     InvalidRenderingResolution, InvalidPictureLimit, OptionAlreadySet,\
     InvalidOperationError, UserNotAllowed, InvalidAuthenticationOptions,\
-    InvalidCredentials, HandlersExhausted
+    InvalidCredentials, HandlersExhausted, NotAnInteger
 from .filter import UserFilter
 from .config import core
 from .imgscale import AttachmentScaler
 from .lib import debug
-from immosearch.selector import RealEstateSelector
+from .selector import RealEstateSelector
+from .pager import Pager
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '10.10.2014'
@@ -42,6 +43,7 @@ class Operations():
     INCLUDE = 'include'
     SORT = 'sort'
     ATTACHMENTS = 'attachments'
+    PAGING = 'paging'
 
 
 class PathNodes():
@@ -67,6 +69,8 @@ class Controller():
         self._pic_limit = None
         self._auth_token = None
         self._handler_opened = False
+        self._limit = None  # Page size limit
+        self._page = None
 
     def run(self):
         """Main method to call"""
@@ -188,6 +192,8 @@ class Controller():
             immobilie = scaler.immobilie
             # immobilie = Sorter(self._sort_options).sort()
             # TODO: Implement sorting
+            pager = Pager(immobilie, self._limit)
+            immobilie = pager.page(self._page)
             # Generate anbieter
             anbieter = factories.anbieter(str(user.cid),
                                           user.name,
@@ -209,7 +215,9 @@ class Controller():
                 debug(operation, 'operation')
                 debug(raw_value, 'raw_value')
                 value = unquote(raw_value)
-                if operation == Operations.INCLUDE:
+                if operation == Operations.AUTH_TOKEN:
+                    self._auth(value)
+                elif operation == Operations.INCLUDE:
                     self._include(value)
                 elif operation == Operations.FILTER:
                     self._filter(value)
@@ -217,10 +225,21 @@ class Controller():
                     self._sort(value)
                 elif operation == Operations.ATTACHMENTS:
                     self._attachments(value)
-                elif operation == Operations.AUTH_TOKEN:
-                    self._auth(value)
+                elif operation == Operations.PAGING:
+                    self._paging(value)
                 else:
                     raise InvalidOperationError(operation)
+
+    def _auth(self, value):
+        """Extract authentication data"""
+        if self._auth_token is None:
+            debug(value, 'value')
+            auth_opts = value.split(Separators.OPTION)
+            if len(auth_opts) != 1:
+                raise InvalidAuthenticationOptions()    # Do not propagate data
+            else:
+                self._auth_token = auth_opts[0]
+                debug(auth_opts, 'auth_opts')
 
     def _include(self, value):
         """Select options"""
@@ -255,7 +274,7 @@ class Controller():
         """Generate scaling data"""
         render_opts = value.split(Separators.OPTION)
         if len(render_opts) < 1:
-            raise InvalidRenderingOptionsCount()
+            raise InvalidOptionsCount()
         else:
             for render_opt in render_opts:
                 split_option = render_opt.split(Separators.ATTR)
@@ -290,13 +309,29 @@ class Controller():
                 else:
                     raise InvalidOperationError(option)
 
-    def _auth(self, value):
-        """Extract authentication data"""
-        if self._auth_token is None:
-            debug(value, 'value')
-            auth_opts = value.split(Separators.OPTION)
-            if len(auth_opts) != 1:
-                raise InvalidAuthenticationOptions()    # Do not propagate data
-            else:
-                self._auth_token = auth_opts[0]
-                debug(auth_opts, 'auth_opts')
+    def _paging(self, value):
+        """Generate scaling data"""
+        paging_opts = value.split(Separators.OPTION)
+        if len(paging_opts) != 2:
+            raise InvalidOptionsCount()
+        else:
+            for paging_opt in paging_opts:
+                split_option = paging_opt.split(Separators.ATTR)
+                option = split_option[0]
+                value = Separators.ATTR.join(split_option[1:])
+                if option == 'limit':
+                    try:
+                        limit = int(value)
+                    except (ValueError, TypeError):
+                        raise NotAnInteger(value)
+                    else:
+                        self._limit = limit
+                elif option == 'page':
+                    try:
+                        page = int(value)
+                    except (ValueError, TypeError):
+                        raise NotAnInteger(value)
+                    else:
+                        self._page = page
+                else:
+                    raise InvalidOperationError(option)
