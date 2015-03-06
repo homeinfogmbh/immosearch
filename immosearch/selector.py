@@ -57,10 +57,9 @@ class RealEstateSelector():
     @property
     def immobilie(self):
         """Returns real estates liited to the selections"""
-        real_estates = self.real_estates
-        # Count pictures if requested
-        if self.count_attachments:
-            for real_estate in real_estates:
+        for real_estate in self.real_estates:
+            # Count pictures if requested
+            if self.count_attachments:
                 if real_estate.anhaenge:
                     picc = len([a for a in real_estate.anhaenge.anhang
                                 if a.mimetype in PIC_TYPES])
@@ -70,8 +69,7 @@ class RealEstateSelector():
                 udx.name = HI_ATT_CNT
                 udx.wert = str(picc)
                 real_estate.user_defined_extend.append(udx)
-        # Make selections
-        for real_estate in real_estates:
+            # Make selections
             if Selections.FREITEXTE not in self.selections:
                 real_estate.freitexte = None
             if Selections.ATATCHMENTS not in self.selections:
