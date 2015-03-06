@@ -69,7 +69,7 @@ class RealEstateSelector():
                 feld = openimmo.CTD_ANON_67()
                 feld.name = HI_ATT_CNT
                 feld.wert = str(picc)
-                udx.feld = feld
+                udx.feld.append(feld)
                 real_estate.user_defined_extend.append(udx)
             # Make selections
             if Selections.FREITEXTE not in self.selections:
