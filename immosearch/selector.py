@@ -66,9 +66,10 @@ class RealEstateSelector():
                                 if a.mimetype in PIC_TYPES])
                 else:
                     picc = 0
-                udsf = openimmo.user_defined_simplefield(picc)
-                udsf.feldname = HI_ATT_CNT
-                real_estate.user_defined_simplefield.append(udsf)
+                udx = openimmo.user_defined_extend()
+                udx.name = HI_ATT_CNT
+                udx.wert = str(picc)
+                real_estate.user_defined_extend.append(udx)
         # Make selections
         for real_estate in real_estates:
             if Selections.FREITEXTE not in self.selections:
