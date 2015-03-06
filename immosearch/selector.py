@@ -57,9 +57,10 @@ class RealEstateSelector():
     @property
     def immobilie(self):
         """Returns real estates liited to the selections"""
+        real_estates = self.real_estates
         # Count pictures if requested
         if self.count_attachments:
-            for real_estate in self.real_estates:
+            for real_estate in real_estates:
                 if real_estate.anhaenge:
                     picc = len([a for a in real_estate.anhaenge.anhang
                                 if a.mimetype in PIC_TYPES])
@@ -69,7 +70,7 @@ class RealEstateSelector():
                 udsf.feldname = HI_ATT_CNT
                 real_estate.user_defined_simplefield.append(udsf)
         # Make selections
-        for real_estate in self.real_estates:
+        for real_estate in real_estates:
             if Selections.FREITEXTE not in self.selections:
                 real_estate.freitexte = None
             if Selections.ATATCHMENTS not in self.selections:
