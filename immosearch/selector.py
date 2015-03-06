@@ -66,8 +66,10 @@ class RealEstateSelector():
                 else:
                     picc = 0
                 udx = openimmo.user_defined_extend()
-                udx.name = HI_ATT_CNT
-                udx.wert = str(picc)
+                field = openimmo.feld()
+                field.name = HI_ATT_CNT
+                field.wert = str(picc)
+                udx.feld = field
                 real_estate.user_defined_extend.append(udx)
             # Make selections
             if Selections.FREITEXTE not in self.selections:
