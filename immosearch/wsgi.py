@@ -15,7 +15,6 @@ from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
 from .filter import UserFilter
 from .config import core
 from .imgscale import AttachmentScaler
-from .lib import debug
 from .selector import RealEstateSelector
 from .pager import Pager
 
@@ -71,6 +70,7 @@ class Controller():
         self._handler_opened = False
         self._limit = None  # Page size limit
         self._page = None
+        self._pic_count = None
 
     def run(self):
         """Main method to call"""
@@ -185,7 +185,7 @@ class Controller():
             immobilie = UserFilter(user, self._filters).filter()
             # Select appropriate data
             selector = RealEstateSelector(immobilie, self._includes,
-                                          self._pic_limit)
+                                          self._pic_limit, self._pic_count)
             immobilie = selector.immobilie
             # Handle attachments
             scaler = AttachmentScaler(immobilie, self._scaling)
@@ -207,13 +207,10 @@ class Controller():
     def parse(self):
         """Parses a URI for query commands"""
         for query in self.queries:
-            debug(query, 'query')
             splitted_query = query.split(Separators.ASS)
             if len(splitted_query) >= 2:
                 operation = splitted_query[0]
                 raw_value = Separators.ASS.join(splitted_query[1:])
-                debug(operation, 'operation')
-                debug(raw_value, 'raw_value')
                 value = unquote(raw_value)
                 if operation == Operations.AUTH_TOKEN:
                     self._auth(value)
@@ -233,13 +230,11 @@ class Controller():
     def _auth(self, value):
         """Extract authentication data"""
         if self._auth_token is None:
-            debug(value, 'value')
             auth_opts = value.split(Separators.OPTION)
             if len(auth_opts) != 1:
                 raise InvalidAuthenticationOptions()    # Do not propagate data
             else:
                 self._auth_token = auth_opts[0]
-                debug(auth_opts, 'auth_opts')
 
     def _include(self, value):
         """Select options"""
@@ -295,7 +290,7 @@ class Controller():
                             else:
                                 self._scaling = (x, y)
                     else:
-                        raise OptionAlreadySet('scaling', self._scaling)
+                        raise OptionAlreadySet(option, self._scaling)
                 elif option == 'limit':
                     if self._pic_limit is None:
                         try:
@@ -305,7 +300,12 @@ class Controller():
                         else:
                             self._pic_limit = limit
                     else:
-                        raise OptionAlreadySet('limit', self._scaling)
+                        raise OptionAlreadySet(option, self._scaling)
+                elif option == 'count':
+                    if self._pic_count is None:
+                        self._pic_count = True
+                    else:
+                        raise OptionAlreadySet(option, self._scaling)
                 else:
                     raise InvalidOperationError(option)
 
