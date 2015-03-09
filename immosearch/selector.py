@@ -11,7 +11,7 @@ __all__ = ['Selections', 'RealEstateSelector']
 PIC_TYPES = ['image/jpeg', 'image/png', 'image/gif']
 
 # User defined simple field for attachment counts
-HI_ATT_CNT = 'homeinfo_attachment_count'
+HI_PIC_CNT = 'homeinfo_picc'
 
 
 class Selections():
@@ -25,14 +25,14 @@ class RealEstateSelector():
     """Class that filters real estates of a user"""
 
     def __init__(self, real_estates, selections, attachment_limit,
-                 count_attachments):
+                 count_pictures):
         """Initializes with a real estate,
         selection options and a picture limit
         """
         self._real_estates = real_estates
         self._selections = selections
         self._attachment_limit = attachment_limit
-        self._count_attachments = count_attachments
+        self._count_pictures = count_pictures
 
     @property
     def real_estates(self):
@@ -50,16 +50,16 @@ class RealEstateSelector():
         return self._attachment_limit
 
     @property
-    def count_attachments(self):
-        """Returns the amount of available attachments"""
-        return self._count_attachments
+    def count_pictures(self):
+        """Returns the amount of available pictures"""
+        return self._count_pictures
 
     @property
     def immobilie(self):
         """Returns real estates liited to the selections"""
         for real_estate in self.real_estates:
             # Count pictures if requested
-            if self.count_attachments:
+            if self.count_pictures:
                 if real_estate.anhaenge:
                     picc = len([a for a in real_estate.anhaenge.anhang
                                 if a.mimetype in PIC_TYPES])
@@ -67,7 +67,7 @@ class RealEstateSelector():
                     picc = 0
                 udx = openimmo.user_defined_extend()
                 feld = openimmo.CTD_ANON_67()
-                feld.name = HI_ATT_CNT
+                feld.name = HI_PIC_CNT
                 feld.wert = str(picc)
                 udx.feld.append(feld)
                 real_estate.user_defined_extend.append(udx)
