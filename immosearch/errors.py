@@ -24,11 +24,17 @@ __all__ = ['InvalidCustomerID', 'InvalidPathLength', 'InvalidPathNode',
 class RenderableError(Exception):
     """An error, that can be rendered"""
 
-    def __init__(self, ident, msg):
+    def __init__(self, ident, msg, status=None):
         """Sets a unique identifier and a message"""
         super().__init__(msg)
         self._ident = ident
         self._msg = msg
+        self._status = status
+
+    @property
+    def status(self):
+        """Returns an options HTTP status for override"""
+        return self._status
 
     def render(self, encoding='utf-8'):
         """Returns a tuple of ID and message"""
@@ -210,7 +216,8 @@ class HandlersExhausted(RenderableError):
         """Creates message with max. handlers count"""
         h = str(n)
         super().__init__(501, ' '.join(['Handlers exhausted:',
-                                        '/'.join([h, h])]))
+                                        ' / '.join([h, h])]),
+                         status='429 Too Many Requests')
 
 
 class MemoryExhausted(RenderableError):
@@ -220,6 +227,7 @@ class MemoryExhausted(RenderableError):
 
     def __init__(self, n):
         """Creates message with memory limit info"""
-        b = str(n)
+        b = ' '.join([str(n), 'bytes'])
         super().__init__(502, ' '.join(['Memory limit exhausted:',
-                                        '/'.join([b, b])]))
+                                        ' / '.join([b, b])]),
+                         status='413 Request Entity Too Large')

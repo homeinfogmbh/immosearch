@@ -78,7 +78,7 @@ class Controller():
         try:
             response_body = self._run(charset)
         except RenderableError as r:
-            status = '400 Bad Request'
+            status = r.status or '400 Bad Request'
             charset = 'UTF-8'
             content_type = 'application/xml'
             response_body = r.render(encoding=charset)
