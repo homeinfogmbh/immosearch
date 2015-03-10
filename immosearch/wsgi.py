@@ -74,17 +74,15 @@ class Controller():
 
     def run(self):
         """Main method to call"""
-        charset = 'UTF-8'
+        charset = 'utf-8'
         try:
             response_body = self._run(charset)
         except RenderableError as r:
             status = r.status or '400 Bad Request'
-            charset = 'UTF-8'
             content_type = 'application/xml'
             response_body = r.render(encoding=charset)
         except:
             status = '500 Internal Server Error'
-            charset = 'UTF-8'
             content_type = 'text/plain'
             msg = 'Internal Server Error :-('
             if core.get('DEBUG', False):
@@ -96,7 +94,7 @@ class Controller():
         finally:
             if self._handler_opened:
                 self.user.current_handlers += -1
-        return (status, response_body, content_type, charset)
+        return (status, content_type, charset, response_body)
 
     @property
     def path_info(self):
