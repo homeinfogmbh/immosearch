@@ -67,7 +67,10 @@ class ImmoSearchUser(ImmoSearchModel):
     @current_handlers.setter
     def current_handlers(self, current_handlers):
         """Sets the currently open handlers and saves the record"""
-        self._current_handlers = current_handlers
+        if current_handlers >= 0:
+            self._current_handlers = current_handlers
+        else:
+            self._current_handlers = 0
         with connection(self):
             self.save()
 
@@ -79,6 +82,9 @@ class ImmoSearchUser(ImmoSearchModel):
     @current_bytes.setter
     def current_bytes(self, current_bytes):
         """Sets the currently used bytes and saves the record"""
-        self.current_bytes = current_bytes
+        if current_bytes >= 0:
+            self.current_bytes = current_bytes
+        else:
+            self.current_bytes = 0
         with connection(self):
             self.save()
