@@ -9,9 +9,9 @@ from .lib import Operators
 from .db import ImmoSearchUser
 from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     InvalidPathNode, NoValidFilterOperation, InvalidOptionsCount,\
-    InvalidRenderingResolution, InvalidPictureLimit, OptionAlreadySet,\
-    InvalidOperationError, UserNotAllowed, InvalidAuthenticationOptions,\
-    InvalidCredentials, HandlersExhausted, NotAnInteger
+    InvalidRenderingResolution, OptionAlreadySet, InvalidOperationError,\
+    UserNotAllowed, InvalidAuthenticationOptions, InvalidCredentials,\
+    HandlersExhausted, NotAnInteger
 from .filter import UserFilter
 from .config import core
 from .imgscale import AttachmentScaler
@@ -69,6 +69,7 @@ class Controller():
         self._auth_token = None
         self._handler_opened = False
         self._limit = None  # Page size limit
+        self._pic_select = None  # Selected picture index
         self._page = None
         self._pic_count = None
 
@@ -182,8 +183,10 @@ class Controller():
             # Filter real estates
             immobilie = UserFilter(user, self._filters).filter()
             # Select appropriate data
-            selector = RealEstateSelector(immobilie, self._includes,
-                                          self._pic_limit, self._pic_count)
+            selector = RealEstateSelector(immobilie, selections=self._includes,
+                                          attachment_limit=self._pic_limit,
+                                          select_attachment=self._pic_select,
+                                          count_pictures=self._pic_count)
             immobilie = selector.immobilie
             # Handle attachments
             scaler = AttachmentScaler(immobilie, self._scaling)
@@ -294,16 +297,26 @@ class Controller():
                         try:
                             limit = int(value)
                         except (ValueError, TypeError):
-                            raise InvalidPictureLimit(value)
+                            raise NotAnInteger(value)
                         else:
                             self._pic_limit = limit
                     else:
-                        raise OptionAlreadySet(option, self._scaling)
+                        raise OptionAlreadySet(option, self._pic_limit)
+                elif option == 'select':
+                    if self._pic_select is None:
+                        self._pic_select = True
+                    else:
+                        raise OptionAlreadySet(option, self._pic_select)
                 elif option == 'count':
                     if self._pic_count is None:
-                        self._pic_count = True
+                        try:
+                            n = int(value)
+                        except (ValueError, TypeError):
+                            raise NotAnInteger(value)
+                        else:
+                            self._pic_count = n
                     else:
-                        raise OptionAlreadySet(option, self._scaling)
+                        raise OptionAlreadySet(option, self._pic_count)
                 else:
                     raise InvalidOperationError(option)
 

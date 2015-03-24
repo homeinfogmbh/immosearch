@@ -7,10 +7,10 @@ __date__ = '27.02.2015'
 __all__ = ['InvalidCustomerID', 'InvalidPathLength', 'InvalidPathNode',
            'InvalidOperationError', 'UserNotAllowed', 'OptionAlreadySet',
            'InvalidOptionsCount', 'NotAnInteger', 'InvalidRenderingResolution',
-           'InvalidPictureLimit', 'NoValidFilterOperation',
-           'InvalidFilterOption', 'FilterOperationNotImplemented',
-           'SievingError', 'InvalidAuthenticationOptions',
-           'InvalidCredentials', 'HandlersExhausted', 'MemoryExhausted']
+           'NoValidFilterOperation', 'InvalidFilterOption',
+           'FilterOperationNotImplemented', 'SievingError',
+           'InvalidAuthenticationOptions', 'InvalidCredentials',
+           'HandlersExhausted', 'MemoryExhausted']
 
 # Error codes:
 # <nn>    WSGI top-level errors
@@ -170,15 +170,6 @@ class InvalidRenderingResolution(RenderableError):
         super().__init__(302, ' '.join(['Got invalid rendering resolution:',
                                         resolution,
                                         '- must be like <width>x<height>']))
-
-
-class InvalidPictureLimit(RenderableError):
-    """Indicates that rendering options have already been set"""
-
-    def __init__(self, limit):
-        """Initializes error code an message"""
-        super().__init__(303, ' '.join(['Invalid picture limit:',
-                                        str(limit)]))
 
 
 class NoScalingProvided(RenderableError):
