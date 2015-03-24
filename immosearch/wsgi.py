@@ -312,7 +312,7 @@ class Controller():
                     try:
                         n = int(value)
                     except (ValueError, TypeError):
-                        self._pic_title = value
+                        self._pic_title = value.replace('"', '')
                     else:
                         self._pic_index = n
                 elif option == 'count':
