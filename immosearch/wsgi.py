@@ -304,17 +304,17 @@ class Controller():
                         raise OptionAlreadySet(option, self._pic_limit)
                 elif option == 'select':
                     if self._pic_select is None:
-                        self._pic_select = True
-                    else:
-                        raise OptionAlreadySet(option, self._pic_select)
-                elif option == 'count':
-                    if self._pic_count is None:
                         try:
                             n = int(value)
                         except (ValueError, TypeError):
                             raise NotAnInteger(value)
                         else:
-                            self._pic_count = n
+                            self._pic_select = n
+                    else:
+                        raise OptionAlreadySet(option, self._pic_select)
+                elif option == 'count':
+                    if self._pic_count is None:
+                        self._pic_count = True
                     else:
                         raise OptionAlreadySet(option, self._pic_count)
                 else:
