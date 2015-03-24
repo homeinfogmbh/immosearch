@@ -43,7 +43,9 @@ class UserFilter():
     @property
     def _immobilie(self):
         """Returns valid, unfiltered real estates"""
-        return Immobilie.immobilie(self.user.cid)
+        for anbieter in Immobilie.anbieter:
+            if anbieter.openimmo_anid == str(self.user.cid):
+                yield from anbieter.immobilie
 
     @property
     def immobilie(self):
@@ -54,8 +56,6 @@ class UserFilter():
             for immobilie in self._immobilie:
                 if immobilie.approve(core['name']):
                     yield immobilie
-                else:
-                    continue    # Restricted!
 
     @property
     def _sieve(self):
@@ -105,9 +105,9 @@ class RealtorSieve():
     OpenImmo™ document by certain filters
     """
 
-    options = {'openimmo_anid': (str, lambda f, op, v: op(f.openimmo_anid, v)),
-               'anbieternr': (str, lambda f, op, v: op(f.anbieternr, v)),
-               'firma': lambda f, op, v: op(f.firma, v)}
+    options = {'openimmo_anid': (str, lambda f: f.openimmo_anid),
+               'anbieternr': (str, lambda f: f.anbieternr),
+               'firma': lambda f: f.firma}
 
     def __init__(self, openimmo, filters):
         """Sets the respective realtor and filter tuples like:
@@ -153,8 +153,8 @@ class RealtorSieve():
                             option_func = option_
                         value = cast(raw_value, typ=option_format)
                         try:
-                            result = option_func(candidate, operation_func,
-                                                 value)
+                            result = operation_func(option_func(candidate),
+                                                    value)
                         except (AttributeError, TypeError, ValueError):
                             raise SievingError(option, operation, raw_value)
                         else:
@@ -736,62 +736,57 @@ class RealEstateSieve():
     of a realtor by certain filters
     """
 
-    options = {'objektart': lambda f, op, v: op(f.objektart, v),
-               'objekttyp': lambda f, op, v: op(v, f.objekttypen),
-               'land': lambda f, op, v: op(f.land, v),
-               'ort': lambda f, op, v: op(f.ort, v),
-               'ortsteil': lambda f, op, v: op(f.ortsteil, v),
-               'plz': lambda f, op, v: op(f.plz, v),
-               'strasse': lambda f, op, v: op(f.strasse, v),
-               'hausnummer': lambda f, op, v: op(f.hausnummer, v),
-               'zimmer': lambda f, op, v: op(f.zimmer, v),
-               'etage': lambda f, op, v: op(f.etage, v),
-               'etagen': lambda f, op, v: op(f.etagen, v),
-               'wohnflaeche': lambda f, op, v: op(f.wohnflaeche, v),
-               'grundstuecksflaeche':
-                   lambda f, op, v: op(f.grundstuecksflaeche, v),
-               'balkone': lambda f, op, v: op(f.balkone, v),
-               'terrassen': lambda f, op, v: op(f.terrassen, v),
-               'kaltmiete': lambda f, op, v: op(f.kaltmiete, v),
-               'warmmiete': lambda f, op, v: op(f.warmmiete, v),
-               'nebenkosten': lambda f, op, v: op(f.nebenkosten, v),
-               'kaufpreis': lambda f, op, v: op(f.kaufpreis, v),
-               'pacht': lambda f, op, v: op(f.pacht, v),
-               'erbpacht': lambda f, op, v: op(f.erbpacht, v),
-               'aussen_courtage': lambda f, op, v: op(f.aussen_courtage, v),
-               'innen_courtage': lambda f, op, v: op(f.innen_courtage, v),
-               'openimmo_obid':
-                   (str, lambda f, op, v: op(f.openimmo_obid, v)),
-               'objektnr_intern':
-                   (str, lambda f, op, v: op(f.objektnr_intern, v)),
-               'objektnr_extern':
-                   (str, lambda f, op, v: op(f.objektnr_extern, v)),
-               'barrierefrei': lambda f, op, v: op(f.barrierefrei, v),
-               'haustiere': lambda f, op, v: op(f.haustiere, v),
-               'raucher': lambda f, op, v: op(f.raucher, v),
-               'kaufbar': lambda f, op, v: op(f.kaufbar, v),
-               'mietbar': lambda f, op, v: op(f.mietbar, v),
-               'erbpachtbar': lambda f, op, v: op(f.erbpachtbar, v),
-               'leasing': lambda f, op, v: op(f.leasing, v),
-               'verfuegbar_ab': lambda f, op, v: op(f.verfuegbar_ab, v),
-               'abdatum': lambda f, op, v: op(f.abdatum, v),
-               'moebliert': lambda f, op, v: op(f.moebliert, v),
-               'seniorengerecht': lambda f, op, v: op(f.seniorengerecht, v),
-               'baujahr': (str, lambda f, op, v: op(f.baujahr, v)),
-               'zustand': lambda f, op, v: op(f.zustand, v),
-               'epart': lambda f, op, v: op(f.epart, v),
+    options = {'objektart': lambda f: f.objektart,
+               'objekttyp': lambda f: f.objekttypen,
+               'land': lambda f: f.land,
+               'ort': lambda f: f.ort,
+               'ortsteil': lambda f: f.ortsteil,
+               'plz': lambda f: f.plz,
+               'strasse': lambda f: f.strasse,
+               'hausnummer': lambda f: f.hausnummer,
+               'zimmer': lambda f: f.zimmer,
+               'etage': lambda f: f.etage,
+               'etagen': lambda f: f.etagen,
+               'wohnflaeche': lambda f: f.wohnflaeche,
+               'grundstuecksflaeche': lambda f: f.grundstuecksflaeche,
+               'balkone': lambda f: f.balkone,
+               'terrassen': lambda f: f.terrassen,
+               'kaltmiete': lambda f: f.kaltmiete,
+               'warmmiete': lambda f: f.warmmiete,
+               'nebenkosten': lambda f: f.nebenkosten,
+               'kaufpreis': lambda f: f.kaufpreis,
+               'pacht': lambda f: f.pacht,
+               'erbpacht': lambda f: f.erbpacht,
+               'aussen_courtage': lambda f: f.aussen_courtage,
+               'innen_courtage': lambda f: f.innen_courtage,
+               'openimmo_obid': (str, lambda f: f.openimmo_obid),
+               'objektnr_intern': (str, lambda f: f.objektnr_intern),
+               'objektnr_extern': (str, lambda f: f.objektnr_extern),
+               'barrierefrei': lambda f: f.barrierefrei,
+               'haustiere': lambda f: f.haustiere,
+               'raucher': lambda f: f.raucher,
+               'kaufbar': lambda f: f.kaufbar,
+               'mietbar': lambda f: f.mietbar,
+               'erbpachtbar': lambda f: f.erbpachtbar,
+               'leasing': lambda f: f.leasing,
+               'verfuegbar_ab': lambda f: f.verfuegbar_ab,
+               'abdatum': lambda f: f.abdatum,
+               'moebliert': lambda f: f.moebliert,
+               'seniorengerecht': lambda f: f.seniorengerecht,
+               'baujahr': (str, lambda f: f.baujahr),
+               'zustand': lambda f: f.zustand,
+               'epart': lambda f: f.epart,
                'energieverbrauchkennwert':
-                   lambda f, op, v: op(f.energieverbrauchkennwert, v),
-               'endenergiebedarf': lambda f, op, v: op(f.endenergiebedarf, v),
-               'primaerenergietraeger':
-                   lambda f, op, v: op(f.primaerenergietraeger, v),
-               'stromwert': lambda f, op, v: op(f.stromwert, v),
-               'waermewert': lambda f, op, v: op(f.waermewert, v),
-               'wertklasse': lambda f, op, v: op(f.wertklasse, v),
-               'min_mietdauer': lambda f, op, v: op(f.min_mietdauer, v),
-               'max_mietdauer': lambda f, op, v: op(f.max_mietdauer, v),
-               'laufzeit': lambda f, op, v: op(f.laufzeit, v),
-               'max_personen': lambda f, op, v: op(f.max_personen, v)}
+                   lambda f: f.energieverbrauchkennwert,
+               'endenergiebedarf': lambda f: f.endenergiebedarf,
+               'primaerenergietraeger': lambda f: f.primaerenergietraeger,
+               'stromwert': lambda f: f.stromwert,
+               'waermewert': lambda f: f.waermewert,
+               'wertklasse': lambda f: f.wertklasse,
+               'min_mietdauer': lambda f: f.min_mietdauer,
+               'max_mietdauer': lambda f: f.max_mietdauer,
+               'laufzeit': lambda f: f.laufzeit,
+               'max_personen': lambda f: f.max_personen}
 
     def __init__(self, real_estates, filters):
         """Sets the respective realtor and filter tuples like:
@@ -837,8 +832,8 @@ class RealEstateSieve():
                             option_func = option_
                         value = cast(raw_value, typ=option_format)
                         try:
-                            result = option_func(candidate, operation_func,
-                                                 value)
+                            result = operation_func(option_func(candidate),
+                                                    value)
                         except (AttributeError, TypeError, ValueError):
                             raise SievingError(option, operation, raw_value)
                         else:
