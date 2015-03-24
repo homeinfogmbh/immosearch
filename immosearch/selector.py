@@ -25,14 +25,16 @@ class RealEstateSelector():
     """Class that filters real estates of a user"""
 
     def __init__(self, real_estates, selections=None, attachment_limit=None,
-                 select_attachment=None, count_pictures=False):
+                 attachment_index=None, attachment_title=None,
+                 count_pictures=False):
         """Initializes with a real estate,
         selection options and a picture limit
         """
         self._real_estates = real_estates
         self._selections = selections
         self._attachment_limit = attachment_limit
-        self._select_attachment = select_attachment
+        self._attachment_index = attachment_index
+        self._attachment_title = attachment_title
         self._count_pictures = count_pictures
 
     @property
@@ -51,9 +53,14 @@ class RealEstateSelector():
         return self._attachment_limit
 
     @property
-    def select_attachment(self):
-        """Returns the selected attachment"""
-        return self._select_attachment
+    def attachment_index(self):
+        """Returns the attachment index"""
+        return self._attachment_index
+
+    @property
+    def attachment_title(self):
+        """Returns the attachment title"""
+        return self._attachment_title
 
     @property
     def count_pictures(self):
@@ -87,15 +94,22 @@ class RealEstateSelector():
                 real_estate.freitexte = None
             if Selections.ATATCHMENTS not in self.selections:
                 real_estate.anhaenge = None
-            if self.select_attachment is not None:
+            if self.attachment_index is not None:
                 if real_estate.anhaenge:
                     limited_atts = []
                     for c, att in enumerate(real_estate.anhaenge.anhang):
-                        if c == self.select_attachment:
+                        if c == self.attachment_index:
                             limited_atts.append(att)
                             break
                     real_estate.anhaenge.anhang = limited_atts
-            elif self.attachment_limit is not None:
+            if self.attachment_title is not None:
+                if real_estate.anhaenge:
+                    limited_atts = []
+                    for att in real_estate.anhaenge.anhang:
+                        if att.anhangtitel == self.attachment_title:
+                            limited_atts.append(att)
+                    real_estate.anhaenge.anhang = limited_atts
+            if self.attachment_limit is not None:
                 if real_estate.anhaenge:
                     limited_atts = []
                     for c, att in enumerate(real_estate.anhaenge.anhang):

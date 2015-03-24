@@ -69,7 +69,8 @@ class Controller():
         self._auth_token = None
         self._handler_opened = False
         self._limit = None  # Page size limit
-        self._pic_select = None  # Selected picture index
+        self._pic_index = None  # Selected picture index
+        self._pic_title = None  # Selected picture title
         self._page = None
         self._pic_count = None
 
@@ -185,7 +186,8 @@ class Controller():
             # Select appropriate data
             selector = RealEstateSelector(immobilie, selections=self._includes,
                                           attachment_limit=self._pic_limit,
-                                          select_attachment=self._pic_select,
+                                          attachment_index=self._pic_index,
+                                          attachment_title=self._pic_title,
                                           count_pictures=self._pic_count)
             immobilie = selector.immobilie
             # Handle attachments
@@ -303,15 +305,16 @@ class Controller():
                     else:
                         raise OptionAlreadySet(option, self._pic_limit)
                 elif option == 'select':
-                    if self._pic_select is None:
-                        try:
-                            n = int(value)
-                        except (ValueError, TypeError):
-                            raise NotAnInteger(value)
-                        else:
-                            self._pic_select = n
+                    if self._pic_index is not None:
+                        raise OptionAlreadySet(option, self._pic_index)
+                    elif self._pic_title is not None:
+                        raise OptionAlreadySet(option, self._pic_title)
+                    try:
+                        n = int(value)
+                    except (ValueError, TypeError):
+                        self._pic_title = value
                     else:
-                        raise OptionAlreadySet(option, self._pic_select)
+                        self._pic_index = n
                 elif option == 'count':
                     if self._pic_count is None:
                         self._pic_count = True
