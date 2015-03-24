@@ -74,8 +74,9 @@ class RealEstateSelector():
             # Count pictures if requested
             if self.count_pictures:
                 if real_estate.anhaenge:
-                    for n, _ in (a for a in real_estate.anhaenge.anhang
-                                 if a.mimetype in PIC_TYPES):
+                    for n, _ in enumerate(a for a in
+                                          real_estate.anhaenge.anhang
+                                          if a.mimetype in PIC_TYPES):
                         pass
                     try:
                         picc = n + 1
