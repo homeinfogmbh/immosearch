@@ -9,8 +9,8 @@ __all__ = ['InvalidCustomerID', 'InvalidPathLength', 'InvalidPathNode',
            'InvalidOptionsCount', 'NotAnInteger', 'InvalidRenderingResolution',
            'NoValidFilterOperation', 'InvalidFilterOption',
            'FilterOperationNotImplemented', 'SievingError',
-           'InvalidAuthenticationOptions', 'InvalidCredentials',
-           'HandlersExhausted', 'MemoryExhausted']
+           'InvalidSortingOption', 'InvalidAuthenticationOptions',
+           'InvalidCredentials', 'HandlersExhausted', 'MemoryExhausted']
 
 # Error codes:
 # <nn>    WSGI top-level errors
@@ -160,6 +160,17 @@ class SievingError(RenderableError):
                                        str(option), '" with operation "',
                                        str(operation), '" for value "',
                                        str(value), '"']))
+
+
+class InvalidSortingOption(RenderableError):
+    """Indicates that an invalid sorting
+    option has been provided
+    """
+
+    def __init__(self, option):
+        """Initializes with the faulty option"""
+        super().__init__(201, ' '.join(['Invalid sorting option:',
+                                        str(option)]))
 
 
 class InvalidRenderingResolution(RenderableError):

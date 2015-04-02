@@ -14,28 +14,27 @@ __all__ = ['AttachmentScaler']
 class AttachmentScaler():
     """Class that scales an attachment"""
 
-    def __init__(self, real_estates, resolution):
+    def __init__(self, immobilie, resolution):
         """Class to scale attachments of real estates"""
-        self._real_estates = real_estates
+        self._immobilie = immobilie
         self._resolution = resolution
 
     @property
-    def real_estates(self):
+    def immobilie(self):
         """Returns the real estates"""
-        return self._real_estates
+        return self._immobilie
 
     @property
     def resolution(self):
         """Returns the targeted resolution"""
         return self._resolution
 
-    @property
-    def immobilie(self):
+    def scale(self):
         """Returns the real estates with scaled attachments"""
-        for i in self.real_estates:
-            if i.anhaenge:
+        for immobilie in self.immobilie:
+            if immobilie.anhaenge:
                 processed = []
-                for a in i.anhaenge.anhang:
+                for a in immobilie.anhaenge.anhang:
                     if a.external:
                         if self.resolution is None:
                             raise NoScalingProvided()
@@ -48,8 +47,8 @@ class AttachmentScaler():
                                     processed.append(a)
                     else:
                         processed.append(a)
-                i.anhaenge.anhang = processed
-            yield i
+                immobilie.anhaenge.anhang = processed
+            yield immobilie
 
 
 class ScaledImage():

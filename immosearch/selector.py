@@ -24,13 +24,13 @@ class Selections():
 class RealEstateSelector():
     """Class that filters real estates of a user"""
 
-    def __init__(self, real_estates, selections=None, attachment_limit=None,
+    def __init__(self, immobilie, selections=None, attachment_limit=None,
                  attachment_index=None, attachment_title=None,
                  count_pictures=False):
         """Initializes with a real estate,
         selection options and a picture limit
         """
-        self._real_estates = real_estates
+        self._immobilie = immobilie
         self._selections = selections
         self._attachment_limit = attachment_limit
         self._attachment_index = attachment_index
@@ -38,9 +38,9 @@ class RealEstateSelector():
         self._count_pictures = count_pictures
 
     @property
-    def real_estates(self):
+    def immobilie(self):
         """Returns the real estates"""
-        return self._real_estates
+        return self._immobilie
 
     @property
     def selections(self):
@@ -67,15 +67,14 @@ class RealEstateSelector():
         """Returns the amount of available pictures"""
         return self._count_pictures
 
-    @property
-    def immobilie(self):
+    def select(self):
         """Returns real estates liited to the selections"""
-        for real_estate in self.real_estates:
+        for immobilie in self.immobilie:
             # Count pictures if requested
             if self.count_pictures:
-                if real_estate.anhaenge:
+                if immobilie.anhaenge:
                     for n, _ in enumerate(a for a in
-                                          real_estate.anhaenge.anhang
+                                          immobilie.anhaenge.anhang
                                           if a.mimetype in PIC_TYPES):
                         pass
                     try:
@@ -89,34 +88,34 @@ class RealEstateSelector():
                 feld.name = HI_PIC_CNT
                 feld.wert = str(picc)
                 udx.feld.append(feld)
-                real_estate.user_defined_extend.append(udx)
+                immobilie.user_defined_extend.append(udx)
             # Make selections
             if Selections.FREITEXTE not in self.selections:
-                real_estate.freitexte = None
+                immobilie.freitexte = None
             if Selections.ATATCHMENTS not in self.selections:
-                real_estate.anhaenge = None
+                immobilie.anhaenge = None
             if self.attachment_index is not None:
-                if real_estate.anhaenge:
+                if immobilie.anhaenge:
                     limited_atts = []
-                    for c, att in enumerate(real_estate.anhaenge.anhang):
+                    for c, att in enumerate(immobilie.anhaenge.anhang):
                         if c == self.attachment_index:
                             limited_atts.append(att)
                             break
-                    real_estate.anhaenge.anhang = limited_atts
+                    immobilie.anhaenge.anhang = limited_atts
             if self.attachment_title is not None:
-                if real_estate.anhaenge:
+                if immobilie.anhaenge:
                     limited_atts = []
-                    for att in real_estate.anhaenge.anhang:
+                    for att in immobilie.anhaenge.anhang:
                         if att.anhangtitel == self.attachment_title:
                             limited_atts.append(att)
-                    real_estate.anhaenge.anhang = limited_atts
+                    immobilie.anhaenge.anhang = limited_atts
             if self.attachment_limit is not None:
-                if real_estate.anhaenge:
+                if immobilie.anhaenge:
                     limited_atts = []
-                    for c, att in enumerate(real_estate.anhaenge.anhang):
+                    for c, att in enumerate(immobilie.anhaenge.anhang):
                         if c < self.attachment_limit:
                             limited_atts.append(att)
                         else:
                             break
-                    real_estate.anhaenge.anhang = limited_atts
-            yield real_estate
+                    immobilie.anhaenge.anhang = limited_atts
+            yield immobilie

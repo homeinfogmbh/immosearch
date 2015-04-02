@@ -13,6 +13,7 @@ from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     UserNotAllowed, InvalidAuthenticationOptions, InvalidCredentials,\
     HandlersExhausted, NotAnInteger
 from .filter import UserFilter
+from .sort import RealEstateSorter
 from .config import core
 from .imgscale import AttachmentScaler
 from .selector import RealEstateSelector
@@ -192,9 +193,9 @@ class Controller():
             immobilie = selector.immobilie
             # Handle attachments
             scaler = AttachmentScaler(immobilie, self._scaling)
-            immobilie = scaler.immobilie
-            # immobilie = Sorter(self._sort_options).sort()
-            # TODO: Implement sorting
+            immobilie = scaler.scale()
+            pager = RealEstateSorter(self._sort_options)
+            immobilie = pager.sort()
             pager = Pager(immobilie, self._limit)
             immobilie = pager.page(self._page)
             # Generate anbieter
@@ -266,7 +267,12 @@ class Controller():
     def _sort(self, value):
         """Generate filtering data"""
         for sort_option in value.split(Separators.OPTION):
-            self._sort_options.append(sort_option)
+            key, mode = sort_option.split(Separators.ATTR)
+            if mode == 'desc':
+                mode = True
+            else:
+                mode = False
+            self._sort_options.append((key, mode))
 
     def _attachments(self, value):
         """Generate scaling data"""
