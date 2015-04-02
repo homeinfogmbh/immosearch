@@ -43,9 +43,7 @@ class UserFilter():
     @property
     def _immobilie(self):
         """Returns valid, unfiltered real estates"""
-        for anbieter in Immobilie.anbieter:
-            if anbieter.openimmo_anid == str(self.user.cid):
-                yield from anbieter.immobilie
+        yield from Immobilie.by_cid(self.user.cid)
 
     @property
     def immobilie(self):
