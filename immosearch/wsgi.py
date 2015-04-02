@@ -190,7 +190,7 @@ class Controller():
                                           attachment_index=self._pic_index,
                                           attachment_title=self._pic_title,
                                           count_pictures=self._pic_count)
-            immobilie = selector.immobilie
+            immobilie = selector.select()
             # Handle attachments
             scaler = AttachmentScaler(immobilie, self._scaling)
             immobilie = scaler.scale()
