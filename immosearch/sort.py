@@ -149,10 +149,10 @@ class RealEstateSorter():
     def _keyed(self):
         """Generates (<keys>, <real_estate>) tuples"""
         for real_estate in (RealEstate(r) for r in self.immobilie):
+            keys = []
             for sort_option in self.sort_options:
                 option, desc = sort_option
                 option_func = self.options.get(option)
-                keys = []
                 if option_func is None:
                     raise InvalidSortingOption(option)
                 else:
