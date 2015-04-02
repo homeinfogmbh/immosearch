@@ -145,6 +145,7 @@ class RealEstateSorter():
         """Returns the sorting options"""
         return self._sort_options
 
+    @property
     def _keyed(self):
         """Generates (<keys>, <real_estate>) tuples"""
         for real_estate in (RealEstate(r) for r in self.immobilie):
