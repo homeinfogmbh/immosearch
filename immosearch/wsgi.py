@@ -267,11 +267,16 @@ class Controller():
     def _sort(self, value):
         """Generate filtering data"""
         for sort_option in value.split(Separators.OPTION):
-            key, mode = sort_option.split(Separators.ATTR)
-            if mode == 'desc':
-                mode = True
-            else:
+            try:
+                key, mode = sort_option.split(Separators.ATTR)
+            except ValueError:
+                key = sort_option
                 mode = False
+            else:
+                if mode == 'desc':
+                    mode = True
+                else:
+                    mode = False
             self._sort_options.append((key, mode))
 
     def _attachments(self, value):
