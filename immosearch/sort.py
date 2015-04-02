@@ -156,10 +156,10 @@ class RealEstateSorter():
                 if option_func is None:
                     raise InvalidSortingOption(option)
                 else:
-                    keys.append(Key(option_func(real_estate), desc))
+                    keys.append(Key(option_func(real_estate), desc=desc))
             yield (keys, real_estate)
 
     def sort(self):
-        """Sieve real estates by the given filters"""
+        """Sort real estates by the given options"""
         for _, real_estate in sorted(self._keyed, key=itemgetter(0)):
             yield real_estate.immobilie
