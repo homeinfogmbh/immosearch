@@ -2,29 +2,36 @@
 
 from .lib import RealEstate
 from .errors import InvalidSortingOption
+from operator import itemgetter
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '28.11.2014'
-__all__ = ['RealEstateSorter']
+__all__ = ['Sortable']
 
 
 class Key():
     """An attribute, that can be sorted"""
 
-    def __init__(self, val):
+    def __init__(self, val, desc=False):
         """Sets the actual value"""
         self._val = val
+        self._desc = desc
 
     @property
     def val(self):
         """Returns the value"""
         return self._val
 
+    @property
+    def desc(self):
+        """Determines whether we are in descending mode"""
+        return self._desc
+
     def __eq__(self, other):
         """Equality check"""
         return self.val == other.val
 
-    def __gt__(self, other):
+    def _gt(self, other):
         """Greater-than check"""
         if self.val is None:
             return False
@@ -33,7 +40,7 @@ class Key():
         else:
             return self.val > other.val
 
-    def __lt__(self, other):
+    def _lt(self, other):
         """Less-than check"""
         if self.val is None:
             return True
@@ -41,6 +48,14 @@ class Key():
             return False
         else:
             return self.val < other.val
+
+    def __gt__(self, other):
+        """Greater-than check"""
+        return not self._gt(other) if self.desc else self._gt(other)
+
+    def __lt__(self, other):
+        """Less-than check"""
+        return not self._lt(other) if self.desc else self._lt(other)
 
     def __ge__(self, other):
         """Greater-or-equal check"""
@@ -86,9 +101,9 @@ class RealEstateSorter():
                'erbpacht': lambda f: f.erbpacht,
                'aussen_courtage': lambda f: f.aussen_courtage,
                'innen_courtage': lambda f: f.innen_courtage,
-               'openimmo_obid': lambda f: f.openimmo_obid,
-               'objektnr_intern': lambda f: f.objektnr_intern,
-               'objektnr_extern': lambda f: f.objektnr_extern,
+               'openimmo_obid': (str, lambda f: f.openimmo_obid),
+               'objektnr_intern': (str, lambda f: f.objektnr_intern),
+               'objektnr_extern': (str, lambda f: f.objektnr_extern),
                'barrierefrei': lambda f: f.barrierefrei,
                'haustiere': lambda f: f.haustiere,
                'raucher': lambda f: f.raucher,
@@ -99,7 +114,7 @@ class RealEstateSorter():
                'abdatum': lambda f: f.abdatum,
                'moebliert': lambda f: f.moebliert,
                'seniorengerecht': lambda f: f.seniorengerecht,
-               'baujahr': lambda f: f.baujahr,
+               'baujahr': (str, lambda f: f.baujahr),
                'epart': lambda f: f.epart,
                'energieverbrauchkennwert':
                    lambda f: f.energieverbrauchkennwert,
@@ -130,22 +145,19 @@ class RealEstateSorter():
         """Returns the sorting options"""
         return self._sort_options
 
-    def _sort(self, real_estates, sort_option):
-        """Sorts by exactly one sorting option"""
-        option, desc = sort_option
-        option_func = self.options.get(option)
-        if option_func is None:
-            raise InvalidSortingOption(option)
-        else:
-            result = sorted(real_estates, key=lambda r: Key(option_func(r)))
-            if desc:
-                result = reversed(result)
-            return result
+    def _keyed(self):
+        """Generates (<keys>, <real_estate>) tuples"""
+        for real_estate in (RealEstate(r) for r in self.immobilie):
+            for sort_option in self.sort_options:
+                option, desc = sort_option
+                option_func = self.options.get(option)
+                keys = []
+                if option_func is None:
+                    raise InvalidSortingOption(option)
+                else:
+                    keys.append(Key(option_func(real_estate), desc))
+            yield (keys, real_estate)
 
     def sort(self):
         """Sieve real estates by the given filters"""
-        real_estates = (RealEstate(r) for r in self.immobilie)
-        for sort_option in self.sort_options:
-            real_estates = self._sort(real_estates, sort_option)
-        for real_estate in real_estates:
-            yield real_estate.immobilie
+        return sorted(self._keyed, key=itemgetter(0))
