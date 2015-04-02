@@ -194,8 +194,8 @@ class Controller():
             # Handle attachments
             scaler = AttachmentScaler(immobilie, self._scaling)
             immobilie = scaler.scale()
-            pager = RealEstateSorter(self._sort_options)
-            immobilie = pager.sort()
+            sorter = RealEstateSorter(immobilie, self._sort_options)
+            immobilie = sorter.sort()
             pager = Pager(immobilie, self._limit)
             immobilie = pager.page(self._page)
             # Generate anbieter
