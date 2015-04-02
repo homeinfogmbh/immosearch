@@ -161,4 +161,5 @@ class RealEstateSorter():
 
     def sort(self):
         """Sieve real estates by the given filters"""
-        return sorted(self._keyed, key=itemgetter(0))
+        for _, real_estate in sorted(self._keyed, key=itemgetter(0)):
+            yield real_estate.immobilie
