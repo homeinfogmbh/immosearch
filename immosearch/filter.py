@@ -43,7 +43,8 @@ class UserFilter():
     @property
     def _immobilie(self):
         """Returns valid, unfiltered real estates"""
-        yield from Immobilie.by_cid(self.user.cid)
+        for i in Immobilie.by_cid(self.user.cid):
+            yield i.immobilie
 
     @property
     def immobilie(self):
