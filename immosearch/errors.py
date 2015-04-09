@@ -36,8 +36,8 @@ class RenderableError(Exception):
         """Returns an options HTTP status for override"""
         return self._status
 
-    def render(self, encoding='utf-8'):
-        """Returns a tuple of ID and message"""
+    def toxml(self, encoding='utf-8'):
+        """Returns an XML message"""
         result = error()
         result.code = self._ident
         result.msg = self._msg
@@ -219,7 +219,7 @@ class HandlersExhausted(RenderableError):
         h = str(n)
         super().__init__(501, ' '.join(['Handlers exhausted:',
                                         ' / '.join([h, h])]),
-                         status='429 Too Many Requests')
+                         status=429)
 
 
 class MemoryExhausted(RenderableError):
@@ -232,4 +232,4 @@ class MemoryExhausted(RenderableError):
         b = ' '.join([str(n), 'bytes'])
         super().__init__(502, ' '.join(['Memory limit exhausted:',
                                         ' / '.join([b, b])]),
-                         status='413 Request Entity Too Large')
+                         status=413)

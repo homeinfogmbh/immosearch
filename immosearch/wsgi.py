@@ -4,6 +4,7 @@ from traceback import format_exc
 from peewee import DoesNotExist
 from urllib.parse import unquote
 from homeinfolib.db import connection
+from homeinfolib.wsgi import WsgiController, OK, Error, InternalServerError
 from openimmo import factories
 from .lib import Operators
 from .db import ImmoSearchUser
@@ -53,7 +54,7 @@ class PathNodes():
     CUSTOMER = 'customer'
 
 
-class Controller():
+class Controller(WsgiController):
     """Class that interprets and translates WSGI environment
     variables into a filter, sort and scaling queries
     """
@@ -75,29 +76,23 @@ class Controller():
         self._page = None
         self._pic_count = None
 
-    def run(self):
+    def _run(self):
         """Main method to call"""
-        charset = 'utf-8'
         try:
-            response_body = self._run(charset)
+            result = self.__run()
         except RenderableError as r:
-            status = r.status or '400 Bad Request'
-            content_type = 'application/xml'
-            response_body = r.render(encoding=charset)
+            status = r.status or 400
+            return Error(r, content_type='application/xml', status=status)
         except:
-            status = '500 Internal Server Error'
-            content_type = 'text/plain'
             msg = 'Internal Server Error :-('
             if core.get('DEBUG', False):
                 msg = '\n'.join([msg, format_exc()])
-            response_body = msg.encode(encoding=charset)
+            return InternalServerError(msg)
         else:
-            status = '200 OK'
-            content_type = 'application/xml'
+            return OK(result, content_type='application/xml')
         finally:
             if self._handler_opened:
                 self.user.current_handlers += -1
-        return (status, content_type, charset, response_body)
 
     @property
     def path_info(self):
@@ -177,7 +172,7 @@ class Controller():
         else:
             return False
 
-    def _run(self, encoding):
+    def __run(self):
         """Perform sieving, sorting and rendering"""
         user = self.user
         self.parse()
@@ -203,8 +198,7 @@ class Controller():
                                           user.name,
                                           str(user.cid))
             anbieter.immobilie = [i for i in immobilie]
-            xml_data = anbieter.toxml(encoding=encoding)
-            return xml_data
+            return anbieter
         else:
             raise UserNotAllowed(self.cid)
 
