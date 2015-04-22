@@ -1,8 +1,8 @@
 """Real estate sorting"""
 
+from operator import itemgetter
 from .lib import RealEstate
 from .errors import InvalidSortingOption
-from operator import itemgetter
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '28.11.2014'

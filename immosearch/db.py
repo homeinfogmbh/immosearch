@@ -1,10 +1,9 @@
 """Realtor and real estate filtering"""
 
 from peewee import MySQLDatabase, Model, IntegerField, BooleanField,\
-    ForeignKeyField, CharField
+    ForeignKeyField, CharField, create
 from homeinfo.crm import Customer
 from .config import db
-from homeinfolib.db import create, connection
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '24.02.2015'
@@ -50,14 +49,12 @@ class ImmoSearchUser(ImmoSearchModel):
     @property
     def cid(self):
         """Returns the customer ID"""
-        with connection(Customer):
-            return self.customer.id
+        return self.customer.id
 
     @property
     def name(self):
         """Returns the customer's name"""
-        with connection(Customer):
-            return self.customer.name
+        return self.customer.name
 
     @property
     def current_handlers(self):
@@ -71,8 +68,7 @@ class ImmoSearchUser(ImmoSearchModel):
             self._current_handlers = current_handlers
         else:
             self._current_handlers = 0
-        with connection(self):
-            self.save()
+        self.save()
 
     @property
     def current_bytes(self):
@@ -86,5 +82,4 @@ class ImmoSearchUser(ImmoSearchModel):
             self.current_bytes = current_bytes
         else:
             self.current_bytes = 0
-        with connection(self):
-            self.save()
+        self.save()

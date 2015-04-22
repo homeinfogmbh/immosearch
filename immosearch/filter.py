@@ -1,6 +1,6 @@
 """Realtor and real estate filtering"""
 
-from openimmodb2.immobilie import Immobilie
+from openimmodb2.db import Immobilie
 from .lib import cast, Operators, Realtor, RealEstate
 from .errors import FilterOperationNotImplemented, InvalidFilterOption,\
     SievingError

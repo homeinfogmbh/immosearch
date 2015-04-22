@@ -3,8 +3,7 @@
 from traceback import format_exc
 from peewee import DoesNotExist
 from urllib.parse import unquote
-from homeinfolib.db import connection
-from homeinfolib.wsgi import WsgiController, OK, Error, InternalServerError
+from homeinfo.wsgi import WsgiController, OK, Error, InternalServerError
 from openimmo import factories
 from .lib import Operators
 from .db import ImmoSearchUser
@@ -133,8 +132,7 @@ class Controller(WsgiController):
         """Returns the user"""
         cid = self.cid
         try:
-            with connection(ImmoSearchUser):
-                user = ImmoSearchUser.get(ImmoSearchUser.customer == cid)
+            user = ImmoSearchUser.get(ImmoSearchUser.customer == cid)
         except DoesNotExist:
             raise InvalidCustomerID(str(cid))
         else:
