@@ -5,8 +5,6 @@ from .lib import cast, Operators, Realtor, RealEstate
 from .errors import FilterOperationNotImplemented, InvalidFilterOption,\
     SievingError
 
-__author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
-__date__ = '24.02.2015'
 __all__ = ['UserRealEstateSieve']
 
 operations = {Operators.EQ: lambda x, y: x == y,

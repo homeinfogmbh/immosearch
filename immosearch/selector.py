@@ -2,10 +2,7 @@
 
 from openimmo import openimmo
 
-__author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
-__date__ = '24.02.2015'
 __all__ = ['Selections', 'RealEstateSelector']
-
 
 # Available picture types
 PIC_TYPES = ['image/jpeg', 'image/png', 'image/gif']
@@ -89,11 +86,13 @@ class RealEstateSelector():
                 feld.wert = str(picc)
                 udx.feld.append(feld)
                 immobilie.user_defined_extend.append(udx)
-            # Make selections
+            # Discard freitexte iff not selected
             if Selections.FREITEXTE not in self.selections:
                 immobilie.freitexte = None
+            # Discard attachments iff not selected
             if Selections.ATATCHMENTS not in self.selections:
                 immobilie.anhaenge = None
+            # Select indexes iff specified
             if self.attachment_index is not None:
                 if immobilie.anhaenge:
                     limited_atts = []
@@ -102,6 +101,7 @@ class RealEstateSelector():
                             limited_atts.append(att)
                             break
                     immobilie.anhaenge.anhang = limited_atts
+            # Select titles iff specified
             if self.attachment_title is not None:
                 if immobilie.anhaenge:
                     limited_atts = []
@@ -109,6 +109,7 @@ class RealEstateSelector():
                         if att.anhangtitel == self.attachment_title:
                             limited_atts.append(att)
                     immobilie.anhaenge.anhang = limited_atts
+            # Limit attachments if limit is specified
             if self.attachment_limit is not None:
                 if immobilie.anhaenge:
                     limited_atts = []

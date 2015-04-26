@@ -4,13 +4,11 @@ from operator import itemgetter
 from .lib import RealEstate
 from .errors import InvalidSortingOption
 
-__author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
-__date__ = '28.11.2014'
 __all__ = ['Sortable']
 
 
 class Key():
-    """An attribute, that can be sorted"""
+    """A key, that can be sorted"""
 
     def __init__(self, val, desc=False):
         """Sets the actual value"""
@@ -59,11 +57,11 @@ class Key():
 
     def __ge__(self, other):
         """Greater-or-equal check"""
-        return (self.val == other.val) or self.__gt__(other)
+        return self.__eq__(other) or self.__gt__(other)
 
     def __le__(self, other):
         """Less-or-equal check"""
-        return (self.val == other.val) or self.__lt__(other)
+        return self.__eq__(other) or self.__lt__(other)
 
 
 class Sorting():

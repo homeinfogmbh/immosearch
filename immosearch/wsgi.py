@@ -175,22 +175,26 @@ class Controller(WsgiController):
         user = self.user
         self.parse()
         if self._chkuser(user):
-            # Filter real estates
+            # 1) Filter real estates
             real_estates = UserRealEstateSieve(user, self._filters)
-            # Select appropriate data
+            # 2) Select appropriate data
             real_estates = RealEstateSelector(real_estates,
                                               selections=self._includes,
                                               attachment_limit=self._pic_limit,
                                               attachment_index=self._pic_index,
                                               attachment_title=self._pic_title,
                                               count_pictures=self._pic_count)
+            # 3) Scale attachments
             real_estates = AttachmentScaler(real_estates, self._scaling)
+            # 4) Sort real estates
             real_estates = RealEstateSorter(real_estates, self._sort_options)
-            real_estates = Pager(real_estates, self._page, limit=self._limit)
+            # 5) Page result
+            real_estates = Pager(real_estates, limit=self._limit,
+                                 page=self._page)
             # Generate anbieter
-            anbieter = factories.anbieter(str(user.cid),
-                                          user.name,
+            anbieter = factories.anbieter(str(user.cid), user.name,
                                           str(user.cid))
+            # Generate immobilie list from nested generators
             anbieter.immobilie = [i for i in real_estates]
             return anbieter
         else:

@@ -5,8 +5,6 @@ from peewee import MySQLDatabase, Model, IntegerField, BooleanField,\
 from homeinfo.crm import Customer
 from .config import db
 
-__author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
-__date__ = '24.02.2015'
 __all__ = ['ImmoSearchUser']
 
 database = MySQLDatabase(db['DB'], host=db['HOST'], user=db['USER'],

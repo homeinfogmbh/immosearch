@@ -2,8 +2,6 @@
 
 from datetime import datetime
 
-__author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
-__date__ = '24.02.2015'
 __all__ = ['boolean', 'debug', 'pdate', 'tags', 'cast', 'Sorting', 'Delims',
            'Operators', 'Realtor', 'RealEstate']
 

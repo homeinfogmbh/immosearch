@@ -1,9 +1,7 @@
 """Errors of immosearch"""
 
-from .error_xml import error
+from .dom import error
 
-__author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
-__date__ = '27.02.2015'
 __all__ = ['InvalidCustomerID', 'InvalidPathLength', 'InvalidPathNode',
            'InvalidOperationError', 'UserNotAllowed', 'OptionAlreadySet',
            'InvalidOptionsCount', 'NotAnInteger', 'InvalidRenderingResolution',

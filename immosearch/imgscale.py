@@ -6,8 +6,6 @@ from base64 import b64encode
 from PIL import Image
 from .errors import NoScalingProvided
 
-__author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
-__date__ = '26.02.2015'
 __all__ = ['AttachmentScaler']
 
 
