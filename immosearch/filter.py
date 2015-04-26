@@ -89,9 +89,7 @@ class RealtorSieve():
 
 
 class RealEstateSieve():
-    """Class that sieves real estates
-    of a realtor by certain filters
-    """
+    """Class that sieves real estates by certain filters"""
 
     options = {'objektart': lambda f: f.objektart,
                'objekttyp': lambda f: f.objekttypen,
@@ -195,7 +193,7 @@ class RealEstateSieve():
 
 
 class UserRealEstateSieve(RealEstateSieve):
-    """Class that filters real estates of a user"""
+    """Class that sieves real estates of a user"""
 
     def __init__(self, user, filters):
         """Initializes super class with the user's real estates"""
