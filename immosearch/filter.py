@@ -60,7 +60,6 @@ class RealtorSieve():
         """Sieve real estates by the given filters"""
         for anbieter in self.openimmo.anbieter:
             candidate = Realtor(anbieter)
-            match = True
             for f in self.filters:
                 option, operation, raw_value = f
                 operation_func = operations.get(operation)
@@ -84,9 +83,8 @@ class RealtorSieve():
                             raise SievingError(option, operation, raw_value)
                         else:
                             if not result:
-                                match = False
                                 break
-            if match:
+            else:
                 yield anbieter
 
 
