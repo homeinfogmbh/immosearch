@@ -206,5 +206,5 @@ class UserRealEstateSieve(RealEstateSieve):
 
     @property
     def user(self):
-        """Returns the user record"""
+        """Returns the user"""
         return self._user
