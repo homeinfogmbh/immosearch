@@ -198,7 +198,7 @@ class UserRealEstateSieve(RealEstateSieve):
     """Class that filters real estates of a user"""
 
     def __init__(self, user, filters):
-        """Initializes with a user record"""
+        """Initializes super class with the user's real estates"""
         super().__init__((i.immobilie for i in
                           Immobilie.by_cid(user.cid)),
                          filters)
