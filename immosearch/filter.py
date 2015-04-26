@@ -4,11 +4,10 @@ from openimmodb2.db import Immobilie
 from .lib import cast, Operators, Realtor, RealEstate
 from .errors import FilterOperationNotImplemented, InvalidFilterOption,\
     SievingError
-from .config import core
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '24.02.2015'
-__all__ = ['UserFilter']
+__all__ = ['UserRealEstateSieve']
 
 operations = {Operators.EQ: lambda x, y: x == y,
               # Operators.EG: ,
@@ -24,45 +23,6 @@ operations = {Operators.EQ: lambda x, y: x == y,
               Operators.NI: lambda x, y: x not in y,
               Operators.CO: lambda x, y: y in x,
               Operators.CN: lambda x, y: y not in x}
-
-
-class UserFilter():
-    """Class that filters real estates of a user"""
-
-    def __init__(self, user, filters):
-        """Initializes with a user record"""
-        self._user = user
-        self._filters = filters
-
-    @property
-    def user(self):
-        """Returns the user record"""
-        return self._user
-
-    @property
-    def _immobilie(self):
-        """Returns valid, unfiltered real estates"""
-        for i in Immobilie.by_cid(self.user.cid):
-            yield i.immobilie
-
-    @property
-    def immobilie(self):
-        """Yields filtered real estates"""
-        if self.user.ignore_restrictions:
-            yield from self._immobilie
-        else:
-            for immobilie in self._immobilie:
-                if immobilie.approve(core['name']):
-                    yield immobilie
-
-    @property
-    def _sieve(self):
-        """Returns an appropriate real estate sieve"""
-        return RealEstateSieve(self.immobilie, self._filters)
-
-    def filter(self):
-        """Returns valid, filtered real estates"""
-        return self._sieve.sieve()
 
 
 class RealtorSieve():
@@ -96,7 +56,7 @@ class RealtorSieve():
         """Property alias to sieve()"""
         return self.sieve()
 
-    def sieve(self):
+    def __iter__(self):
         """Sieve real estates by the given filters"""
         for anbieter in self.openimmo.anbieter:
             candidate = Realtor(anbieter)
@@ -204,11 +164,10 @@ class RealEstateSieve():
         """Property alias to sieve()"""
         return self._immobilie
 
-    def sieve(self):
+    def __iter__(self):
         """Sieve real estates by the given filters"""
         for immobilie in self.immobilie:
             real_estate = RealEstate(immobilie)
-            match = True
             for f in self.filters:
                 option, operation, raw_value = f
                 operation_func = operations.get(operation)
@@ -232,7 +191,22 @@ class RealEstateSieve():
                             raise SievingError(option, operation, raw_value)
                         else:
                             if not result:
-                                match = False
                                 break
-            if match:
+            else:
                 yield immobilie
+
+
+class UserRealEstateSieve(RealEstateSieve):
+    """Class that filters real estates of a user"""
+
+    def __init__(self, user, filters):
+        """Initializes with a user record"""
+        super().__init__((i.immobilie for i in
+                          Immobilie.by_cid(self.user.cid)),
+                         filters)
+        self._user = user
+
+    @property
+    def user(self):
+        """Returns the user record"""
+        return self._user

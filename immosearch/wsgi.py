@@ -12,7 +12,7 @@ from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     InvalidRenderingResolution, OptionAlreadySet, InvalidOperationError,\
     UserNotAllowed, InvalidAuthenticationOptions, InvalidCredentials,\
     HandlersExhausted, NotAnInteger
-from .filter import UserFilter
+from .filter import UserRealEstateSieve
 from .sort import RealEstateSorter
 from .config import core
 from .imgscale import AttachmentScaler
@@ -176,7 +176,7 @@ class Controller(WsgiController):
         self.parse()
         if self._chkuser(user):
             # Filter real estates
-            immobilie = UserFilter(user, self._filters).filter()
+            immobilie = UserRealEstateSieve(user, self._filters)
             # Select appropriate data
             selector = RealEstateSelector(immobilie, selections=self._includes,
                                           attachment_limit=self._pic_limit,
