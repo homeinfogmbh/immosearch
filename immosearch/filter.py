@@ -202,7 +202,7 @@ class UserRealEstateSieve(RealEstateSieve):
     def __init__(self, user, filters):
         """Initializes with a user record"""
         super().__init__((i.immobilie for i in
-                          Immobilie.by_cid(self.user.cid)),
+                          Immobilie.by_cid(user.cid)),
                          filters)
         self._user = user
 
