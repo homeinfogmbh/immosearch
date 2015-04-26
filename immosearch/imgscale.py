@@ -29,7 +29,7 @@ class AttachmentScaler():
         """Returns the targeted resolution"""
         return self._resolution
 
-    def scale(self):
+    def __iter__(self):
         """Returns the real estates with scaled attachments"""
         for immobilie in self.immobilie:
             if immobilie.anhaenge:

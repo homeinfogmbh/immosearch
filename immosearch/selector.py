@@ -67,7 +67,7 @@ class RealEstateSelector():
         """Returns the amount of available pictures"""
         return self._count_pictures
 
-    def select(self):
+    def __iter__(self):
         """Returns real estates liited to the selections"""
         for immobilie in self.immobilie:
             # Count pictures if requested

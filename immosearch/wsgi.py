@@ -176,26 +176,22 @@ class Controller(WsgiController):
         self.parse()
         if self._chkuser(user):
             # Filter real estates
-            immobilie = UserRealEstateSieve(user, self._filters)
+            real_estates = UserRealEstateSieve(user, self._filters)
             # Select appropriate data
-            selector = RealEstateSelector(immobilie, selections=self._includes,
-                                          attachment_limit=self._pic_limit,
-                                          attachment_index=self._pic_index,
-                                          attachment_title=self._pic_title,
-                                          count_pictures=self._pic_count)
-            immobilie = selector.select()
-            # Handle attachments
-            scaler = AttachmentScaler(immobilie, self._scaling)
-            immobilie = scaler.scale()
-            sorter = RealEstateSorter(immobilie, self._sort_options)
-            immobilie = sorter.sort()
-            pager = Pager(immobilie, self._limit)
-            immobilie = pager.page(self._page)
+            real_estates = RealEstateSelector(real_estates,
+                                              selections=self._includes,
+                                              attachment_limit=self._pic_limit,
+                                              attachment_index=self._pic_index,
+                                              attachment_title=self._pic_title,
+                                              count_pictures=self._pic_count)
+            real_estates = AttachmentScaler(real_estates, self._scaling)
+            real_estates = RealEstateSorter(real_estates, self._sort_options)
+            real_estates = Pager(real_estates, self._page, limit=self._limit)
             # Generate anbieter
             anbieter = factories.anbieter(str(user.cid),
                                           user.name,
                                           str(user.cid))
-            anbieter.immobilie = [i for i in immobilie]
+            anbieter.immobilie = [i for i in real_estates]
             return anbieter
         else:
             raise UserNotAllowed(self.cid)
