@@ -3,7 +3,7 @@
 from traceback import format_exc
 from peewee import DoesNotExist
 from urllib.parse import unquote
-from homeinfo.wsgi import WsgiController, OK, Error, InternalServerError
+from homeinfo.lib.wsgi import WsgiController, OK, Error, InternalServerError
 from openimmo import factories
 from .lib import Operators
 from .db import ImmoSearchUser
