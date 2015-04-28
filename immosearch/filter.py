@@ -164,7 +164,6 @@ class RealEstateSieve():
         def evaluate(operation):
             option = None
             raw_value = None
-            operation = operation
             for operator in operations:
                 try:
                     option, raw_value = operation.split(operator)
@@ -196,7 +195,6 @@ class RealEstateSieve():
                             return result
 
         evaluate.real_estate = real_estate
-        eval
         return evaluate
 
     def __iter__(self):
