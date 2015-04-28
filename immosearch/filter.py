@@ -189,15 +189,10 @@ class RealEstateSieve():
                             option_format = None
                             option_func = option_
                         value = cast(raw_value, typ=option_format)
-                        #raise FilterOperationNotImplemented(
-                        #    ' - '.join([str(option), str(option_),
-                        #                str(option_format), str(option_func),
-                        #                option_func(real_estate), str(value)]))
                         try:
                             result = operation_func(option_func(real_estate),
                                                     value)
                         except TypeError:
-                            raise FilterOperationNotImplemented(format_exc())
                             result = False
                         except (AttributeError, ValueError):
                             raise SievingError(option, operation, raw_value)
