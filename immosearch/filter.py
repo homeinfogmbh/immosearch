@@ -192,7 +192,7 @@ class RealEstateSieve():
                         except (AttributeError, TypeError, ValueError):
                             raise SievingError(option, operation, raw_value)
                         else:
-                            return result
+                            return True if result else False
 
         evaluate.real_estate = real_estate
         return evaluate
