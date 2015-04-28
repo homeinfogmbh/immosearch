@@ -164,6 +164,7 @@ class RealEstateSieve():
         def evaluate(op):
             option = None
             raw_value = None
+            InvalidFilterOption(op)
             for operation in operations:
                 try:
                     option, raw_value = op.split(operation)
