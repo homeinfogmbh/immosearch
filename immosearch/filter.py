@@ -185,10 +185,10 @@ class RealEstateSieve():
                     else:
                         try:
                             option_format, option_func = option_
+                            value = cast(raw_value, typ=option_format)
                         except TypeError:
-                            option_format = str
                             option_func = option_
-                        value = cast(raw_value, typ=option_format)
+                            value = raw_value
                         try:
                             val = option_func(real_estate)
                             result = operation_func(val, value)
