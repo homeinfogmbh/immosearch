@@ -192,7 +192,7 @@ class RealEstateSieve():
                         except (AttributeError, TypeError, ValueError):
                             raise SievingError(option, operation, raw_value)
                         else:
-                            raise FilterOperationNotImplemented(str(result) + str(operation_func))
+                            raise FilterOperationNotImplemented(str(result) + ' FOO ' + str(operation_func))
                             return True if result else False
 
         evaluate.real_estate = real_estate
