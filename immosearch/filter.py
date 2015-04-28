@@ -160,7 +160,9 @@ class RealEstateSieve():
         """Property alias to sieve()"""
         return self._immobilie
 
-    def _evaluate(self, real_estate):
+    def _evaluate(self, immobilie):
+
+        real_estate = RealEstate(immobilie)
 
         def evaluate(operation):
             option = None
@@ -208,9 +210,8 @@ class RealEstateSieve():
     def __iter__(self):
         """Sieve real estates by the given filters"""
         for immobilie in self.immobilie:
-            real_estate = RealEstate(immobilie)
             if BooleanEvaluator(self._filters,
-                                callback=self._evaluate(real_estate)):
+                                callback=self._evaluate(immobilie)):
                 yield immobilie
 
 
