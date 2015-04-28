@@ -165,13 +165,14 @@ class RealEstateSieve():
             option = None
             raw_value = None
             operation = operation
+            raise InvalidFilterOption(str(operations))
             for operator in operations:
                 try:
                     option, raw_value = operation.split(operator)
                 except ValueError:
                     continue
             if option is None or raw_value is None:
-                raise InvalidFilterOption(str(operations))
+                raise InvalidFilterOption(operation)
             else:
                 operation_func = operations.get(operation)
                 if operation_func is None:
