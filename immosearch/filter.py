@@ -1,5 +1,6 @@
 """Realtor and real estate filtering"""
 
+from homeinfo.lib.boolparse import BooleanEvaluator
 from openimmodb2.db import Immobilie
 from .lib import cast, Operators, Realtor, RealEstate
 from .errors import FilterOperationNotImplemented, InvalidFilterOption,\
@@ -158,12 +159,21 @@ class RealEstateSieve():
         """Property alias to sieve()"""
         return self._immobilie
 
-    def __iter__(self):
-        """Sieve real estates by the given filters"""
-        for immobilie in self.immobilie:
-            real_estate = RealEstate(immobilie)
-            for f in self.filters:
-                option, operation, raw_value = f
+    def _evaluate(self, real_estate, op):
+
+        def evaluate():
+            real_estate = real_estate
+            op = op
+            option = None
+            raw_value = None
+            for operation in operations:
+                try:
+                    option, raw_value = op.split(operation)
+                except ValueError:
+                    continue
+            if option is None or raw_value is None:
+                raise InvalidFilterOption(option)
+            else:
                 operation_func = operations.get(operation)
                 if operation_func is None:
                     raise FilterOperationNotImplemented(operation)
@@ -184,9 +194,15 @@ class RealEstateSieve():
                         except (AttributeError, TypeError, ValueError):
                             raise SievingError(option, operation, raw_value)
                         else:
-                            if not result:
-                                break
-            else:
+                            return result
+        return evaluate
+
+    def __iter__(self):
+        """Sieve real estates by the given filters"""
+        for immobilie in self.immobilie:
+            real_estate = RealEstate(immobilie)
+            if BooleanEvaluator(self._filters,
+                                callback=self._evaluate(real_estate)):
                 yield immobilie
 
 

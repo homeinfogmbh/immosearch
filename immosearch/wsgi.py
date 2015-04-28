@@ -62,7 +62,7 @@ class Controller(WsgiController):
         """Initializes the WSGI application with a query string"""
         self._path_info = path_info
         self._query_string = query_string
-        self._filters = []
+        self._filters = None
         self._sort_options = []
         self._includes = []
         self._scaling = None
@@ -240,21 +240,7 @@ class Controller(WsgiController):
 
     def _filter(self, value):
         """Generate filtering data"""
-        option_assignments = value.split(Separators.OPTION)
-        for option_assignment in option_assignments:
-            operator = None
-            for operator_ in Operators():
-                split_assignment = option_assignment.split(operator_)
-                if len(split_assignment) == 2:
-                    option = split_assignment[0]
-                    operator = operator_
-                    value = split_assignment[1]
-                    break
-            if operator is None:
-                raise NoValidFilterOperation(option_assignment)
-            else:
-                filter_ = (option, operator, value)
-                self._filters.append(filter_)
+        self._filters = value
 
     def _sort(self, value):
         """Generate filtering data"""
