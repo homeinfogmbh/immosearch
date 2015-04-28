@@ -159,11 +159,10 @@ class RealEstateSieve():
         """Property alias to sieve()"""
         return self._immobilie
 
-    def _evaluate(self, real_estate, op):
+    def _evaluate(self, real_estate):
 
-        def evaluate():
+        def evaluate(op):
             real_estate = real_estate
-            op = op
             option = None
             raw_value = None
             for operation in operations:
