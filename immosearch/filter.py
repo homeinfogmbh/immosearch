@@ -162,7 +162,6 @@ class RealEstateSieve():
     def _evaluate(self, real_estate):
 
         def evaluate(op):
-            real_estate = real_estate
             option = None
             raw_value = None
             for operation in operations:
@@ -194,6 +193,8 @@ class RealEstateSieve():
                             raise SievingError(option, operation, raw_value)
                         else:
                             return result
+
+        evaluate.real_estate = real_estate
         return evaluate
 
     def __iter__(self):
