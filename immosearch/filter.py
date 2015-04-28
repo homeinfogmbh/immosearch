@@ -173,10 +173,9 @@ class RealEstateSieve():
             if option is None or raw_value is None:
                 raise InvalidFilterOption(operation)
             else:
-                raise InvalidFilterOption(str(operation))
-                operation_func = operations.get(operation)
+                operation_func = operations.get(operator)
                 if operation_func is None:
-                    raise FilterOperationNotImplemented(operation)
+                    raise FilterOperationNotImplemented(operator)
                 else:
                     option_ = self.options.get(option)
                     if option_ is None:
