@@ -171,7 +171,7 @@ class RealEstateSieve():
                 except ValueError:
                     continue
             if option is None or raw_value is None:
-                raise InvalidFilterOption(operation)
+                raise InvalidFilterOption(str(operations))
             else:
                 operation_func = operations.get(operation)
                 if operation_func is None:
@@ -196,6 +196,7 @@ class RealEstateSieve():
                             return result
 
         evaluate.real_estate = real_estate
+        eval
         return evaluate
 
     def __iter__(self):
