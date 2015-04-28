@@ -188,7 +188,8 @@ class RealEstateSieve():
                             option_func = option_
                         value = cast(raw_value, typ=option_format)
                         raise FilterOperationNotImplemented(
-                            ' - '.join([str(option_format),
+                            ' - '.join([str(option), str(option_),
+                                        str(option_format),
                                         option_func(real_estate), str(value)]))
                         try:
                             result = operation_func(option_func(real_estate),
