@@ -5,6 +5,7 @@ from openimmodb2.db import Immobilie
 from .lib import cast, Operators, Realtor, RealEstate
 from .errors import FilterOperationNotImplemented, InvalidFilterOption,\
     SievingError
+from traceback import format_exc
 
 __all__ = ['UserRealEstateSieve']
 
@@ -192,7 +193,7 @@ class RealEstateSieve():
                         except TypeError:
                             result = False
                         except (AttributeError, ValueError):
-                            raise SievingError(option, operation, raw_value)
+                            raise SievingError(option, operation, raw_value + ' FOO ' + format_exc())
                         else:
                             return True if result else False
 
