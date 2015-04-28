@@ -189,8 +189,9 @@ class RealEstateSieve():
                         try:
                             result = operation_func(option_func(real_estate),
                                                     value)
-                        except (AttributeError, TypeError, ValueError) as f:
-                            raise FilterOperationNotImplemented(str(option_func(real_estate)) + ' FOO ' + str(value) + ' BAR ' + str(operation_func))
+                        except TypeError:
+                            result = False
+                        except (AttributeError, ValueError):
                             raise SievingError(option, operation, raw_value)
                         else:
                             return True if result else False
