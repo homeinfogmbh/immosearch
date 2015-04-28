@@ -161,16 +161,17 @@ class RealEstateSieve():
 
     def _evaluate(self, real_estate):
 
-        def evaluate(op):
+        def evaluate(operation):
             option = None
             raw_value = None
-            for operation in operations:
+            operation = operation
+            for operator in operations:
                 try:
-                    option, raw_value = op.split(operation)
+                    option, raw_value = operation.split(operator)
                 except ValueError:
                     continue
             if option is None or raw_value is None:
-                raise InvalidFilterOption(option)
+                raise InvalidFilterOption(operation)
             else:
                 operation_func = operations.get(operation)
                 if operation_func is None:
