@@ -162,6 +162,8 @@ class RealEstateSieve():
 
     def _evaluate(self, immobilie):
 
+        real_estate = RealEstate(immobilie)
+
         def evaluate(operation):
             option = None
             raw_value = None
@@ -188,7 +190,7 @@ class RealEstateSieve():
                             func = option_
                         value = cast(raw_value, typ=typ)
                         try:
-                            val = func(real_estate)  # @UndefinedVariable
+                            val = func(real_estate)
                             result = operation_func(val, value)
                         except (TypeError, ValueError):
                             # Exclude for None values and wrong types
@@ -198,7 +200,7 @@ class RealEstateSieve():
                         else:
                             return True if result else False
 
-        evaluate.real_estate = RealEstate(immobilie)
+        # evaluate.real_estate = RealEstate(immobilie)
         return evaluate
 
     def __iter__(self):
