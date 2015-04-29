@@ -194,7 +194,10 @@ class RealEstateSieve():
                             val = option_func(real_estate)
                             result = operation_func(val, value)
                             if result:
-                                raise InvalidFilterOption(' - '.join([str(real_estate._immobilie.verwaltung_techn.openimmo_obid)]))
+                                with open('/tmp/immosearch.dbg', 'a') as dbg:
+                                    dbg.write(str(real_estate._immobilie
+                                                  .verwaltung_techn
+                                                  .openimmo_obid))
                         except (TypeError, ValueError):
                             # Exclude for None values and wrong types
                             result = False
@@ -213,6 +216,8 @@ class RealEstateSieve():
                                         callback=self._evaluate(immobilie)):
                         yield immobilie
         else:
+            with open('/tmp/immosearch.dbg', 'a') as dbg:
+                dbg.write(str('YIELDING OTHERS'))
             yield from self.immobilie
 
 
