@@ -197,7 +197,7 @@ class RealEstateSieve():
                                 with open('/tmp/immosearch.dbg', 'a') as dbg:
                                     dbg.write(str(real_estate._immobilie
                                                   .verwaltung_techn
-                                                  .openimmo_obid))
+                                                  .openimmo_obid) + '\n')
                         except (TypeError, ValueError):
                             # Exclude for None values and wrong types
                             result = False
@@ -217,7 +217,7 @@ class RealEstateSieve():
                         yield immobilie
         else:
             with open('/tmp/immosearch.dbg', 'a') as dbg:
-                dbg.write(str('YIELDING OTHERS'))
+                dbg.write(str('YIELDING OTHERS\n'))
             yield from self.immobilie
 
 
