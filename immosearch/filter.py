@@ -185,10 +185,10 @@ class RealEstateSieve():
                     else:
                         try:
                             option_format, option_func = option_
-                            value = cast(raw_value, typ=option_format)
                         except TypeError:
+                            option_format = None
                             option_func = option_
-                            value = raw_value
+                        value = cast(raw_value, typ=option_format)
                         try:
                             val = option_func(real_estate)
                             raise InvalidFilterOption(' - '.join([str(val),
