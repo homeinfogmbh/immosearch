@@ -193,9 +193,9 @@ class RealEstateSieve():
                             val = option_func(real_estate)
                             result = operation_func(val, value)
                         except TypeError:
-                            raise InvalidFilterOption(' - '.join([format_exc(),
-                                                                  str(val), str(type(val)),
-                                                                  str(value), str(type(value))]))
+                            # raise InvalidFilterOption(' - '.join([format_exc(),
+                            #                                      str(val), str(type(val)),
+                            #                                      str(value), str(type(value))]))
                             result = False
                         except (AttributeError, ValueError):
                             raise SievingError(option, operation, raw_value)
