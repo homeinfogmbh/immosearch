@@ -205,10 +205,13 @@ class RealEstateSieve():
 
     def __iter__(self):
         """Sieve real estates by the given filters"""
-        for immobilie in self.immobilie:
-            if BooleanEvaluator(self._filters,
-                                callback=self._evaluate(immobilie)):
-                yield immobilie
+        if self._filters:
+            for immobilie in self.immobilie:
+                    if BooleanEvaluator(self._filters,
+                                        callback=self._evaluate(immobilie)):
+                        yield immobilie
+        else:
+            yield from self.immobilie
 
 
 class UserRealEstateSieve(RealEstateSieve):
