@@ -195,9 +195,18 @@ class RealEstateSieve():
                             result = operation_func(val, value)
                             if result:
                                 with open('/tmp/immosearch.dbg', 'a') as dbg:
-                                    dbg.write(str(real_estate._immobilie
-                                                  .verwaltung_techn
-                                                  .openimmo_obid) + '\n')
+                                    dbg.write('\t'.join([str(real_estate
+                                                             ._immobilie
+                                                             .verwaltung_techn
+                                                             .openimmo_obid),
+                                                         str(val),
+                                                         str(type(val)),
+                                                         str(value),
+                                                         str(type(value)),
+                                                         str(option_format),
+                                                         str(result),
+                                                         str(operator)])
+                                              + '\n')
                         except (TypeError, ValueError):
                             # Exclude for None values and wrong types
                             result = False
