@@ -5,7 +5,6 @@ from openimmodb2.db import Immobilie
 from .lib import cast, Operators, Realtor, RealEstate
 from .errors import FilterOperationNotImplemented, InvalidFilterOption,\
     SievingError
-from traceback import format_exc
 
 __all__ = ['UserRealEstateSieve']
 
@@ -161,10 +160,12 @@ class RealEstateSieve():
         return self._immobilie
 
     def _evaluate(self, immobilie):
+        """Callback generator for evaluating real estate properties"""
 
         real_estate = RealEstate(immobilie)
 
         def evaluate(operation):
+            """Real estate evaluation callback"""
             option = None
             raw_value = None
             for operator in operations:
@@ -184,13 +185,13 @@ class RealEstateSieve():
                         raise InvalidFilterOption(option)
                     else:
                         try:
-                            typ, func = option_
+                            option_format, option_func = option_
                         except TypeError:
-                            typ = None
-                            func = option_
-                        value = cast(raw_value, typ=typ)
+                            option_format = None
+                            option_func = option_
+                        value = cast(raw_value, typ=option_format)
                         try:
-                            val = func(real_estate)
+                            val = option_func(real_estate)
                             result = operation_func(val, value)
                         except (TypeError, ValueError):
                             # Exclude for None values and wrong types
@@ -200,7 +201,6 @@ class RealEstateSieve():
                         else:
                             return True if result else False
 
-        # evaluate.real_estate = RealEstate(immobilie)
         return evaluate
 
     def __iter__(self):
