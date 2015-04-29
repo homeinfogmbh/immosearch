@@ -200,7 +200,7 @@ class RealEstateSieve():
                         else:
                             return True if result else False
 
-        evaluate.real_estate = real_estate
+        # evaluate.real_estate = real_estate
         return evaluate
 
     def __iter__(self):
