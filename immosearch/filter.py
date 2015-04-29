@@ -193,9 +193,8 @@ class RealEstateSieve():
                         try:
                             val = option_func(real_estate)
                             result = operation_func(val, value)
-                            raise InvalidFilterOption(' - '.join([str(option_format), str(raw_value),
-                                                                  str(value), str(type(value)),
-                                                                  str(result), str(type(result))]))
+                            if result:
+                                raise InvalidFilterOption(' - '.join([str(real_estate._immobilie.verwaltung_techn.openimmo_obid)]))
                         except (TypeError, ValueError):
                             # Exclude for None values and wrong types
                             result = False
