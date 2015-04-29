@@ -191,8 +191,8 @@ class RealEstateSieve():
                             value = raw_value
                         try:
                             val = option_func(real_estate)
-                            result = operation_func(val, value)
                             raise InvalidFilterOption(' - '.join([val, value]))
+                            result = operation_func(val, value)
                         except TypeError:
                             raise InvalidFilterOption(format_exc())
                             result = False
