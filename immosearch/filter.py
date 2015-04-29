@@ -215,10 +215,10 @@ class RealEstateSieve():
                     if BooleanEvaluator(self._filters,
                                         callback=self._evaluate(immobilie)):
                         yield immobilie
-        else:
-            with open('/tmp/immosearch.dbg', 'a') as dbg:
-                dbg.write(str('YIELDING OTHERS\n'))
-            yield from self.immobilie
+        #else:
+        #    with open('/tmp/immosearch.dbg', 'a') as dbg:
+        #        dbg.write(str('YIELDING OTHERS\n'))
+        #    yield from self.immobilie
 
 
 class UserRealEstateSieve(RealEstateSieve):
