@@ -205,7 +205,9 @@ class RealEstateSieve():
                                                          str(type(value)),
                                                          str(option_format),
                                                          str(result),
-                                                         str(operator)])
+                                                         str(operator),
+                                                         str(operation),
+                                                         str(operation_func)])
                                               + '\n')
                         except (TypeError, ValueError):
                             # Exclude for None values and wrong types
