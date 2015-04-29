@@ -162,8 +162,6 @@ class RealEstateSieve():
 
     def _evaluate(self, immobilie):
 
-        real_estate = RealEstate(immobilie)
-
         def evaluate(operation):
             option = None
             raw_value = None
@@ -184,13 +182,13 @@ class RealEstateSieve():
                         raise InvalidFilterOption(option)
                     else:
                         try:
-                            option_format, option_func = option_
+                            typ, func = option_
                         except TypeError:
-                            option_format = None
-                            option_func = option_
-                        value = cast(raw_value, typ=option_format)
+                            typ = None
+                            func = option_
+                        value = cast(raw_value, typ=typ)
                         try:
-                            val = option_func(real_estate)
+                            val = func(real_estate)  # @UndefinedVariable
                             result = operation_func(val, value)
                         except (TypeError, ValueError):
                             # Exclude for None values and wrong types
@@ -200,7 +198,7 @@ class RealEstateSieve():
                         else:
                             return True if result else False
 
-        # evaluate.real_estate = real_estate
+        evaluate.real_estate = RealEstate(immobilie)
         return evaluate
 
     def __iter__(self):
