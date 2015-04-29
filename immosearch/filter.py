@@ -173,6 +173,8 @@ class RealEstateSieve():
                     option, raw_value = operation.split(operator)
                 except ValueError:
                     continue
+                else:
+                    break
             if option is None or raw_value is None:
                 raise InvalidFilterOption(operation)
             else:
