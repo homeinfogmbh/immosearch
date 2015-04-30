@@ -209,13 +209,13 @@ class RealEstateSieve():
         """Sieve real estates by the given filters"""
         if self._filters:
             for immobilie in self.immobilie:
-                    be = BooleanEvaluator(self._filters,
-                                          callback=self._evaluate(immobilie))
-                    try:
-                        if be:
-                            yield immobilie
-                    except SecurityError as sec_err:
-                        raise SecurityBreak(str(sec_err)) from None
+                be = BooleanEvaluator(self._filters,
+                                      callback=self._evaluate(immobilie))
+                try:
+                    if be:
+                        yield immobilie
+                except SecurityError as sec_err:
+                    raise SecurityBreak(str(sec_err)) from None
         else:
             yield from self.immobilie
 
