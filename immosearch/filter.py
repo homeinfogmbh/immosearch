@@ -1,10 +1,10 @@
 """Realtor and real estate filtering"""
 
-from homeinfo.lib.boolparse import BooleanEvaluator
+from homeinfo.lib.boolparse import SecurityError, BooleanEvaluator
 from openimmodb2.db import Immobilie
 from .lib import cast, Operators, Realtor, RealEstate
 from .errors import FilterOperationNotImplemented, InvalidFilterOption,\
-    SievingError
+    SievingError, SecurityBreak
 
 __all__ = ['UserRealEstateSieve']
 
@@ -209,9 +209,13 @@ class RealEstateSieve():
         """Sieve real estates by the given filters"""
         if self._filters:
             for immobilie in self.immobilie:
-                    if BooleanEvaluator(self._filters,
-                                        callback=self._evaluate(immobilie)):
-                        yield immobilie
+                    be = BooleanEvaluator(self._filters,
+                                          callback=self._evaluate(immobilie))
+                    try:
+                        if be:
+                            yield immobilie
+                    except SecurityError:
+                        raise SecurityBreak() from None
         else:
             yield from self.immobilie
 

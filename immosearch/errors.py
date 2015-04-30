@@ -6,7 +6,7 @@ __all__ = ['InvalidCustomerID', 'InvalidPathLength', 'InvalidPathNode',
            'InvalidOperationError', 'UserNotAllowed', 'OptionAlreadySet',
            'InvalidOptionsCount', 'NotAnInteger', 'InvalidRenderingResolution',
            'NoValidFilterOperation', 'InvalidFilterOption',
-           'FilterOperationNotImplemented', 'SievingError',
+           'FilterOperationNotImplemented', 'SievingError', 'SecurityBreak'
            'InvalidSortingOption', 'InvalidAuthenticationOptions',
            'InvalidCredentials', 'HandlersExhausted', 'MemoryExhausted']
 
@@ -158,6 +158,14 @@ class SievingError(RenderableError):
                                        str(option), '" with operation "',
                                        str(operation), '" for value "',
                                        str(value), '"']))
+
+
+class SecurityBreak(RenderableError):
+    """Indicates an error during sieving"""
+
+    def __init__(self):
+        super().__init__(105, 'Caught security error while'
+                         ' parsing the search filter')
 
 
 class InvalidSortingOption(RenderableError):
