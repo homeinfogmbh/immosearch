@@ -197,7 +197,7 @@ class RealEstateSieve():
                             result = operation_func(val, value)
                         except (TypeError, ValueError):
                             # Exclude for None values and wrong types
-                            result = False
+                            return False
                         except AttributeError:
                             raise SievingError(option, operation, raw_value)
                         else:
