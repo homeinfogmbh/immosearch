@@ -214,8 +214,8 @@ class RealEstateSieve():
                     try:
                         if be:
                             yield immobilie
-                    except SecurityError:
-                        raise SecurityBreak() from None
+                    except SecurityError as sec_err:
+                        raise SecurityBreak(str(sec_err)) from None
         else:
             yield from self.immobilie
 

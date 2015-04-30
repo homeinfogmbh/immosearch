@@ -163,9 +163,9 @@ class SievingError(RenderableError):
 class SecurityBreak(RenderableError):
     """Indicates an error during sieving"""
 
-    def __init__(self):
-        super().__init__(105, 'Caught security error while'
-                         ' parsing the search filter')
+    def __init__(self, msg):
+        super().__init__(105, ': '.join(['Caught security error while parsing'
+                                         ' the search filter', msg]))
 
 
 class InvalidSortingOption(RenderableError):
