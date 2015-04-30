@@ -4,7 +4,7 @@ from homeinfo.lib.boolparse import SecurityError, BooleanEvaluator
 from openimmodb2.db import Immobilie
 from .lib import cast, Operators, Realtor, RealEstate
 from .errors import FilterOperationNotImplemented, InvalidFilterOption,\
-    SievingError, SecurityBreak
+    SievingError, SecurityBreach
 
 __all__ = ['UserRealEstateSieve']
 
@@ -215,7 +215,7 @@ class RealEstateSieve():
                     if be:
                         yield immobilie
                 except SecurityError as sec_err:
-                    raise SecurityBreak(str(sec_err)) from None
+                    raise SecurityBreach(str(sec_err)) from None
         else:
             yield from self.immobilie
 

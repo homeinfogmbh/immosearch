@@ -6,7 +6,7 @@ __all__ = ['InvalidCustomerID', 'InvalidPathLength', 'InvalidPathNode',
            'InvalidOperationError', 'UserNotAllowed', 'OptionAlreadySet',
            'InvalidOptionsCount', 'NotAnInteger', 'InvalidRenderingResolution',
            'NoValidFilterOperation', 'InvalidFilterOption',
-           'FilterOperationNotImplemented', 'SievingError', 'SecurityBreak'
+           'FilterOperationNotImplemented', 'SievingError', 'SecurityBreach'
            'InvalidSortingOption', 'InvalidAuthenticationOptions',
            'InvalidCredentials', 'HandlersExhausted', 'MemoryExhausted']
 
@@ -160,8 +160,8 @@ class SievingError(RenderableError):
                                        str(value), '"']))
 
 
-class SecurityBreak(RenderableError):
-    """Indicates an error during sieving"""
+class SecurityBreach(RenderableError):
+    """Indicates errors during boolean parser's security checks"""
 
     def __init__(self, msg):
         super().__init__(105, ': '.join(['Caught security error while parsing'
