@@ -23,7 +23,7 @@ class RealEstateSelector():
 
     def __init__(self, immobilie, selections=None, attachment_limit=None,
                  attachment_index=None, attachment_title=None,
-                 count_pictures=False):
+                 attachment_group=None, count_pictures=False):
         """Initializes with a real estate,
         selection options and a picture limit
         """
@@ -32,6 +32,7 @@ class RealEstateSelector():
         self._attachment_limit = attachment_limit
         self._attachment_index = attachment_index
         self._attachment_title = attachment_title
+        self._attachment_group = attachment_group
         self._count_pictures = count_pictures
 
     @property
@@ -58,6 +59,11 @@ class RealEstateSelector():
     def attachment_title(self):
         """Returns the attachment title"""
         return self._attachment_title
+
+    @property
+    def attachment_group(self):
+        """Returns the attachment group"""
+        return self._attachment_group
 
     @property
     def count_pictures(self):
@@ -107,6 +113,14 @@ class RealEstateSelector():
                     limited_atts = []
                     for att in immobilie.anhaenge.anhang:
                         if att.anhangtitel == self.attachment_title:
+                            limited_atts.append(att)
+                    immobilie.anhaenge.anhang = limited_atts
+            # Select attachments by group
+            if self.attachment_group is not None:
+                if immobilie.anhaenge:
+                    limited_atts = []
+                    for att in immobilie.anhaenge.anhang:
+                        if att.gruppe == self.attachment_group:
                             limited_atts.append(att)
                     immobilie.anhaenge.anhang = limited_atts
             # Limit attachments if limit is specified

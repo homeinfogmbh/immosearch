@@ -5,13 +5,12 @@ from peewee import DoesNotExist
 from urllib.parse import unquote
 from homeinfo.lib.wsgi import WsgiController, OK, Error, InternalServerError
 from openimmo import factories
-from .lib import Operators
 from .db import ImmoSearchUser
 from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
-    InvalidPathNode, NoValidFilterOperation, InvalidOptionsCount,\
-    InvalidRenderingResolution, OptionAlreadySet, InvalidOperationError,\
-    UserNotAllowed, InvalidAuthenticationOptions, InvalidCredentials,\
-    HandlersExhausted, NotAnInteger
+    InvalidPathNode, InvalidOptionsCount, InvalidRenderingResolution,\
+    OptionAlreadySet, InvalidOperationError, UserNotAllowed,\
+    InvalidAuthenticationOptions, InvalidCredentials, HandlersExhausted,\
+    NotAnInteger
 from .filter import UserRealEstateSieve
 from .sort import RealEstateSorter
 from .config import core
@@ -72,6 +71,7 @@ class Controller(WsgiController):
         self._limit = None  # Page size limit
         self._pic_index = None  # Selected picture index
         self._pic_title = None  # Selected picture title
+        self._pic_group = None  # Selected picture group
         self._page = None
         self._pic_count = None
 
@@ -183,6 +183,7 @@ class Controller(WsgiController):
                                               attachment_limit=self._pic_limit,
                                               attachment_index=self._pic_index,
                                               attachment_title=self._pic_title,
+                                              attachment_group=self._pic_group,
                                               count_pictures=self._pic_count)
             # 3) Scale attachments
             real_estates = AttachmentScaler(real_estates, self._scaling)
@@ -298,10 +299,17 @@ class Controller(WsgiController):
                         raise OptionAlreadySet(option, self._pic_index)
                     elif self._pic_title is not None:
                         raise OptionAlreadySet(option, self._pic_title)
+                    elif self._pic_group is not None:
+                        raise OptionAlreadySet(option, self._pic_group)
                     try:
                         n = int(value)
                     except (ValueError, TypeError):
-                        self._pic_title = value.replace('"', '')
+                        filter_str = value.replace('"', '')
+                        if filter_str.startswith('%'):
+                            self._pic_group = filter_str.replace(
+                                '%', '').upper()
+                        else:
+                            self._pic_title = filter_str
                     else:
                         self._pic_index = n
                 elif option == 'count':
