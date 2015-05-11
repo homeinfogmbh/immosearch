@@ -17,14 +17,14 @@ def keep_aspect_ratio(original, new, maximum=False):
     delta_y = ny / oy
     if delta_x > delta_y:
         if maximum:
-            return (nx, oy*delta_x)
+            return (nx, round(oy*delta_x))
         else:
-            return (ox*delta_y, oy)
+            return (round(ox*delta_y), oy)
     elif delta_x < delta_y:
         if maximum:
-            return (ox*delta_y, oy)
+            return (round(ox*delta_y), oy)
         else:
-            return (nx, oy*delta_x)
+            return (nx, round(oy*delta_x))
     else:
         return (nx, ny)
 
