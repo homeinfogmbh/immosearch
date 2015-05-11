@@ -59,6 +59,8 @@ class Controller(WsgiController):
     variables into a filter, sort and scaling queries
     """
 
+    DEBUG = True
+
     def __init__(self, path_info, query_string):
         """Initializes the WSGI application with a query string"""
         super().__init__(path_info, query_string)
