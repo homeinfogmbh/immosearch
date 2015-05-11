@@ -19,10 +19,10 @@ def keep_aspect_ratio(original, new, maximum=False):
         if maximum:
             return (nx, round(oy*delta_x))
         else:
-            return (round(ox*delta_y), oy)
+            return (round(ox*delta_y), ny)
     elif delta_x < delta_y:
         if maximum:
-            return (round(ox*delta_y), oy)
+            return (round(ox*delta_y), ny)
         else:
             return (nx, round(oy*delta_x))
     else:
