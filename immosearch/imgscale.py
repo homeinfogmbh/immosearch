@@ -9,6 +9,26 @@ from .errors import NoScalingProvided
 __all__ = ['AttachmentScaler']
 
 
+def keep_aspect_ratio(original, new, maximum=False):
+    """Gets the minimal or maximal factor for image scaling"""
+    ox, oy = original
+    nx, ny = new
+    delta_x = nx / ox
+    delta_y = ny / oy
+    if delta_x > delta_y:
+        if maximum:
+            return (nx, oy*delta_x)
+        else:
+            return (ox*delta_y, oy)
+    elif delta_x < delta_y:
+        if maximum:
+            return (ox*delta_y, oy)
+        else:
+            return (nx, oy*delta_x)
+    else:
+        return (nx, ny)
+
+
 class AttachmentScaler():
     """Class that scales an attachment"""
 
@@ -39,7 +59,10 @@ class AttachmentScaler():
                         else:
                             with NamedTemporaryFile('wb') as tmp:
                                 tmp.write(a.data)
-                                scaled = ScaledImage(tmp.name, self.resolution)
+                                original_size = Image.open(tmp.name).size
+                                scaled = ScaledImage(
+                                    tmp.name, keep_aspect_ratio(
+                                        original_size, self.resolution))
                                 with suppress(OSError):
                                     a.data = scaled.data
                                     processed.append(a)
