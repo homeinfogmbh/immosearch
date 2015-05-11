@@ -12,13 +12,13 @@ from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     InvalidAuthenticationOptions, InvalidCredentials, HandlersExhausted,\
     NotAnInteger
 from .config import core
-from .lib.filter import UserRealEstateSieve
-from .lib.selector import RealEstateDataSelector
-from .lib.sort import RealEstateSorter
-from .lib.pager import Pager
-from .lib.attachments import AttachmentSelector, AttachmentLimiter,\
+from .filter import UserRealEstateSieve
+from .selector import RealEstateDataSelector
+from .sort import RealEstateSorter
+from .pager import Pager
+from .attachments import AttachmentSelector, AttachmentLimiter,\
     AttachmentLoader
-from .lib.imgscale import ImageScaler
+from .imgscale import ImageScaler
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '10.10.2014'
