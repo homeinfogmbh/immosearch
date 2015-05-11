@@ -1,6 +1,8 @@
 """Real estate data filtering"""
 
 from openimmo import openimmo
+from openimmo.openimmo import AttachmentError
+from contextlib import suppress
 
 __all__ = ['Selections', 'RealEstateSelector']
 
@@ -129,8 +131,15 @@ class RealEstateSelector():
                     limited_atts = []
                     for c, att in enumerate(immobilie.anhaenge.anhang):
                         if c < self.attachment_limit:
-                            limited_atts.append(att)
+                            with suppress(AttachmentError):
+                                limited_atts.append(att.insource())
                         else:
                             break
+                    immobilie.anhaenge.anhang = limited_atts
+            else:   # Just insource all attachments
+                if immobilie.anhaenge:
+                    for att in immobilie.anhaenge.anhang:
+                        with suppress(AttachmentError):
+                            limited_atts.append(att.insource())
                     immobilie.anhaenge.anhang = limited_atts
             yield immobilie

@@ -1,6 +1,5 @@
 """Image scaling"""
 
-from contextlib import suppress
 from tempfile import NamedTemporaryFile
 from base64 import b64encode
 from PIL import Image
@@ -53,19 +52,21 @@ class AttachmentScaler():
             if immobilie.anhaenge:
                 processed = []
                 for a in immobilie.anhaenge.anhang:
-                    if a.external:
-                        if self.resolution is None:
-                            raise NoScalingProvided()
-                        else:
-                            with NamedTemporaryFile('wb') as tmp:
-                                tmp.write(a.data)
-                                with suppress(OSError):
-                                    original_size = Image.open(tmp.name).size
-                                    scaled = ScaledImage(
-                                        tmp.name, keep_aspect_ratio(
-                                            original_size, self.resolution))
-                                    a.data = scaled.data
-                    processed.append(a)  # Append attachment in any case
+                    if self.resolution is None:
+                        raise NoScalingProvided()
+                    else:
+                        with NamedTemporaryFile('wb') as tmp:
+                            tmp.write(a.data)
+                            try:
+                                original_size = Image.open(tmp.name).size
+                                scaled = ScaledImage(
+                                    tmp.name, keep_aspect_ratio(
+                                        original_size, self.resolution))
+                                a.data = scaled.data
+                            except OSError:
+                                a.data = a.data     # Insource data
+                            finally:
+                                processed.append(a)
                 immobilie.anhaenge.anhang = processed
             yield immobilie
 
