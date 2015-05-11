@@ -65,9 +65,7 @@ class AttachmentScaler():
                                         tmp.name, keep_aspect_ratio(
                                             original_size, self.resolution))
                                     a.data = scaled.data
-                                    processed.append(a)
-                    else:
-                        processed.append(a)
+                    processed.append(a)  # Append attachment in any case
                 immobilie.anhaenge.anhang = processed
             yield immobilie
 
