@@ -59,6 +59,7 @@ class AttachmentScaler():
                         else:
                             with NamedTemporaryFile('wb') as tmp:
                                 tmp.write(a.data)
+                                tmp.seek(0)
                                 original_size = Image.open(tmp.name).size
                                 scaled = ScaledImage(
                                     tmp.name, keep_aspect_ratio(
