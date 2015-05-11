@@ -8,7 +8,8 @@ __all__ = ['InvalidCustomerID', 'InvalidPathLength', 'InvalidPathNode',
            'NoValidFilterOperation', 'InvalidFilterOption',
            'FilterOperationNotImplemented', 'SievingError', 'SecurityBreach'
            'InvalidSortingOption', 'InvalidAuthenticationOptions',
-           'InvalidCredentials', 'HandlersExhausted', 'MemoryExhausted']
+           'InvalidCredentials', 'HandlersExhausted', 'MemoryExhausted',
+           'InvalidLimiting']
 
 # Error codes:
 # <nn>    WSGI top-level errors
@@ -239,3 +240,12 @@ class MemoryExhausted(RenderableError):
         super().__init__(502, ' '.join(['Memory limit exhausted:',
                                         ' / '.join([b, b])]),
                          status=413)
+
+
+class InvalidLimiting(RenderableError):
+    """Indicates that an invalid limiting has been requested"""
+
+    def __init__(self, msg):
+        """Creates message with memory limit info"""
+        super().__init__(503, ' '.join(['Invalid filtering:', msg]),
+                         status=400)

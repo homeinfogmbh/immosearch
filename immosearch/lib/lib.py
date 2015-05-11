@@ -3,12 +3,11 @@
 from datetime import datetime
 
 __all__ = ['boolean', 'debug', 'pdate', 'tags', 'cast', 'Sorting', 'Delims',
-           'Operators', 'Realtor', 'RealEstate']
+           'Operators', 'Realtor', 'RealEstateWrapper']
 
 
 boolean = {'true': True,
            'false': False}
-"""Boolean string datatype"""
 
 
 def debug(s, d=None):
@@ -170,7 +169,7 @@ class Realtor():
         return str(self.anbieter.firma)
 
 
-class RealEstate():
+class RealEstateWrapper():
     """Wrapper class for an OpenImmo™-immobilie
     that can be filtered by certain attributes
     """

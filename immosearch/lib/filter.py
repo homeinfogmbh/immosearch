@@ -2,9 +2,10 @@
 
 from homeinfo.lib.boolparse import SecurityError, BooleanEvaluator
 from openimmodb2.db import Immobilie
-from .lib import cast, Operators, Realtor, RealEstate
+from .lib import cast, Operators, Realtor, RealEstateWrapper
 from .errors import FilterOperationNotImplemented, InvalidFilterOption,\
     SievingError, SecurityBreach
+from .abc import RealEstateIterator
 
 __all__ = ['UserRealEstateSieve']
 
@@ -87,7 +88,7 @@ class RealtorSieve():
                 yield anbieter
 
 
-class RealEstateSieve():
+class RealEstateSieve(RealEstateIterator):
     """Class that sieves real estates by certain filters"""
 
     options = {'objektart': lambda f: f.objektart,
@@ -142,11 +143,11 @@ class RealEstateSieve():
                'laufzeit': lambda f: f.laufzeit,
                'max_personen': lambda f: f.max_personen}
 
-    def __init__(self, immobilie, filters):
+    def __init__(self, real_estates, filters):
         """Sets the respective realtor and filter tuples like:
         (<option>, <operation>, <target_value>)
         """
-        self._immobilie = immobilie
+        super().__init__(real_estates)
         self._filters = filters
 
     @property
@@ -154,15 +155,10 @@ class RealEstateSieve():
         """Returns the filters"""
         return self._filters
 
-    @property
-    def immobilie(self):
-        """Property alias to sieve()"""
-        return self._immobilie
-
-    def _evaluate(self, immobilie):
+    def _evaluate(self, real_estate):
         """Callback generator for evaluating real estate properties"""
 
-        real_estate = RealEstate(immobilie)
+        wrapped_real_estate = RealEstateWrapper(real_estate)
 
         def evaluate(operation):
             """Real estate evaluation callback"""
@@ -193,7 +189,7 @@ class RealEstateSieve():
                             option_func = option_
                         value = cast(raw_value, typ=option_format)
                         try:
-                            val = option_func(real_estate)
+                            val = option_func(wrapped_real_estate)
                             result = operation_func(val, value)
                         except (TypeError, ValueError):
                             # Exclude for None values and wrong types
@@ -208,16 +204,16 @@ class RealEstateSieve():
     def __iter__(self):
         """Sieve real estates by the given filters"""
         if self._filters:
-            for immobilie in self.immobilie:
-                be = BooleanEvaluator(self._filters,
-                                      callback=self._evaluate(immobilie))
+            for real_estate in self.real_estates:
+                be = BooleanEvaluator(
+                    self._filters, callback=self._evaluate(real_estate))
                 try:
                     if be:
-                        yield immobilie
+                        yield real_estate
                 except SecurityError as sec_err:
                     raise SecurityBreach(str(sec_err)) from None
         else:
-            yield from self.immobilie
+            yield from self.real_estates
 
 
 class UserRealEstateSieve(RealEstateSieve):

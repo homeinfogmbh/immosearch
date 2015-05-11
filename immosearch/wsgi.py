@@ -11,12 +11,14 @@ from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     OptionAlreadySet, InvalidOperationError, UserNotAllowed,\
     InvalidAuthenticationOptions, InvalidCredentials, HandlersExhausted,\
     NotAnInteger
-from .filter import UserRealEstateSieve
-from .sort import RealEstateSorter
 from .config import core
-from .imgscale import AttachmentScaler
-from .selector import RealEstateSelector
-from .pager import Pager
+from .lib.filter import UserRealEstateSieve
+from .lib.selector import RealEstateDataSelector
+from .lib.sort import RealEstateSorter
+from .lib.pager import Pager
+from .lib.attachments import AttachmentSelector, AttachmentLimiter,\
+    AttachmentLoader
+from .lib.imgscale import ImageScaler
 
 __author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
 __date__ = '10.10.2014'
@@ -59,21 +61,29 @@ class Controller(WsgiController):
 
     def __init__(self, path_info, query_string):
         """Initializes the WSGI application with a query string"""
-        self._path_info = path_info
-        self._query_string = query_string
-        self._filters = None
-        self._sort_options = []
-        self._includes = []
-        self._scaling = None
-        self._pic_limit = None
-        self._auth_token = None
+        super().__init__(path_info, query_string)
         self._handler_opened = False
-        self._limit = None  # Page size limit
-        self._pic_index = None  # Selected picture index
-        self._pic_title = None  # Selected picture title
-        self._pic_group = None  # Selected picture group
+
+        self._filters = None
+        self._sort_options = None
+        self._includes = None
+        self._scaling = None
+        self._auth_token = None
+
+        # Attachment selection
+        self._attachment_indexes = None
+        self._attachment_titles = None
+        self._attachment_groups = None
+
+        # Attachment limits
+        self._attachment_limit = None
+        self._picture_limit = None
+        self._floorplan_limit = None
+        self._document_limit = None
+
+        # Paging
+        self._page_size = None
         self._page = None
-        self._pic_count = None
 
     def _run(self):
         """Main method to call"""
@@ -178,26 +188,41 @@ class Controller(WsgiController):
             # 1) Filter real estates
             real_estates = UserRealEstateSieve(user, self._filters)
             # 2) Select appropriate data
-            real_estates = RealEstateSelector(real_estates,
-                                              selections=self._includes,
-                                              attachment_limit=self._pic_limit,
-                                              attachment_index=self._pic_index,
-                                              attachment_title=self._pic_title,
-                                              attachment_group=self._pic_group,
-                                              count_pictures=self._pic_count)
-            # 3) Scale attachments
-            real_estates = AttachmentScaler(real_estates, self._scaling)
+            real_estates = RealEstateDataSelector(
+                real_estates, selections=self._includes)
             # 4) Sort real estates
             real_estates = RealEstateSorter(real_estates, self._sort_options)
             # 5) Page result
-            real_estates = Pager(real_estates, limit=self._limit,
+            real_estates = Pager(real_estates, limit=self._page_size,
                                  page=self._page)
-            # Generate anbieter
-            anbieter = factories.anbieter(str(user.cid), user.name,
-                                          str(user.cid))
-            # Generate immobilie list from nested generators
-            anbieter.immobilie = [i for i in real_estates]
-            return anbieter
+            # Generate realtor
+            realtor = factories.anbieter(str(user.cid), user.name,
+                                         str(user.cid))
+            # Manage attachments for each real estate
+            for real_estate in real_estates:
+                if real_estate.anhaenge:
+                    attachments = real_estate.anhaenge.anhang
+                    # 1) Select attachments
+                    attachments = AttachmentSelector(
+                        attachments,
+                        indexes=self._attachment_indexes,
+                        titles=self._attachment_titles,
+                        groups=self._attachment_groups)
+                    # 2) Limit attachments
+                    attachments = AttachmentLimiter(
+                        attachments,
+                        attachment_limit=self._attachment_limit,
+                        picture_limit=self._picture_limit,
+                        floorplan_limit=self._floorplan_limit,
+                        document_limit=self._document_limit)
+                    # 3) Scale pictures
+                    attachments = ImageScaler(attachments, self._scaling)
+                    # 4) Load remaining attachments
+                    attachments = AttachmentLoader(attachments)
+                    # 5) Set manipulated attachments on real estate
+                    real_estate.anhaenge.anhang = [a for a in attachments]
+                realtor.immobilie.append(real_estate)
+            return realtor
         else:
             raise UserNotAllowed(self.cid)
 
@@ -232,31 +257,44 @@ class Controller(WsgiController):
                 raise InvalidAuthenticationOptions()    # Do not propagate data
             else:
                 self._auth_token = auth_opts[0]
+        else:
+            raise OptionAlreadySet(Operations.AUTH_TOKEN, '*****')
 
     def _include(self, value):
         """Select options"""
-        includes = value.split(Separators.OPTION)
-        for include in includes:
-            self._includes.append(include)
+        if self._includes is None:
+            self._includes = []
+            includes = value.split(Separators.OPTION)
+            for include in includes:
+                self._includes.append(include)
+        else:
+            raise OptionAlreadySet(Operations.INCLUDE, str(self._includes))
 
     def _filter(self, value):
         """Generate filtering data"""
-        self._filters = value
+        if self._filters is None:
+            self._filters = value
+        else:
+            raise OptionAlreadySet(Operations.FILTER, str(self._filters))
 
     def _sort(self, value):
         """Generate filtering data"""
-        for sort_option in value.split(Separators.OPTION):
-            try:
-                key, mode = sort_option.split(Separators.ATTR)
-            except ValueError:
-                key = sort_option
-                mode = False
-            else:
-                if mode == 'desc':
-                    mode = True
-                else:
+        if self._sort_options is None:
+            self._sort_options = []
+            for sort_option in value.split(Separators.OPTION):
+                try:
+                    key, mode = sort_option.split(Separators.ATTR)
+                except ValueError:
+                    key = sort_option
                     mode = False
-            self._sort_options.append((key, mode))
+                else:
+                    if mode == 'desc':
+                        mode = True
+                    else:
+                        mode = False
+                self._sort_options.append((key, mode))
+        else:
+            raise OptionAlreadySet(Operations.SORT, str(self._sort_options))
 
     def _attachments(self, value):
         """Generate scaling data"""
@@ -285,38 +323,63 @@ class Controller(WsgiController):
                     else:
                         raise OptionAlreadySet(option, self._scaling)
                 elif option == 'limit':
-                    if self._pic_limit is None:
+                    if self._attachment_limit is None:
                         try:
                             limit = int(value)
                         except (ValueError, TypeError):
                             raise NotAnInteger(value)
                         else:
-                            self._pic_limit = limit
+                            self._attachment_limit = limit
                     else:
-                        raise OptionAlreadySet(option, self._pic_limit)
+                        raise OptionAlreadySet(option, self._attachment_limit)
+                elif option == 'piclim':
+                    if self._attachment_limit is None:
+                        try:
+                            limit = int(value)
+                        except (ValueError, TypeError):
+                            raise NotAnInteger(value)
+                        else:
+                            self._picture_limit = limit
+                    else:
+                        raise OptionAlreadySet(option, self._picture_limit)
+                elif option == 'fplim':
+                    if self._attachment_limit is None:
+                        try:
+                            limit = int(value)
+                        except (ValueError, TypeError):
+                            raise NotAnInteger(value)
+                        else:
+                            self._floorplan_limit = limit
+                    else:
+                        raise OptionAlreadySet(option, self._floorplan_limit)
+                elif option == 'doclim':
+                    if self._attachment_limit is None:
+                        try:
+                            limit = int(value)
+                        except (ValueError, TypeError):
+                            raise NotAnInteger(value)
+                        else:
+                            self._document_limit = limit
+                    else:
+                        raise OptionAlreadySet(option, self._document_limit)
                 elif option == 'select':
-                    if self._pic_index is not None:
-                        raise OptionAlreadySet(option, self._pic_index)
-                    elif self._pic_title is not None:
-                        raise OptionAlreadySet(option, self._pic_title)
-                    elif self._pic_group is not None:
-                        raise OptionAlreadySet(option, self._pic_group)
+                    if self._attachment_index is not None:
+                        raise OptionAlreadySet(option, self._attachment_index)
+                    elif self._attachment_title is not None:
+                        raise OptionAlreadySet(option, self._attachment_title)
+                    elif self._attachment_group is not None:
+                        raise OptionAlreadySet(option, self._attachment_group)
                     try:
                         n = int(value)
                     except (ValueError, TypeError):
                         filter_str = value.replace('"', '')
                         if filter_str.startswith('%'):
-                            self._pic_group = filter_str.replace(
+                            self._attachment_group = filter_str.replace(
                                 '%', '').upper()
                         else:
-                            self._pic_title = filter_str
+                            self._attachment_title = filter_str
                     else:
-                        self._pic_index = n
-                elif option == 'count':
-                    if self._pic_count is None:
-                        self._pic_count = True
-                    else:
-                        raise OptionAlreadySet(option, self._pic_count)
+                        self._attachment_index = n
                 else:
                     raise InvalidOperationError(option)
 
@@ -336,7 +399,7 @@ class Controller(WsgiController):
                     except (ValueError, TypeError):
                         raise NotAnInteger(value)
                     else:
-                        self._limit = limit
+                        self._page_size = limit
                 elif option == 'page':
                     try:
                         page = int(value)

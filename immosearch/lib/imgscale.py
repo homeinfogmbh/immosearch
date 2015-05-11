@@ -4,12 +4,13 @@ from tempfile import NamedTemporaryFile
 from base64 import b64encode
 from PIL import Image
 from .errors import NoScalingProvided
+from .abc import AttachmentIterator
 
-__all__ = ['AttachmentScaler']
+__all__ = ['ImageScaler']
 
 
-def keep_aspect_ratio(original, new, maximum=False):
-    """Gets the minimal or maximal factor for image scaling"""
+def scale_aspect_ratio(original, new, maximum=False):
+    """Scales an image, keeping its aspect ratio"""
     ox, oy = original
     nx, ny = new
     delta_x = nx / ox
@@ -26,49 +27,6 @@ def keep_aspect_ratio(original, new, maximum=False):
             return (nx, round(oy*delta_x))
     else:
         return (nx, ny)
-
-
-class AttachmentScaler():
-    """Class that scales an attachment"""
-
-    def __init__(self, immobilie, resolution):
-        """Class to scale attachments of real estates"""
-        self._immobilie = immobilie
-        self._resolution = resolution
-
-    @property
-    def immobilie(self):
-        """Returns the real estates"""
-        return self._immobilie
-
-    @property
-    def resolution(self):
-        """Returns the targeted resolution"""
-        return self._resolution
-
-    def __iter__(self):
-        """Returns the real estates with scaled attachments"""
-        for immobilie in self.immobilie:
-            if immobilie.anhaenge:
-                processed = []
-                for a in immobilie.anhaenge.anhang:
-                    if self.resolution is None:
-                        raise NoScalingProvided()
-                    else:
-                        with NamedTemporaryFile('wb') as tmp:
-                            tmp.write(a.data)
-                            try:
-                                original_size = Image.open(tmp.name).size
-                                scaled = ScaledImage(
-                                    tmp.name, keep_aspect_ratio(
-                                        original_size, self.resolution))
-                                a.data = scaled.data
-                            except OSError:
-                                a.data = a.data     # Insource data
-                            finally:
-                                processed.append(a)
-                immobilie.anhaenge.anhang = processed
-            yield immobilie
 
 
 class ScaledImage():
@@ -115,3 +73,39 @@ class ScaledImage():
     def b64size(self):
         """Returns the file's size"""
         return len(self.b64data)
+
+
+class ImageScaler(AttachmentIterator):
+    """Class that scales an attachment"""
+
+    def __init__(self, attachments, resolution):
+        """Class to scale attachments of real estates"""
+        super().__init__(attachments)
+        if resolution is None:
+            raise NoScalingProvided()
+        else:
+            self._resolution = resolution
+
+    @property
+    def resolution(self):
+        """Returns the targeted resolution"""
+        return self._resolution
+
+    def __iter__(self):
+        """Returns the real estates with scaled attachments"""
+        for attachment in self.attachments:
+            if attachment.external:
+                with NamedTemporaryFile('wb') as tmp:
+                    tmp.write(attachment.data)
+                    try:
+                        original_size = Image.open(tmp.name).size
+                        scaled = ScaledImage(
+                            tmp.name, scale_aspect_ratio(
+                                original_size, self.resolution))
+                        attachment.data = scaled.data
+                    except OSError:
+                        attachment.insource()
+                    finally:
+                        yield attachment
+            else:
+                yield attachment
