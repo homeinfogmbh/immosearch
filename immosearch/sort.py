@@ -131,7 +131,7 @@ class RealEstateSorter():
         (<option>, <operation>, <target_value>)
         """
         self._immobilie = immobilie
-        self._sort_options = sort_options
+        self._sort_options = sort_options or []
 
     @property
     def immobilie(self):
