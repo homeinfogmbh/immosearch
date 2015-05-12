@@ -335,7 +335,7 @@ class Controller(WsgiController):
                     else:
                         raise OptionAlreadySet(option, self._attachment_limit)
                 elif option == 'piclim':
-                    if self._attachment_limit is None:
+                    if self._picture_limit is None:
                         try:
                             limit = int(value)
                         except (ValueError, TypeError):
@@ -345,7 +345,7 @@ class Controller(WsgiController):
                     else:
                         raise OptionAlreadySet(option, self._picture_limit)
                 elif option == 'fplim':
-                    if self._attachment_limit is None:
+                    if self._floorplan_limit is None:
                         try:
                             limit = int(value)
                         except (ValueError, TypeError):
@@ -355,7 +355,7 @@ class Controller(WsgiController):
                     else:
                         raise OptionAlreadySet(option, self._floorplan_limit)
                 elif option == 'doclim':
-                    if self._attachment_limit is None:
+                    if self._document_limit is None:
                         try:
                             limit = int(value)
                         except (ValueError, TypeError):
