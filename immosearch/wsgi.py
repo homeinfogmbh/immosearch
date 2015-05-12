@@ -78,7 +78,6 @@ class Controller(WsgiController):
         self._attachment_groups = None
 
         # Attachment limits
-        self._attachment_limit = None
         self._picture_limit = None
         self._floorplan_limit = None
         self._document_limit = None
@@ -213,7 +212,6 @@ class Controller(WsgiController):
                     # 2) Limit attachments
                     attachments = AttachmentLimiter(
                         attachments,
-                        attachment_limit=self._attachment_limit,
                         picture_limit=self._picture_limit,
                         floorplan_limit=self._floorplan_limit,
                         document_limit=self._document_limit)
@@ -324,17 +322,7 @@ class Controller(WsgiController):
                                 self._scaling = (x, y)
                     else:
                         raise OptionAlreadySet(option, self._scaling)
-                elif option == 'limit':
-                    if self._attachment_limit is None:
-                        try:
-                            limit = int(value)
-                        except (ValueError, TypeError):
-                            raise NotAnInteger(value)
-                        else:
-                            self._attachment_limit = limit
-                    else:
-                        raise OptionAlreadySet(option, self._attachment_limit)
-                elif option == 'piclim':
+                elif option == 'pictures':
                     if self._picture_limit is None:
                         try:
                             limit = int(value)
@@ -344,7 +332,7 @@ class Controller(WsgiController):
                             self._picture_limit = limit
                     else:
                         raise OptionAlreadySet(option, self._picture_limit)
-                elif option == 'fplim':
+                elif option == 'floorplans':
                     if self._floorplan_limit is None:
                         try:
                             limit = int(value)
@@ -354,7 +342,7 @@ class Controller(WsgiController):
                             self._floorplan_limit = limit
                     else:
                         raise OptionAlreadySet(option, self._floorplan_limit)
-                elif option == 'doclim':
+                elif option == 'documents':
                     if self._document_limit is None:
                         try:
                             limit = int(value)
