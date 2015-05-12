@@ -149,10 +149,10 @@ class AttachmentLimiter(AttachmentIterator):
         picture_cnt = 0
         floorplan_cnt = 0
         document_cnt = 0
-        for cnt, attachment in enumerate(self.attachments):
+        for index, attachment in enumerate(self.attachments):
             # Break loop if global limit has been exceeded
             if self.attachment_limit is not None:
-                if cnt > self.attachment_limit:
+                if index + 1 > self.attachment_limit:
                     break
             # Limit pictures, but exclude floor plans,
             # since we limit them separately below
