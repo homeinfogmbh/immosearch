@@ -118,32 +118,25 @@ class AttachmentLimiter(AttachmentIterator):
 
     def __iter__(self):
         """Yields limited attachments"""
-        # Limit pictures, but exclude floor plans,
-        if (self.picture_limit is None and
-                self.floorplan_limit is None and
-                self.document_limit is None):
-            raise InvalidLimiting('No attachment limiting specified')
-        else:
-            # First yield white-listed stuff
-            yield from self.whitelist
-            if self.picture_limit is not None:
-                for index, picture in enumerate(self.pictures):
-                    if index < self.picture_limit:
-                        yield picture
-                    else:
-                        break
-            if self.floorplan_limit is not None:
-                for index, floorplan in enumerate(self.floorplans):
-                    if index < self.floorplan_limit:
-                        yield floorplan
-                    else:
-                        break
-            if self.document_limit is not None:
-                for index, document in enumerate(self.documents):
-                    if index < self.document_limit:
-                        yield document
-                    else:
-                        break
+        yield from self.whitelist
+        if self.picture_limit is not None:
+            for index, picture in enumerate(self.pictures):
+                if index < self.picture_limit:
+                    yield picture
+                else:
+                    break
+        if self.floorplan_limit is not None:
+            for index, floorplan in enumerate(self.floorplans):
+                if index < self.floorplan_limit:
+                    yield floorplan
+                else:
+                    break
+        if self.document_limit is not None:
+            for index, document in enumerate(self.documents):
+                if index < self.document_limit:
+                    yield document
+                else:
+                    break
 
 
 class AttachmentLoader(AttachmentIterator):
