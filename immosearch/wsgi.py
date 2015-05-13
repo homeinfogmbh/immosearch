@@ -107,11 +107,10 @@ class Controller(WsgiController):
     @property
     def cid(self):
         """Extracts the customer ID from the query path"""
-        path = [p for p in self.path_info.split(Separators.PATH) if p.strip()]
-        if len(path) > 1:
-            if path[1] == PathNodes.CUSTOMER:
-                if len(path) == 3:
-                    cid_str = path[2]
+        if len(self.path) > 1:
+            if self.path[1] == PathNodes.CUSTOMER:
+                if len(self.path) == 3:
+                    cid_str = self.path[2]
                     try:
                         cid = int(cid_str)
                     except ValueError:
@@ -119,9 +118,9 @@ class Controller(WsgiController):
                     else:
                         return cid
                 else:
-                    raise InvalidPathLength(len(path))
+                    raise InvalidPathLength(len(self.path))
             else:
-                raise InvalidPathNode(path[1])
+                raise InvalidPathNode(self.path[1])
 
     @property
     def user(self):
