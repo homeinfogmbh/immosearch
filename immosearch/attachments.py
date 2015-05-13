@@ -90,6 +90,7 @@ class AttachmentLimiter(AttachmentIterator):
         for attachment in self.attachments:
             if (attachment.gruppe != 'GRUNDRISS' and
                     attachment.gruppe in openimmo.BILDER):
+                attachment.IMMOSEARCH_INSOURCE = True
                 yield attachment
 
     @property
@@ -97,13 +98,26 @@ class AttachmentLimiter(AttachmentIterator):
         """Yields floor plans"""
         for attachment in self.attachments:
             if attachment.gruppe == 'GRUNDRISS':
+                attachment.IMMOSEARCH_INSOURCE = True
                 yield attachment
 
     @property
     def documents(self):
         """Yields documents"""
         for attachment in self.attachments:
-            if attachment.gruppe == 'DOKUMENTE':
+            if (attachment.gruppe == 'DOKUMENTE' and
+                    attachment.external):
+                attachment.IMMOSEARCH_INSOURCE = True
+                yield attachment
+
+    @property
+    def whitelist(self):
+        """Yields white-listed attachments,
+        which are yielded in any case
+        """
+        for attachment in self.attachments:
+            if (attachment.gruppe == 'DOKUMENTE' and
+                    attachment.remote):
                 yield attachment
 
     def __iter__(self):
@@ -114,6 +128,9 @@ class AttachmentLimiter(AttachmentIterator):
                 self.document_limit is None):
             raise InvalidLimiting('No attachment limiting specified')
         else:
+            # First yield white-listed stuff
+            yield from self.whitelist
+            # Yield limited attachments
             if self.picture_limit is not None:
                 for index, picture in enumerate(self.pictures):
                     if index < self.picture_limit:
@@ -140,8 +157,11 @@ class AttachmentLoader(AttachmentIterator):
     def __iter__(self):
         """Performs the loading"""
         for attachment in self.attachments:
-            # Do not insource remote documents
-            if not (attachment.remote and attachment.gruppe == 'DOKUMENTE'):
+            try:
+                insource = attachment.IMMOSEARCH_INSOURCE
+            except AttributeError:
+                insource = False
+            if insource:
                 with suppress(AttachmentError):
                     yield attachment.insource()
             else:
