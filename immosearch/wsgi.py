@@ -105,21 +105,6 @@ class Controller(WsgiController):
                 self.user.current_handlers += -1
 
     @property
-    def path_info(self):
-        """Returns the path info"""
-        return self._path_info
-
-    @property
-    def query_string(self):
-        """Returns the query string"""
-        return self._query_string
-
-    @property
-    def queries(self):
-        """Returns a list of queries"""
-        return self.query_string.split(Separators.QUERY)
-
-    @property
     def cid(self):
         """Extracts the customer ID from the query path"""
         path = [p for p in self.path_info.split(Separators.PATH) if p.strip()]
@@ -228,26 +213,26 @@ class Controller(WsgiController):
 
     def parse(self):
         """Parses a URI for query commands"""
-        for query in self.queries:
-            splitted_query = query.split(Separators.ASS)
-            if len(splitted_query) >= 2:
-                operation = splitted_query[0]
-                raw_value = Separators.ASS.join(splitted_query[1:])
-                value = unquote(raw_value)
-                if operation == Operations.AUTH_TOKEN:
-                    self._auth(value)
-                elif operation == Operations.INCLUDE:
-                    self._include(value)
-                elif operation == Operations.FILTER:
-                    self._filter(value)
-                elif operation == Operations.SORT:
-                    self._sort(value)
-                elif operation == Operations.ATTACHMENTS:
-                    self._attachments(value)
-                elif operation == Operations.PAGING:
-                    self._paging(value)
-                else:
-                    raise InvalidOperationError(operation)
+        qd = self.qd
+        for key in qd:
+            value = unquote(qd[key])
+            if key == Operations.AUTH_TOKEN:
+                self._auth(value)
+            elif key == Operations.INCLUDE:
+                self._include(value)
+            elif key == Operations.FILTER:
+                self._filter(value)
+            elif key == Operations.SORT:
+                self._sort(value)
+            elif key == Operations.ATTACHMENTS:
+                self._attachments(value)
+            elif key == Operations.PAGING:
+                self._paging(value)
+            # Ignore jQuery anti-cache timestamp
+            elif key == '_':
+                continue
+            else:
+                raise InvalidOperationError(key)
 
     def _auth(self, value):
         """Extract authentication data"""
