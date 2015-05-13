@@ -140,5 +140,9 @@ class AttachmentLoader(AttachmentIterator):
     def __iter__(self):
         """Performs the loading"""
         for attachment in self.attachments:
-            with suppress(AttachmentError):
-                yield attachment.insource()
+            # Do not insource remote documents
+            if not (attachment.remote and attachment.gruppe == 'DOKUMENTE'):
+                with suppress(AttachmentError):
+                    yield attachment.insource()
+            else:
+                yield attachment
