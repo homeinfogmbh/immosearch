@@ -422,7 +422,17 @@ class RealEstateWrapper():
             return float(nettokaltmiete) if nettokaltmiete else None
 
     @property
-    def _gesamtmiete(self):
+    def warmmiete(self):
+        """Returns the price of the warm rent"""
+        try:
+            warmmiete = self.immobilie.preise.warmmiete
+        except AttributeError:
+            return None
+        else:
+            return float(warmmiete) if warmmiete else None
+
+    @property
+    def gesamtmiete(self):
         """Returns the total rent"""
         if self.kaltmiete:
             result = self.kaltmiete
@@ -435,16 +445,6 @@ class RealEstateWrapper():
                 if self.heizkosten:
                     result += self.heizkosten
         return result
-
-    @property
-    def warmmiete(self):
-        """Returns the price of the warm rent"""
-        try:
-            warmmiete = self.immobilie.preise.warmmiete
-        except AttributeError:
-            return self._gesamtmiete
-        else:
-            return float(warmmiete) if warmmiete else self._gesamtmiete
 
     @property
     def nebenkosten(self):
