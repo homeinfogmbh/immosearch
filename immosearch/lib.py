@@ -408,7 +408,7 @@ class RealEstateWrapper():
             kaltmiete = self.immobilie.preise.kaltmiete
         except AttributeError:
             try:
-                nettokaltmiete = self.immobilie.preise.nettokeltmiete
+                nettokaltmiete = self.immobilie.preise.nettokaltmiete
             except AttributeError:
                 return None
             else:
