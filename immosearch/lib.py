@@ -409,10 +409,7 @@ class RealEstateWrapper():
         except AttributeError:
             return None
         else:
-            if kaltmiete is not None:
-                return float(kaltmiete)
-            else:
-                return None
+            return float(kaltmiete) if kaltmiete else None
 
     @property
     def nettokaltmiete(self):
@@ -422,10 +419,25 @@ class RealEstateWrapper():
         except AttributeError:
             return None
         else:
-            if nettokaltmiete is not None:
-                return float(nettokaltmiete)
+            return float(nettokaltmiete) if nettokaltmiete else None
+
+    @property
+    def _gesamtmiete(self):
+        """Returns the total rent"""
+        if self.warmmiete:
+            return self.warmmiete
+        else:
+            if self.kaltmiete:
+                result = self.kaltmiete
             else:
-                return None
+                result = self.nettokaltmiete
+            if result is not None:
+                if self.nebenkosten:
+                    result += self.nebenkosten
+                if not self.immobilie.preise.heizkosten_enthalten:
+                    if self.heizkosten:
+                        result += self.heizkosten
+            return result
 
     @property
     def warmmiete(self):
@@ -433,9 +445,9 @@ class RealEstateWrapper():
         try:
             warmmiete = self.immobilie.preise.warmmiete
         except AttributeError:
-            return None
+            return self._gesamtmiete
         else:
-            return float(warmmiete) if warmmiete else None
+            return float(warmmiete) if warmmiete else self._gesamtmiete
 
     @property
     def nebenkosten(self):
@@ -446,6 +458,16 @@ class RealEstateWrapper():
             return None
         else:
             return float(nebenkosten) if nebenkosten else None
+
+    @property
+    def heizkosten(self):
+        """Returns the heating costs"""
+        try:
+            heizkosten = self.immobilie.preise.heizkosten
+        except AttributeError:
+            return None
+        else:
+            return float(heizkosten) if heizkosten else None
 
     @property
     def kaufpreis(self):

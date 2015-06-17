@@ -94,6 +94,7 @@ class RealEstateSorter():
                'kaltmiete': lambda f: f.kaltmiete or f.nettokaltmiete,
                'warmmiete': lambda f: f.warmmiete,
                'nebenkosten': lambda f: f.nebenkosten,
+               'heizkosten': lambda f: f.heizkosten,
                'kaufpreis': lambda f: f.kaufpreis,
                'pacht': lambda f: f.pacht,
                'erbpacht': lambda f: f.erbpacht,
