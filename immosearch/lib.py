@@ -377,7 +377,7 @@ class RealEstateWrapper():
 
     @property
     def balkone(self):
-        """Amount of baconies"""
+        """Amount of balconies"""
         try:
             anzahl_balkone = self.immobilie.flaechen.anzahl_balkone
         except AttributeError:
@@ -424,20 +424,17 @@ class RealEstateWrapper():
     @property
     def _gesamtmiete(self):
         """Returns the total rent"""
-        if self.warmmiete:
-            return self.warmmiete
+        if self.kaltmiete:
+            result = self.kaltmiete
         else:
-            if self.kaltmiete:
-                result = self.kaltmiete
-            else:
-                result = self.nettokaltmiete
-            if result is not None:
-                if self.nebenkosten:
-                    result += self.nebenkosten
-                if not self.immobilie.preise.heizkosten_enthalten:
-                    if self.heizkosten:
-                        result += self.heizkosten
-            return result
+            result = self.nettokaltmiete
+        if result:
+            if self.nebenkosten:
+                result += self.nebenkosten
+            if not self.immobilie.preise.heizkosten_enthalten:
+                if self.heizkosten:
+                    result += self.heizkosten
+        return result
 
     @property
     def warmmiete(self):
