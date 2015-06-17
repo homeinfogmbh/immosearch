@@ -2,7 +2,9 @@
 
 from peewee import MySQLDatabase, Model, IntegerField, BooleanField,\
     ForeignKeyField, CharField, create
+
 from homeinfo.crm import Customer
+
 from .config import db
 
 __all__ = ['ImmoSearchUser']

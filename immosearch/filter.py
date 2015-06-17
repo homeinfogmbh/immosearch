@@ -2,10 +2,10 @@
 
 from homeinfo.lib.boolparse import SecurityError, BooleanEvaluator
 from openimmodb2.db import Immobilie
+
 from .lib import cast, Operators, Realtor, RealEstateWrapper
 from .errors import FilterOperationNotImplemented, InvalidFilterOption,\
     SievingError, SecurityBreach
-from .abc import RealEstateIterator
 
 __all__ = ['UserRealEstateSieve']
 
@@ -88,7 +88,7 @@ class RealtorSieve():
                 yield anbieter
 
 
-class RealEstateSieve(RealEstateIterator):
+class RealEstateSieve():
     """Class that sieves real estates by certain filters"""
 
     options = {'objektart': lambda f: f.objektart,
@@ -147,8 +147,27 @@ class RealEstateSieve(RealEstateIterator):
         """Sets the respective realtor and filter tuples like:
         (<option>, <operation>, <target_value>)
         """
-        super().__init__(real_estates)
+        self._real_estates = real_estates
         self._filters = filters
+
+    def __iter__(self):
+        """Sieve real estates by the given filters"""
+        if self._filters:
+            for real_estate in self.real_estates:
+                be = BooleanEvaluator(
+                    self._filters, callback=self._evaluate(real_estate))
+                try:
+                    if be:
+                        yield real_estate
+                except SecurityError as sec_err:
+                    raise SecurityBreach(str(sec_err)) from None
+        else:
+            yield from self.real_estates
+
+    @property
+    def real_estates(self):
+        """Returns the real estates"""
+        return self._real_estates
 
     @property
     def filters(self):
@@ -200,20 +219,6 @@ class RealEstateSieve(RealEstateIterator):
                             return True if result else False
 
         return evaluate
-
-    def __iter__(self):
-        """Sieve real estates by the given filters"""
-        if self._filters:
-            for real_estate in self.real_estates:
-                be = BooleanEvaluator(
-                    self._filters, callback=self._evaluate(real_estate))
-                try:
-                    if be:
-                        yield real_estate
-                except SecurityError as sec_err:
-                    raise SecurityBreach(str(sec_err)) from None
-        else:
-            yield from self.real_estates
 
 
 class UserRealEstateSieve(RealEstateSieve):

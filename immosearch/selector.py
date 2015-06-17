@@ -1,7 +1,5 @@
 """Real estate data selecting"""
 
-from .abc import RealEstateIterator
-
 __all__ = ['Selections', 'RealEstateDataSelector']
 
 
@@ -12,15 +10,20 @@ class Selections():
     ATATCHMENTS = 'attachments'
 
 
-class RealEstateDataSelector(RealEstateIterator):
+class RealEstateDataSelector():
     """Class that filters real estates of a user"""
 
     def __init__(self, real_estates, selections=None):
         """Initializes with a real estate,
         selection options and a picture limit
         """
-        super().__init__(real_estates)
+        self._real_estates = real_estates
         self._selections = selections or []
+
+    @property
+    def real_estates(self):
+        """Returns the real estates"""
+        return self._real_estates
 
     @property
     def selections(self):

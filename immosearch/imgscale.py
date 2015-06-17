@@ -2,9 +2,11 @@
 
 from tempfile import NamedTemporaryFile
 from base64 import b64encode
+
 from PIL import Image
+
 from .errors import NoScalingProvided
-from .abc import AttachmentIterator
+from .attachments import AttachmentIterator
 
 __all__ = ['ImageScaler']
 

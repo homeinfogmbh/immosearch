@@ -142,7 +142,7 @@ class Realtor():
     """
 
     def __init__(self, anbieter):
-        """Sets the appropriate OpenImmo™-immobilie"""
+        """Sets the appropriate OpenImmo™-anbieter"""
         self._anbieter = anbieter
 
     @property

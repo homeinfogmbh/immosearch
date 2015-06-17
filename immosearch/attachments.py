@@ -1,12 +1,29 @@
 """Attachment filtering and manipulation"""
 
 from contextlib import suppress
+
 from openimmo import openimmo
 from openimmo.openimmo import AttachmentError
-from .abc import AttachmentIterator
-from .errors import InvalidLimiting
 
-__all__ = ['AttachmentSelector']
+__all__ = ['AttachmentIterator', 'AttachmentSelector', 'AttachmentLimiter',
+           'AttachmentLoader']
+
+
+class AttachmentIterator():
+    """Class that iterates over attachments"""
+
+    def __init__(self, attachments):
+        """Sets the real estates to iterate over"""
+        self._attachments = attachments
+
+    @property
+    def attachments(self):
+        """Returns the attachments"""
+        return self._attachments
+
+    def __iter__(self):
+        """Yields filtered / selected or sorted real estates"""
+        raise NotImplementedError()
 
 
 class AttachmentSelector(AttachmentIterator):

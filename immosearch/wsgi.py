@@ -1,10 +1,13 @@
 """WSGI-environ interpreter"""
 
 from traceback import format_exc
+
 from peewee import DoesNotExist
 from urllib.parse import unquote
+
 from homeinfo.lib.wsgi import WsgiController, OK, Error, InternalServerError
 from openimmo import factories
+
 from .db import ImmoSearchUser
 from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     InvalidPathNode, InvalidOptionsCount, InvalidRenderingResolution,\

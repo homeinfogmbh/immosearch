@@ -1,6 +1,7 @@
 """Real estate sorting"""
 
 from operator import itemgetter
+
 from .lib import RealEstateWrapper
 from .errors import InvalidSortingOption
 
