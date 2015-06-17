@@ -407,18 +407,23 @@ class RealEstateWrapper():
         try:
             kaltmiete = self.immobilie.preise.kaltmiete
         except AttributeError:
-            try:
-                nettokaltmiete = self.immobilie.preise.nettokaltmiete
-            except AttributeError:
-                return None
-            else:
-                if nettokaltmiete is not None:
-                    return float(nettokaltmiete)
-                else:
-                    return None
+            return None
         else:
             if kaltmiete is not None:
                 return float(kaltmiete)
+            else:
+                return None
+
+    @property
+    def nettokaltmiete(self):
+        """Returns the net value of the cold rent"""
+        try:
+            nettokaltmiete = self.immobilie.preise.nettokaltmiete
+        except AttributeError:
+            return None
+        else:
+            if nettokaltmiete is not None:
+                return float(nettokaltmiete)
             else:
                 return None
 
