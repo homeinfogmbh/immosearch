@@ -94,6 +94,7 @@ class RealEstateSorter():
                'terrassen': lambda f: f.terrassen,
                'kaltmiete': lambda f: f.kaltmiete or f.nettokaltmiete,
                'warmmiete': lambda f: f.warmmiete,
+               'gesamtmiete': lambda f: f.gesamtmiete,
                'nebenkosten': lambda f: f.nebenkosten,
                'heizkosten': lambda f: f.heizkosten,
                'kaufpreis': lambda f: f.kaufpreis,
