@@ -444,6 +444,8 @@ class RealEstateWrapper():
             if not self.immobilie.preise.heizkosten_enthalten:
                 if self.heizkosten:
                     result += self.heizkosten
+        else:
+            result = self.warmmiete
         return result
 
     @property
