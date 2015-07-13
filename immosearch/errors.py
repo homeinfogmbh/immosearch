@@ -3,7 +3,7 @@
 from .dom import error
 
 __all__ = ['InvalidCustomerID', 'InvalidPathLength', 'InvalidPathNode',
-           'InvalidOperationError', 'UserNotAllowed', 'OptionAlreadySet',
+           'InvalidParameterError', 'UserNotAllowed', 'OptionAlreadySet',
            'InvalidOptionsCount', 'NotAnInteger', 'InvalidRenderingResolution',
            'NoValidFilterOperation', 'InvalidFilterOption',
            'FilterOperationNotImplemented', 'SievingError', 'SecurityBreach'
@@ -71,12 +71,12 @@ class InvalidPathNode(RenderableError):
         super().__init__(13, ' '.join(['Invalid path node:', node]))
 
 
-class InvalidOperationError(RenderableError):
+class InvalidParameterError(RenderableError):
     """Indicates that an invalid operation was requested"""
 
     def __init__(self, operation):
         """Initializes error code an message"""
-        super().__init__(14, ' '.join(['Invalid operation:', operation]))
+        super().__init__(14, ' '.join(['Invalid parameter:', operation]))
 
 
 class UserNotAllowed(RenderableError):
@@ -112,7 +112,7 @@ class NotAnInteger(RenderableError):
 
     def __init__(self, i):
         """Initializes error code an message"""
-        super().__init__(17, ' '.join(['Not an integer:', str(i)]))
+        super().__init__(18, ' '.join(['Not an integer:', str(i)]))
 
 
 class NoValidFilterOperation(RenderableError):
@@ -247,5 +247,5 @@ class InvalidLimiting(RenderableError):
 
     def __init__(self, msg):
         """Creates message with memory limit info"""
-        super().__init__(503, ' '.join(['Invalid filtering:', msg]),
+        super().__init__(503, ' '.join(['Invalid limiting:', msg]),
                          status=400)

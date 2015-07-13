@@ -11,7 +11,7 @@ from openimmo import factories
 from .db import ImmoSearchUser
 from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     InvalidPathNode, InvalidOptionsCount, InvalidRenderingResolution,\
-    OptionAlreadySet, InvalidOperationError, UserNotAllowed,\
+    OptionAlreadySet, InvalidParameterError, UserNotAllowed,\
     InvalidAuthenticationOptions, InvalidCredentials, HandlersExhausted,\
     NotAnInteger
 from .config import core
@@ -234,7 +234,7 @@ class Controller(WsgiController):
             elif key == '_':
                 continue
             else:
-                raise InvalidOperationError(key)
+                raise InvalidParameterError(key)
 
     def _auth(self, value):
         """Extract authentication data"""
@@ -358,7 +358,7 @@ class Controller(WsgiController):
                     else:
                         self._attachment_index = n
                 else:
-                    raise InvalidOperationError(option)
+                    raise InvalidParameterError(option)
 
     def _paging(self, value):
         """Generate scaling data"""
@@ -385,4 +385,4 @@ class Controller(WsgiController):
                     else:
                         self._page = page
                 else:
-                    raise InvalidOperationError(option)
+                    raise InvalidParameterError(option)
