@@ -77,8 +77,8 @@ class RealtorSieve():
                             option_func = option_
                         value = cast(raw_value, typ=option_format)
                         try:
-                            result = operation_func(option_func(candidate),
-                                                    value)
+                            result = operation_func(
+                                option_func(candidate), value)
                         except (AttributeError, TypeError, ValueError):
                             raise SievingError(option, operation, raw_value)
                         else:

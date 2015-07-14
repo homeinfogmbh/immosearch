@@ -92,9 +92,8 @@ class OptionAlreadySet(RenderableError):
 
     def __init__(self, option, value):
         """Initializes error code an message"""
-        super().__init__(16, ' '.join(['Option:', option,
-                                       'has already been set to:',
-                                       str(value)]))
+        super().__init__(16, ' '.join(
+            ['Option:', option, 'has already been set to:', str(value)]))
 
 
 class InvalidOptionsCount(RenderableError):
@@ -121,9 +120,9 @@ class NoValidFilterOperation(RenderableError):
 
     def __init__(self, option_assignment):
         """Initializes error code an message"""
-        super().__init__(101, ' '.join(['No valid operation was',
-                                        'found in filtering query:',
-                                        str(option_assignment)]))
+        super().__init__(101, ' '.join(
+            ['No valid operation was found in filtering query:',
+             str(option_assignment)]))
 
 
 class InvalidFilterOption(RenderableError):
@@ -133,8 +132,8 @@ class InvalidFilterOption(RenderableError):
 
     def __init__(self, option):
         """Initializes with the faulty option"""
-        super().__init__(102, ' '.join(['Invalid filtering option:',
-                                        str(option)]))
+        super().__init__(102, ' '.join(
+            ['Invalid filtering option:', str(option)]))
 
 
 class FilterOperationNotImplemented(RenderableError):
@@ -144,8 +143,8 @@ class FilterOperationNotImplemented(RenderableError):
 
     def __init__(self, operation):
         """Initializes with the faulty option"""
-        super().__init__(103, ' '.join(['Invalid filtering operation:',
-                                        str(operation)]))
+        super().__init__(103, ' '.join(
+            ['Invalid filtering operation:', str(operation)]))
 
 
 class SievingError(RenderableError):
@@ -155,18 +154,18 @@ class SievingError(RenderableError):
         """Sets the option, operation and raw
         value where sieving has gone wrong
         """
-        super().__init__(104, ''.join(['Cannot filter real estate by "',
-                                       str(option), '" with operation "',
-                                       str(operation), '" for value "',
-                                       str(value), '"']))
+        super().__init__(104, ''.join(
+            ['Cannot filter real estate by "', str(option),
+             '" with operation "', str(operation),
+             '" for value "', str(value), '"']))
 
 
 class SecurityBreach(RenderableError):
     """Indicates errors during boolean parser's security checks"""
 
     def __init__(self, msg):
-        super().__init__(105, ': '.join(['Caught security error while parsing'
-                                         ' the search filter', msg]))
+        super().__init__(105, ': '.join(
+            ['Caught security error while parsing the search filter', msg]))
 
 
 class InvalidSortingOption(RenderableError):
@@ -176,8 +175,8 @@ class InvalidSortingOption(RenderableError):
 
     def __init__(self, option):
         """Initializes with the faulty option"""
-        super().__init__(201, ' '.join(['Invalid sorting option:',
-                                        str(option)]))
+        super().__init__(201, ' '.join(
+            ['Invalid sorting option:', str(option)]))
 
 
 class InvalidRenderingResolution(RenderableError):
@@ -185,9 +184,9 @@ class InvalidRenderingResolution(RenderableError):
 
     def __init__(self, resolution):
         """Initializes error code an message"""
-        super().__init__(302, ' '.join(['Got invalid rendering resolution:',
-                                        resolution,
-                                        '- must be like <width>x<height>']))
+        super().__init__(302, ' '.join(
+            ['Got invalid rendering resolution:', resolution,
+             '- must be like <width>x<height>']))
 
 
 class NoScalingProvided(RenderableError):
@@ -224,9 +223,9 @@ class HandlersExhausted(RenderableError):
     def __init__(self, n):
         """Creates message with max. handlers count"""
         h = str(n)
-        super().__init__(501, ' '.join(['Handlers exhausted:',
-                                        ' / '.join([h, h])]),
-                         status=429)
+        super().__init__(501, ' '.join(
+            ['Handlers exhausted:', ' / '.join([h, h])]),
+            status=429)
 
 
 class MemoryExhausted(RenderableError):
@@ -237,9 +236,9 @@ class MemoryExhausted(RenderableError):
     def __init__(self, n):
         """Creates message with memory limit info"""
         b = ' '.join([str(n), 'bytes'])
-        super().__init__(502, ' '.join(['Memory limit exhausted:',
-                                        ' / '.join([b, b])]),
-                         status=413)
+        super().__init__(502, ' '.join(
+            ['Memory limit exhausted:', ' / '.join([b, b])]),
+            status=413)
 
 
 class InvalidLimiting(RenderableError):
@@ -247,5 +246,6 @@ class InvalidLimiting(RenderableError):
 
     def __init__(self, msg):
         """Creates message with memory limit info"""
-        super().__init__(503, ' '.join(['Invalid limiting:', msg]),
-                         status=400)
+        super().__init__(503, ' '.join(
+            ['Invalid limiting:', msg]),
+            status=400)

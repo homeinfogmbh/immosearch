@@ -105,9 +105,9 @@ class AttachmentLimiter(AttachmentIterator):
     def pictures(self):
         """Yields pictures, but no floor plans"""
         for attachment in self.attachments:
-            if (attachment.gruppe in openimmo.BILDER and
-                    attachment.gruppe != 'GRUNDRISS'):
-                yield attachment
+            if attachment.gruppe in openimmo.BILDER:
+                if attachment.gruppe != 'GRUNDRISS':
+                    yield attachment
 
     @property
     def floorplans(self):
@@ -130,7 +130,6 @@ class AttachmentLimiter(AttachmentIterator):
         """
         for attachment in self.attachments:
             if attachment.remote and attachment.gruppe == 'DOKUMENTE':
-                attachment.IMMOSEARCH_WHITELIST = True
                 yield attachment
 
     def __iter__(self):
