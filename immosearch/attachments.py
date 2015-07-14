@@ -87,7 +87,7 @@ class AttachmentLimiter(AttachmentWrapper):
         if offset:
             limit = self._picture_limit - offset
         else:
-            limit = self._picture_limit
+            limit = self._picture_limit or 0
         return limit if limit > 0 else 0
 
     def floorplan_limit(self, offset=None):
@@ -95,7 +95,7 @@ class AttachmentLimiter(AttachmentWrapper):
         if offset:
             limit = self._floorplan_limit - offset
         else:
-            limit = self._floorplan_limit
+            limit = self._floorplan_limit or 0
         return limit if limit > 0 else 0
 
     def document_limit(self, offset=None):
@@ -103,7 +103,7 @@ class AttachmentLimiter(AttachmentWrapper):
         if offset:
             limit = self._document_limit - offset
         else:
-            limit = self._document_limit
+            limit = self._document_limit or 0
         return limit if limit > 0 else 0
 
     @property
