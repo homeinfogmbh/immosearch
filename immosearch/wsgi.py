@@ -199,7 +199,7 @@ class Controller(WsgiController):
                     # 2) Limit attachments
                     attachments = AttachmentLimiter(
                         attachments,
-                        bytes_limit=user.max_bytes,
+                        byte_limit=user.max_bytes,
                         picture_limit=self._picture_limit,
                         floorplan_limit=self._floorplan_limit,
                         document_limit=self._document_limit)
