@@ -6,7 +6,7 @@ from base64 import b64encode
 from PIL import Image
 
 from .errors import NoScalingProvided
-from .attachments import AttachmentIterator
+from .attachments import AttachmentWrapper
 
 __all__ = ['ImageScaler']
 
@@ -77,7 +77,7 @@ class ScaledImage():
         return len(self.b64data)
 
 
-class ImageScaler(AttachmentIterator):
+class ImageScaler(AttachmentWrapper):
     """Class that scales an attachment"""
 
     def __init__(self, attachments, resolution):
