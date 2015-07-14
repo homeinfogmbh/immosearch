@@ -38,8 +38,6 @@ class ImmoSearchUser(ImmoSearchModel):
     _current_handlers = IntegerField(11, db_column='current_handlers')
     """Currently open handlers"""
     max_bytes = IntegerField(11, default=134217728)  # = 128 MiB
-    """Maximum amount of bytes that can be handled for this user"""
-    _current_bytes = IntegerField(11, db_column='current_bytes')
     """Current amount of bytes opened for the customer"""
     protected = BooleanField(default=True)
     """Flag whether access to this resource is password protected"""
@@ -68,18 +66,4 @@ class ImmoSearchUser(ImmoSearchModel):
             self._current_handlers = current_handlers
         else:
             self._current_handlers = 0
-        self.save()
-
-    @property
-    def current_bytes(self):
-        """Returns the current bytes"""
-        return self._current_bytes
-
-    @current_bytes.setter
-    def current_bytes(self, current_bytes):
-        """Sets the currently used bytes and saves the record"""
-        if current_bytes >= 0:
-            self.current_bytes = current_bytes
-        else:
-            self.current_bytes = 0
         self.save()

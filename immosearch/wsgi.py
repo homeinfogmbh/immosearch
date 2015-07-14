@@ -181,11 +181,11 @@ class Controller(WsgiController):
             # 4) Sort real estates
             real_estates = RealEstateSorter(real_estates, self._sort_options)
             # 5) Page result
-            real_estates = Pager(real_estates, limit=self._page_size,
-                                 page=self._page)
+            real_estates = Pager(
+                real_estates, limit=self._page_size, page=self._page)
             # Generate realtor
-            realtor = factories.anbieter(str(user.cid), user.name,
-                                         str(user.cid))
+            realtor = factories.anbieter(
+                str(user.cid), user.name, str(user.cid))
             # Manage attachments for each real estate
             for real_estate in real_estates:
                 if real_estate.anhaenge:
@@ -199,6 +199,7 @@ class Controller(WsgiController):
                     # 2) Limit attachments
                     attachments = AttachmentLimiter(
                         attachments,
+                        bytes_limit=user.max_bytes,
                         picture_limit=self._picture_limit,
                         floorplan_limit=self._floorplan_limit,
                         document_limit=self._document_limit)

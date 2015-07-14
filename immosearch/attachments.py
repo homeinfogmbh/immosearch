@@ -5,12 +5,11 @@ from contextlib import suppress
 from openimmo import openimmo
 from openimmo.openimmo import AttachmentError
 
-__all__ = ['AttachmentIterator', 'AttachmentSelector', 'AttachmentLimiter',
-           'AttachmentLoader']
+__all__ = ['AttachmentSelector', 'AttachmentLimiter', 'AttachmentLoader']
 
 
-class AttachmentIterator():
-    """Class that iterates over attachments"""
+class AttachmentWrapper():
+    """Class that wraps attachments"""
 
     def __init__(self, attachments):
         """Sets the real estates to iterate over"""
@@ -21,12 +20,8 @@ class AttachmentIterator():
         """Returns the attachments"""
         return self._attachments
 
-    def __iter__(self):
-        """Yields filtered / selected or sorted real estates"""
-        raise NotImplementedError()
 
-
-class AttachmentSelector(AttachmentIterator):
+class AttachmentSelector(AttachmentWrapper):
     """Class that filters real estates of a user"""
 
     def __init__(self, attachments, indexes=None, titles=None, groups=None):
@@ -75,13 +70,14 @@ class AttachmentSelector(AttachmentIterator):
                         continue
 
 
-class AttachmentLimiter(AttachmentIterator):
+class AttachmentLimiter(AttachmentWrapper):
     """Class that filters real estates of a user"""
 
-    def __init__(self, attachments, picture_limit=None,
+    def __init__(self, attachments, byte_limit=None, picture_limit=None,
                  floorplan_limit=None, document_limit=None):
         """Initializes with a with attachments and limiting options"""
         super().__init__(attachments)
+        self._byte_limit = byte_limit
         self._picture_limit = picture_limit
         self._floorplan_limit = floorplan_limit
         self._document_limit = document_limit
@@ -100,6 +96,11 @@ class AttachmentLimiter(AttachmentIterator):
     def document_limit(self):
         """Returns the document limit"""
         return self._document_limit
+
+    @property
+    def byte_limit(self):
+        """Returns the byte limit"""
+        return self._byte_limit
 
     @property
     def whitelist(self):
@@ -141,36 +142,39 @@ class AttachmentLimiter(AttachmentIterator):
 
     def __iter__(self):
         """Yields limited attachments"""
+        used_bytes = 0
         yield from self.whitelist
-        if self.picture_limit is not None:
+        if self.picture_limit and self.byte_limit:
             for index, picture in enumerate(self.pictures):
-                if index < self.picture_limit:
+                used_bytes += len(picture.data)
+                if (used_bytes <= self.byte_limit and
+                        index < self.picture_limit):
                     yield picture
                 else:
                     break
-        if self.floorplan_limit is not None:
+        if self.floorplan_limit and self.byte_limit:
             for index, floorplan in enumerate(self.floorplans):
-                if index < self.floorplan_limit:
+                used_bytes += len(floorplan.data)
+                if (used_bytes <= self.byte_limit and
+                        index < self.picture_limit):
                     yield floorplan
                 else:
                     break
-        if self.document_limit is not None:
+        if self.document_limit and self.byte_limit:
             for index, document in enumerate(self.documents):
-                if index < self.document_limit:
+                used_bytes += len(document.data)
+                if (used_bytes <= self.byte_limit and
+                        index < self.picture_limit):
                     yield document
                 else:
                     break
 
 
-class AttachmentLoader(AttachmentIterator):
+class AttachmentLoader(AttachmentWrapper):
     """Loads attachment data that is not remote into base64 data"""
 
     def __iter__(self):
-        """Performs the loading"""
+        """Loads external attachments"""
         for attachment in self.attachments:
-            # Do not insource remote documents
-            if attachment.remote:
-                yield attachment
-            else:
-                with suppress(AttachmentError):
-                    yield attachment.insource()
+            with suppress(AttachmentError):
+                yield attachment.insource()
