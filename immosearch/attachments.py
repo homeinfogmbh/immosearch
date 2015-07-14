@@ -82,20 +82,29 @@ class AttachmentLimiter(AttachmentWrapper):
         self._floorplan_limit = floorplan_limit
         self._document_limit = document_limit
 
-    @property
-    def picture_limit(self):
+    def picture_limit(self, offset=None):
         """Returns the picture limit"""
-        return self._picture_limit
+        if offset:
+            limit = self._picture_limit - offset
+        else:
+            limit = self._picture_limit
+        return limit if limit > 0 else None
 
-    @property
-    def floorplan_limit(self):
+    def floorplan_limit(self, offset=None):
         """Returns the floor plan limit"""
-        return self._floorplan_limit
+        if offset:
+            limit = self._floorplan_limit - offset
+        else:
+            limit = self._floorplan_limit
+        return limit if limit > 0 else None
 
-    @property
-    def document_limit(self):
+    def document_limit(self, offset=None):
         """Returns the document limit"""
-        return self._document_limit
+        if offset:
+            limit = self._document_limit - offset
+        else:
+            limit = self._document_limit
+        return limit if limit > 0 else None
 
     @property
     def byte_limit(self):
@@ -142,9 +151,20 @@ class AttachmentLimiter(AttachmentWrapper):
 
     def __iter__(self):
         """Yields limited attachments"""
+        pictures = 0
+        floorplans = 0
+        documents = 0
+        for attachment in self.whitelist:
+            if attachment.gruppe in openimmo.BILDER:
+                if attachment.gruppe != 'GRUNDRISS':
+                    pictures += 1
+                else:
+                    floorplans += 1
+            elif attachment.gruppe == 'DOKUMENTE':
+                documents += 1
+            yield attachment
         used_bytes = 0
-        yield from self.whitelist
-        if self.picture_limit and self.byte_limit:
+        if self.picture_limit(pictures) and self.byte_limit:
             for index, picture in enumerate(self.pictures):
                 used_bytes += len(picture.data)
                 if (used_bytes <= self.byte_limit and
@@ -152,7 +172,7 @@ class AttachmentLimiter(AttachmentWrapper):
                     yield picture
                 else:
                     break
-        if self.floorplan_limit and self.byte_limit:
+        if self.floorplan_limit(floorplans) and self.byte_limit:
             for index, floorplan in enumerate(self.floorplans):
                 used_bytes += len(floorplan.data)
                 if (used_bytes <= self.byte_limit and
@@ -160,7 +180,7 @@ class AttachmentLimiter(AttachmentWrapper):
                     yield floorplan
                 else:
                     break
-        if self.document_limit and self.byte_limit:
+        if self.document_limit(documents) and self.byte_limit:
             for index, document in enumerate(self.documents):
                 used_bytes += len(document.data)
                 if (used_bytes <= self.byte_limit and
