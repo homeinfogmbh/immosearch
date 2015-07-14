@@ -102,9 +102,25 @@ class AttachmentLimiter(AttachmentIterator):
         return self._document_limit
 
     @property
+    def whitelist(self):
+        """Yields white-listed attachments,
+        which are yielded in any case
+        """
+        for attachment in self.attachments:
+            if attachment.remote:
+                yield attachment
+
+    @property
+    def greylist(self):
+        """Yields attachments that are subject to limitations"""
+        for attachment in self.attachments:
+            if attachment.external or attachment.internal:
+                yield attachment
+
+    @property
     def pictures(self):
         """Yields pictures, but no floor plans"""
-        for attachment in self.attachments:
+        for attachment in self.greylist:
             if attachment.gruppe in openimmo.BILDER:
                 if attachment.gruppe != 'GRUNDRISS':
                     yield attachment
@@ -112,24 +128,15 @@ class AttachmentLimiter(AttachmentIterator):
     @property
     def floorplans(self):
         """Yields floor plans"""
-        for attachment in self.attachments:
+        for attachment in self.greylist:
             if attachment.gruppe == 'GRUNDRISS':
                 yield attachment
 
     @property
     def documents(self):
         """Yields documents"""
-        for attachment in self.attachments:
-            if attachment.external and attachment.gruppe == 'DOKUMENTE':
-                yield attachment
-
-    @property
-    def whitelist(self):
-        """Yields white-listed attachments,
-        which are yielded in any case
-        """
-        for attachment in self.attachments:
-            if attachment.remote and attachment.gruppe == 'DOKUMENTE':
+        for attachment in self.greylist:
+            if attachment.gruppe == 'DOKUMENTE':
                 yield attachment
 
     def __iter__(self):
@@ -162,7 +169,7 @@ class AttachmentLoader(AttachmentIterator):
         """Performs the loading"""
         for attachment in self.attachments:
             # Do not insource remote documents
-            if attachment.remote and attachment.gruppe == 'DOKUMENTE':
+            if attachment.remote:
                 yield attachment
             else:
                 with suppress(AttachmentError):
