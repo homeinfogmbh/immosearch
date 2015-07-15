@@ -358,7 +358,7 @@ class Controller(WsgiController):
                         document_limit=self._document_limit)
                     # 4) Load attachments
                     attachments = AttachmentLoader(
-                        attachments, self.user.byte_limit, self._scaling)
+                        attachments, self.user.max_bytes, self._scaling)
                     # 5) Set manipulated attachments on real estate
                     real_estate.anhaenge.anhang = [a for a in attachments]
                 realtor.immobilie.append(real_estate)
