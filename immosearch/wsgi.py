@@ -21,10 +21,7 @@ from .sort import RealEstateSorter
 from .pager import Pager
 from .attachments import AttachmentSelector, AttachmentLimiter,\
     AttachmentLoader
-from .imgscale import ImageScaler
 
-__author__ = 'Richard Neumann <r.neumann@homeinfo.de>'
-__date__ = '10.10.2014'
 __all__ = ['Controller']
 
 
@@ -89,24 +86,6 @@ class Controller(WsgiController):
         self._page_size = None
         self._page = None
 
-    def _run(self):
-        """Main method to call"""
-        try:
-            result = self.__run()
-        except RenderableError as r:
-            status = r.status or 400
-            return Error(r, content_type='application/xml', status=status)
-        except:
-            msg = 'Internal Server Error :-('
-            if core.get('DEBUG', False):
-                msg = '\n'.join([msg, format_exc()])
-            return InternalServerError(msg)
-        else:
-            return OK(result, content_type='application/xml')
-        finally:
-            if self._handler_opened:
-                self.user.current_handlers += -1
-
     @property
     def cid(self):
         """Extracts the customer ID from the query path"""
@@ -168,53 +147,7 @@ class Controller(WsgiController):
         else:
             return False
 
-    def __run(self):
-        """Perform sieving, sorting and rendering"""
-        user = self.user
-        self.parse()
-        if self._chkuser(user):
-            # 1) Filter real estates
-            real_estates = UserRealEstateSieve(user, self._filters)
-            # 2) Select appropriate data
-            real_estates = RealEstateDataSelector(
-                real_estates, selections=self._includes)
-            # 4) Sort real estates
-            real_estates = RealEstateSorter(real_estates, self._sort_options)
-            # 5) Page result
-            real_estates = Pager(
-                real_estates, limit=self._page_size, page=self._page)
-            # Generate realtor
-            realtor = factories.anbieter(
-                str(user.cid), user.name, str(user.cid))
-            # Manage attachments for each real estate
-            for real_estate in real_estates:
-                if real_estate.anhaenge:
-                    attachments = real_estate.anhaenge.anhang
-                    # 1) Select attachments
-                    attachments = AttachmentSelector(
-                        attachments,
-                        indexes=self._attachment_indexes,
-                        titles=self._attachment_titles,
-                        groups=self._attachment_groups)
-                    # 2) Limit attachments
-                    attachments = AttachmentLimiter(
-                        attachments,
-                        byte_limit=user.max_bytes,
-                        picture_limit=self._picture_limit,
-                        floorplan_limit=self._floorplan_limit,
-                        document_limit=self._document_limit)
-                    # 3) Scale pictures
-                    attachments = ImageScaler(attachments, self._scaling)
-                    # 4) Load remaining attachments
-                    attachments = AttachmentLoader(attachments)
-                    # 5) Set manipulated attachments on real estate
-                    real_estate.anhaenge.anhang = [a for a in attachments]
-                realtor.immobilie.append(real_estate)
-            return realtor
-        else:
-            raise UserNotAllowed(self.cid)
-
-    def parse(self):
+    def _parse(self):
         """Parses a URI for query commands"""
         qd = self.qd
         for key in qd:
@@ -387,3 +320,67 @@ class Controller(WsgiController):
                         self._page = page
                 else:
                     raise InvalidParameterError(option)
+
+    @property
+    def _data(self):
+        """Perform sieving, sorting and rendering"""
+        user = self.user
+        self._parse()
+        if self._chkuser(user):
+            # 1) Filter real estates
+            real_estates = UserRealEstateSieve(user, self._filters)
+            # 2) Select appropriate data
+            real_estates = RealEstateDataSelector(
+                real_estates, selections=self._includes)
+            # 4) Sort real estates
+            real_estates = RealEstateSorter(real_estates, self._sort_options)
+            # 5) Page result
+            real_estates = Pager(
+                real_estates, limit=self._page_size, page=self._page)
+            # Generate realtor
+            realtor = factories.anbieter(
+                str(user.cid), user.name, str(user.cid))
+            # Manage attachments for each real estate
+            for real_estate in real_estates:
+                if real_estate.anhaenge:
+                    attachments = real_estate.anhaenge.anhang
+                    # 1) Select attachments
+                    attachments = AttachmentSelector(
+                        attachments,
+                        indexes=self._attachment_indexes,
+                        titles=self._attachment_titles,
+                        groups=self._attachment_groups)
+                    # 2) Limit attachments
+                    attachments = AttachmentLimiter(
+                        attachments,
+                        byte_limit=user.max_bytes,
+                        picture_limit=self._picture_limit,
+                        floorplan_limit=self._floorplan_limit,
+                        document_limit=self._document_limit)
+                    # 4) Load attachments
+                    attachments = AttachmentLoader(
+                        attachments, self.user.byte_limit, self._scaling)
+                    # 5) Set manipulated attachments on real estate
+                    real_estate.anhaenge.anhang = [a for a in attachments]
+                realtor.immobilie.append(real_estate)
+            return realtor
+        else:
+            raise UserNotAllowed(self.cid)
+
+    def _run(self):
+        """Main method to call"""
+        try:
+            result = self._data
+        except RenderableError as r:
+            status = r.status or 400
+            return Error(r, content_type='application/xml', status=status)
+        except:
+            msg = 'Internal Server Error :-('
+            if core.get('DEBUG', False):
+                msg = '\n'.join([msg, format_exc()])
+            return InternalServerError(msg)
+        else:
+            return OK(result, content_type='application/xml')
+        finally:
+            if self._handler_opened:
+                self.user.current_handlers += -1

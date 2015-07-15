@@ -1,9 +1,9 @@
 """Attachment filtering and manipulation"""
 
-from contextlib import suppress
-
 from openimmo import openimmo
 from openimmo.openimmo import AttachmentError
+
+from .imgscale import ImageScaler
 
 __all__ = ['AttachmentSelector', 'AttachmentLimiter', 'AttachmentLoader']
 
@@ -73,11 +73,10 @@ class AttachmentSelector(AttachmentWrapper):
 class AttachmentLimiter(AttachmentWrapper):
     """Class that filters real estates of a user"""
 
-    def __init__(self, attachments, byte_limit=None, picture_limit=None,
+    def __init__(self, attachments, picture_limit=None,
                  floorplan_limit=None, document_limit=None):
         """Initializes with a with attachments and limiting options"""
         super().__init__(attachments)
-        self._byte_limit = byte_limit
         self._picture_limit = picture_limit
         self._floorplan_limit = floorplan_limit
         self._document_limit = document_limit
@@ -105,11 +104,6 @@ class AttachmentLimiter(AttachmentWrapper):
         else:
             limit = self._document_limit or 0
         return limit if limit > 0 else 0
-
-    @property
-    def byte_limit(self):
-        """Returns the byte limit"""
-        return self._byte_limit or 0
 
     @property
     def whitelist(self):
@@ -163,25 +157,18 @@ class AttachmentLimiter(AttachmentWrapper):
             elif attachment.gruppe == 'DOKUMENTE':
                 documents += 1
             yield attachment
-        used_bytes = 0
         for index, picture in enumerate(self.pictures):
-            used_bytes += len(picture.data)
-            if (used_bytes <= self.byte_limit and
-                    index < self.picture_limit(pictures)):
+            if index < self.picture_limit(pictures):
                 yield picture
             else:
                 break
         for index, floorplan in enumerate(self.floorplans):
-            used_bytes += len(floorplan.data)
-            if (used_bytes <= self.byte_limit and
-                    index < self.floorplan_limit(floorplans)):
+            if index < self.floorplan_limit(floorplans):
                 yield floorplan
             else:
                 break
         for index, document in enumerate(self.documents):
-            used_bytes += len(document.data)
-            if (used_bytes <= self.byte_limit and
-                    index < self.document_limit(documents)):
+            if index < self.document_limit(documents):
                 yield document
             else:
                 break
@@ -190,8 +177,40 @@ class AttachmentLimiter(AttachmentWrapper):
 class AttachmentLoader(AttachmentWrapper):
     """Loads attachment data that is not remote into base64 data"""
 
+    def __init__(self, attachments, byte_limit, scaling):
+        """Sets attachments and image scaler"""
+        super().__init__(attachments)
+        self._byte_limit = byte_limit
+        self._img_scaler = ImageScaler(scaling)
+
+    @property
+    def byte_limit(self):
+        """Returns the byte limit"""
+        return self._byte_limit or 0
+
+    @property
+    def img_scaler(self):
+        """Returns the image scaler"""
+        return self._img_scaler
+
     def __iter__(self):
         """Loads external attachments"""
+        used_bytes = 0
         for attachment in self.attachments:
-            with suppress(AttachmentError):
-                yield attachment.insource()
+            if attachment.remote:
+                yield attachment
+            else:
+                if attachment.gruppe in openimmo.BILDER:
+                    internal_picture = self._img_scaler.scale(attachment)
+                    used_bytes += len(internal_picture.data)
+                    if used_bytes <= self.byte_limit:
+                        yield internal_picture
+                else:
+                    try:
+                        internal_data = attachment.insource()
+                    except AttachmentError:
+                        continue
+                    else:
+                        used_bytes += len(internal_data.data)
+                        if used_bytes <= self.byte_limit:
+                            yield internal_data

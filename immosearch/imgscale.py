@@ -6,7 +6,6 @@ from base64 import b64encode
 from PIL import Image
 
 from .errors import NoScalingProvided
-from .attachments import AttachmentWrapper
 
 __all__ = ['ImageScaler']
 
@@ -77,12 +76,11 @@ class ScaledImage():
         return len(self.b64data)
 
 
-class ImageScaler(AttachmentWrapper):
+class ImageScaler():
     """Class that scales an attachment"""
 
-    def __init__(self, attachments, resolution):
+    def __init__(self, resolution):
         """Class to scale attachments of real estates"""
-        super().__init__(attachments)
         if resolution is None:
             raise NoScalingProvided()
         else:
@@ -93,21 +91,19 @@ class ImageScaler(AttachmentWrapper):
         """Returns the targeted resolution"""
         return self._resolution
 
-    def __iter__(self):
-        """Returns the real estates with scaled attachments"""
-        for attachment in self.attachments:
-            if attachment.external:
-                with NamedTemporaryFile('wb') as tmp:
-                    tmp.write(attachment.data)
-                    try:
-                        original_size = Image.open(tmp.name).size
-                        scaled = ScaledImage(
-                            tmp.name, scale_aspect_ratio(
-                                original_size, self.resolution))
-                        attachment.data = scaled.data
-                    except OSError:
-                        attachment.insource()
-                    finally:
-                        yield attachment
+    def scale(self, image):
+        """Returns the real estates with scaled attachments
+        XXX: Image is assumed to be external or internal - NOT remote
+        """
+        with NamedTemporaryFile('wb') as tmp:
+            tmp.write(image.data)
+            try:
+                original_size = Image.open(tmp.name).size
+                scaled = ScaledImage(
+                    tmp.name, scale_aspect_ratio(
+                        original_size, self.resolution))
+                image.data = scaled.data
+            except OSError:
+                return image.insource()
             else:
-                yield attachment
+                return image
