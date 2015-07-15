@@ -1,7 +1,6 @@
 """Image scaling"""
 
 from tempfile import NamedTemporaryFile
-from base64 import b64encode
 
 from PIL import Image
 
@@ -73,26 +72,10 @@ class ScaledImage():
             with NamedTemporaryFile('wb') as tmp:
                 scaled_img.save(tmp.name, img.format)
                 with open(tmp.name, 'rb') as src:
-                    data = src.read()
+                    return src.read()
         else:
             with open(self.file, 'rb') as f:
-                data = f.read()
-        return data
-
-    @property
-    def size(self):
-        """Returns the file's size"""
-        return len(self.data)
-
-    @property
-    def b64data(self):
-        """Returns the file's data base64-encoded"""
-        return b64encode(self.data)
-
-    @property
-    def b64size(self):
-        """Returns the file's size"""
-        return len(self.b64data)
+                return f.read()
 
 
 class ImageScaler():
@@ -116,8 +99,8 @@ class ImageScaler():
         """
         with NamedTemporaryFile('wb') as tmp:
             tmp.write(image.data)
+            scaled = ScaledImage(tmp.name, self.resolution)
             try:
-                scaled = ScaledImage(tmp.name, self.resolution)
                 image.data = scaled.data
             except OSError:
                 return image.insource()
