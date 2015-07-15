@@ -81,29 +81,20 @@ class AttachmentLimiter(AttachmentWrapper):
         self._floorplan_limit = floorplan_limit
         self._document_limit = document_limit
 
-    def picture_limit(self, offset=None):
+    @property
+    def picture_limit(self):
         """Returns the picture limit"""
-        if offset:
-            limit = self._picture_limit - offset
-        else:
-            limit = self._picture_limit or 0
-        return limit if limit > 0 else 0
+        return self._picture_limit or 0
 
-    def floorplan_limit(self, offset=None):
+    @property
+    def floorplan_limit(self):
         """Returns the floor plan limit"""
-        if offset:
-            limit = self._floorplan_limit - offset
-        else:
-            limit = self._floorplan_limit or 0
-        return limit if limit > 0 else 0
+        return self._floorplan_limit or 0
 
-    def document_limit(self, offset=None):
+    @property
+    def document_limit(self):
         """Returns the document limit"""
-        if offset:
-            limit = self._document_limit - offset
-        else:
-            limit = self._document_limit or 0
-        return limit if limit > 0 else 0
+        return self._document_limit or 0
 
     @property
     def whitelist(self):
@@ -158,17 +149,20 @@ class AttachmentLimiter(AttachmentWrapper):
                 documents += 1
             yield attachment
         for index, picture in enumerate(self.pictures):
-            if index < self.picture_limit(pictures):
+            if index + pictures < self.picture_limit:
+                pictures += 1
                 yield picture
             else:
                 break
         for index, floorplan in enumerate(self.floorplans):
-            if index < self.floorplan_limit(floorplans):
+            if index + floorplans < self.floorplan_limit:
+                floorplans += 1
                 yield floorplan
             else:
                 break
         for index, document in enumerate(self.documents):
-            if index < self.document_limit(documents):
+            if index + documents < self.document_limit:
+                documents += 1
                 yield document
             else:
                 break
@@ -202,8 +196,9 @@ class AttachmentLoader(AttachmentWrapper):
             else:
                 if attachment.gruppe in openimmo.BILDER:
                     internal_picture = self._img_scaler.scale(attachment)
-                    used_bytes += len(internal_picture.data)
-                    if used_bytes <= self.byte_limit:
+                    size = len(internal_picture.data)
+                    if used_bytes + size <= self.byte_limit:
+                        used_bytes += size
                         yield internal_picture
                 else:
                     try:
@@ -211,6 +206,7 @@ class AttachmentLoader(AttachmentWrapper):
                     except AttachmentError:
                         continue
                     else:
-                        used_bytes += len(internal_data.data)
-                        if used_bytes <= self.byte_limit:
+                        size = len(internal_data.data)
+                        if used_bytes + size <= self.byte_limit:
+                            used_bytes += size
                             yield internal_data
