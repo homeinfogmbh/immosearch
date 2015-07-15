@@ -33,12 +33,12 @@ def scale_aspect_ratio(original, new, maximum=False):
 class ScaledImage():
     """A scaled image wrapper"""
 
-    def __init__(self, file, resolution=None):
+    def __init__(self, file, resolution):
         """Initializes with file and optional resolution
         XXX: resolution must be a tuple: (<width>, <height>)
         """
         self._file = file
-        self.resolution = resolution
+        self._resolution = resolution
 
     @property
     def file(self):
@@ -46,18 +46,37 @@ class ScaledImage():
         return self._file
 
     @property
+    def resolution(self):
+        """Returns the resolution"""
+        return self._resolution
+
+    @property
+    def width(self):
+        """Returns the target width"""
+        return self.resolution[0]
+
+    @property
+    def height(self):
+        """Returns the target height"""
+        return self.resolution[1]
+
+    @property
     def data(self):
         """Returns the (scaled) image's data"""
-        if self.resolution is None:
-            with open(self.file, 'rb') as f:
-                data = f.read()
-        else:
-            img = Image.open(self.file)
-            scaled_img = img.resize(self.resolution, Image.ANTIALIAS)
+        img = Image.open(self.file)
+        width, height = img.size
+        # Only scale bigger images
+        if width > self.width or height > self.height:
+            target_resolution = scale_aspect_ratio(
+                (width, height), self.resolution)
+            scaled_img = img.resize(target_resolution, Image.ANTIALIAS)
             with NamedTemporaryFile('wb') as tmp:
                 scaled_img.save(tmp.name, img.format)
                 with open(tmp.name, 'rb') as src:
                     data = src.read()
+        else:
+            with open(self.file, 'rb') as f:
+                data = f.read()
         return data
 
     @property
@@ -98,10 +117,7 @@ class ImageScaler():
         with NamedTemporaryFile('wb') as tmp:
             tmp.write(image.data)
             try:
-                original_size = Image.open(tmp.name).size
-                scaled = ScaledImage(
-                    tmp.name, scale_aspect_ratio(
-                        original_size, self.resolution))
+                scaled = ScaledImage(tmp.name, self.resolution)
                 image.data = scaled.data
             except OSError:
                 return image.insource()
