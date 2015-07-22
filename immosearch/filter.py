@@ -30,9 +30,10 @@ class RealtorSieve():
     OpenImmo™ document by certain filters
     """
 
-    options = {'openimmo_anid': (str, lambda f: f.openimmo_anid),
-               'anbieternr': (str, lambda f: f.anbieternr),
-               'firma': lambda f: f.firma}
+    options = {
+        'openimmo_anid': (str, lambda f: f.openimmo_anid),
+        'anbieternr': (str, lambda f: f.anbieternr),
+        'firma': lambda f: f.firma}
 
     def __init__(self, openimmo, filters):
         """Sets the respective realtor and filter tuples like:

@@ -48,7 +48,7 @@ class InvalidCustomerID(RenderableError):
 
     def __init__(self, cid_str):
         """Initializes error code an message"""
-        super().__init__(11, ' '.join(['Invalid customer ID:', cid_str]))
+        super().__init__(11, 'Invalid customer ID: {0}'.format(cid_str))
 
 
 class InvalidPathLength(RenderableError):
@@ -58,7 +58,7 @@ class InvalidPathLength(RenderableError):
 
     def __init__(self, length):
         """Initializes error code an message"""
-        super().__init__(12, ' '.join(['Invalid path length:', str(length)]))
+        super().__init__(12, 'Invalid path length: {0}'.format(length))
 
 
 class InvalidPathNode(RenderableError):
@@ -68,7 +68,7 @@ class InvalidPathNode(RenderableError):
 
     def __init__(self, node):
         """Initializes error code an message"""
-        super().__init__(13, ' '.join(['Invalid path node:', node]))
+        super().__init__(13, 'Invalid path node: {0}'.format(node))
 
 
 class InvalidParameterError(RenderableError):
@@ -76,7 +76,7 @@ class InvalidParameterError(RenderableError):
 
     def __init__(self, operation):
         """Initializes error code an message"""
-        super().__init__(14, ' '.join(['Invalid parameter:', operation]))
+        super().__init__(14, 'Invalid parameter: {0}'.format(operation))
 
 
 class UserNotAllowed(RenderableError):
@@ -84,7 +84,7 @@ class UserNotAllowed(RenderableError):
 
     def __init__(self, cid):
         """Initializes error code an message"""
-        super().__init__(15, ' '.join(['User not allowed:', str(cid)]))
+        super().__init__(15, 'User not allowed: {0}'.format(cid))
 
 
 class OptionAlreadySet(RenderableError):
@@ -92,8 +92,9 @@ class OptionAlreadySet(RenderableError):
 
     def __init__(self, option, value):
         """Initializes error code an message"""
-        super().__init__(16, ' '.join(
-            ['Option:', option, 'has already been set to:', str(value)]))
+        super().__init__(
+            16, 'Option "{0}" has already been set to: {1}'.format(
+                option, value))
 
 
 class InvalidOptionsCount(RenderableError):
@@ -111,7 +112,7 @@ class NotAnInteger(RenderableError):
 
     def __init__(self, i):
         """Initializes error code an message"""
-        super().__init__(18, ' '.join(['Not an integer:', str(i)]))
+        super().__init__(18, 'Not an integer: {0}'.format(i))
 
 
 class NoValidFilterOperation(RenderableError):
@@ -120,9 +121,9 @@ class NoValidFilterOperation(RenderableError):
 
     def __init__(self, option_assignment):
         """Initializes error code an message"""
-        super().__init__(101, ' '.join(
-            ['No valid operation was found in filtering query:',
-             str(option_assignment)]))
+        super().__init__(
+            101, 'No valid operation was found in filtering query: {0}'.format(
+                option_assignment))
 
 
 class InvalidFilterOption(RenderableError):
@@ -132,8 +133,7 @@ class InvalidFilterOption(RenderableError):
 
     def __init__(self, option):
         """Initializes with the faulty option"""
-        super().__init__(102, ' '.join(
-            ['Invalid filtering option:', str(option)]))
+        super().__init__(102, 'Invalid filtering option: {0}'.format(option))
 
 
 class FilterOperationNotImplemented(RenderableError):
@@ -143,8 +143,8 @@ class FilterOperationNotImplemented(RenderableError):
 
     def __init__(self, operation):
         """Initializes with the faulty option"""
-        super().__init__(103, ' '.join(
-            ['Invalid filtering operation:', str(operation)]))
+        super().__init__(
+            103, 'Invalid filtering operation: {0}'.format(operation))
 
 
 class SievingError(RenderableError):
@@ -154,18 +154,18 @@ class SievingError(RenderableError):
         """Sets the option, operation and raw
         value where sieving has gone wrong
         """
-        super().__init__(104, ''.join(
-            ['Cannot filter real estate by "', str(option),
-             '" with operation "', str(operation),
-             '" for value "', str(value), '"']))
+        super().__init__(
+            104, 'Cannot filter real estate by "{0}" with operation "{1}" '
+            'for value "{2}"'.format(option, operation, value))
 
 
 class SecurityBreach(RenderableError):
     """Indicates errors during boolean parser's security checks"""
 
     def __init__(self, msg):
-        super().__init__(105, ': '.join(
-            ['Caught security error while parsing the search filter', msg]))
+        super().__init__(
+            105, 'Caught security error while parsing the search filter: '
+            '{0}'.format(msg))
 
 
 class InvalidSortingOption(RenderableError):
@@ -175,8 +175,7 @@ class InvalidSortingOption(RenderableError):
 
     def __init__(self, option):
         """Initializes with the faulty option"""
-        super().__init__(201, ' '.join(
-            ['Invalid sorting option:', str(option)]))
+        super().__init__(201, 'Invalid sorting option: {0}'.format(option))
 
 
 class InvalidRenderingResolution(RenderableError):
@@ -184,9 +183,9 @@ class InvalidRenderingResolution(RenderableError):
 
     def __init__(self, resolution):
         """Initializes error code an message"""
-        super().__init__(302, ' '.join(
-            ['Got invalid rendering resolution:', resolution,
-             '- must be like <width>x<height>']))
+        super().__init__(
+            302, 'Got invalid rendering resolution: {0} - must be like '
+            '<width>x<height>'.format(resolution))
 
 
 class NoScalingProvided(RenderableError):
@@ -223,9 +222,8 @@ class HandlersExhausted(RenderableError):
     def __init__(self, n):
         """Creates message with max. handlers count"""
         h = str(n)
-        super().__init__(501, ' '.join(
-            ['Handlers exhausted:', ' / '.join([h, h])]),
-            status=429)
+        super().__init__(
+            501, 'Handlers exhausted: {0}/{0}'.format(h), status=429)
 
 
 class MemoryExhausted(RenderableError):
@@ -236,9 +234,8 @@ class MemoryExhausted(RenderableError):
     def __init__(self, n):
         """Creates message with memory limit info"""
         b = ' '.join([str(n), 'bytes'])
-        super().__init__(502, ' '.join(
-            ['Memory limit exhausted:', ' / '.join([b, b])]),
-            status=413)
+        super().__init__(
+            502, 'Memory limit exhausted: {0}/{0}'.format(b), status=413)
 
 
 class InvalidLimiting(RenderableError):
@@ -246,6 +243,4 @@ class InvalidLimiting(RenderableError):
 
     def __init__(self, msg):
         """Creates message with memory limit info"""
-        super().__init__(503, ' '.join(
-            ['Invalid limiting:', msg]),
-            status=400)
+        super().__init__(503, 'Invalid limiting: {0}'.format(msg), status=400)

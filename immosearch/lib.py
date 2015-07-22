@@ -6,8 +6,9 @@ __all__ = ['boolean', 'debug', 'pdate', 'tags', 'cast', 'Sorting', 'Delims',
            'Operators', 'Realtor', 'RealEstateWrapper']
 
 
-boolean = {'true': True,
-           'false': False}
+boolean = {
+    'true': True,
+    'false': False}
 
 
 def debug(s, d=None):
@@ -649,8 +650,9 @@ class RealEstateWrapper():
     def energieverbrauchkennwert(self):
         """Returns the energy consumption characteristic value"""
         try:
-            energieverbrauchkennwert = (self.immobilie.zustand_angaben
-                                        .energiepass.energieverbrauchkennwert)
+            energieverbrauchkennwert = (
+                self.immobilie.zustand_angaben.energiepass
+                .energieverbrauchkennwert)
         except AttributeError:
             return None
         else:
@@ -663,8 +665,8 @@ class RealEstateWrapper():
     def endenergiebedarf(self):
         """Returns the energy consumption value"""
         try:
-            endenergiebedarf = (self.immobilie.zustand_angaben
-                                .energiepass.endenergiebedarf)
+            endenergiebedarf = (
+                self.immobilie.zustand_angaben.energiepass.endenergiebedarf)
         except AttributeError:
             return None
         else:
@@ -674,8 +676,9 @@ class RealEstateWrapper():
     def primaerenergietraeger(self):
         """Returns the energy certificate type"""
         try:
-            primaerenergietraeger = (self.immobilie.zustand_angaben
-                                     .energiepass.primaerenergietraeger)
+            primaerenergietraeger = (
+                self.immobilie.zustand_angaben.energiepass
+                .primaerenergietraeger)
         except AttributeError:
             return None
         else:
@@ -741,8 +744,8 @@ class RealEstateWrapper():
         else:
             if max_mietdauer:
                 if max_mietdauer.max_dauer:
-                    return ' '.join([str(max_mietdauer),
-                                     str(max_mietdauer.max_dauer)])
+                    return ' '.join(
+                        [str(max_mietdauer), str(max_mietdauer.max_dauer)])
                 else:
                     return str(max_mietdauer)
             else:

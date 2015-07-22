@@ -9,8 +9,9 @@ from .config import db
 
 __all__ = ['ImmoSearchUser']
 
-database = MySQLDatabase(db['DB'], host=db['HOST'], user=db['USER'],
-                         passwd=db['PASSWD'])
+database = MySQLDatabase(
+    db['DB'], host=db['HOST'],
+    user=db['USER'], passwd=db['PASSWD'])
 
 
 class ImmoSearchModel(Model):
@@ -27,22 +28,13 @@ class ImmoSearchUser(ImmoSearchModel):
 
     customer = ForeignKeyField(Customer, db_column='customer',
                                related_name='immosearch')
-    """The appropriate customer"""
     enabled = BooleanField(default=False)
-    """Flag whether immosearch is enabled for the respective customer"""
     ignore_restrictions = BooleanField(default=False)
-    """Flag whether immosearch should ignore
-    real estate forwarding restrictions"""
     max_handlers = IntegerField(11, default=10)
-    """Maximum amount of queries that can be performed at a time"""
     _current_handlers = IntegerField(11, db_column='current_handlers')
-    """Currently open handlers"""
     max_bytes = IntegerField(11, default=134217728)  # = 128 MiB
-    """Current amount of bytes opened for the customer"""
     protected = BooleanField(default=True)
-    """Flag whether access to this resource is password protected"""
     auth_token = CharField(36, null=True)
-    """A UUID-4 style authentication string"""
 
     @property
     def cid(self):
