@@ -143,11 +143,16 @@ class AttachmentLimiter(AttachmentWrapper):
             if attachment.gruppe in openimmo.BILDER:
                 if attachment.gruppe != 'GRUNDRISS':
                     pictures += 1
+                    if pictures <= self.picture_limit:
+                        yield attachment
                 else:
                     floorplans += 1
+                    if floorplans <= self.floorplan_limit:
+                        yield attachment
             elif attachment.gruppe == 'DOKUMENTE':
                 documents += 1
-            yield attachment
+                if documents <= self.document_limit:
+                    yield attachment
         for index, picture in enumerate(self.pictures):
             if index + pictures < self.picture_limit:
                 pictures += 1
