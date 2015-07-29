@@ -4,7 +4,7 @@ from configparser import ConfigParser
 
 __all__ = ['core', 'db']
 
-CONFIG_FILE = '/usr/local/etc/immosearch.conf'
+CONFIG_FILE = '/etc/immosearch.conf'
 
 config = ConfigParser()
 config.read(CONFIG_FILE)
