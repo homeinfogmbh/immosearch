@@ -1,13 +1,14 @@
 """Realtor and real estate filtering"""
 
 from peewee import MySQLDatabase, Model, IntegerField, BooleanField,\
-    ForeignKeyField, CharField, create
+    ForeignKeyField, CharField, create, BlobField
 
 from homeinfo.crm import Customer
 
 from .config import db
+from .qrcode import PNGQRCode
 
-__all__ = ['ImmoSearchUser']
+__all__ = ['ImmoSearchUser', 'QRCode']
 
 database = MySQLDatabase(
     db['DB'], host=db['HOST'],
@@ -26,8 +27,8 @@ class ImmoSearchModel(Model):
 class ImmoSearchUser(ImmoSearchModel):
     """User entry for immosearch control data"""
 
-    customer = ForeignKeyField(Customer, db_column='customer',
-                               related_name='immosearch')
+    customer = ForeignKeyField(
+        Customer, db_column='customer', related_name='immosearch')
     enabled = BooleanField(default=False)
     ignore_restrictions = BooleanField(default=False)
     max_handlers = IntegerField(11, default=10)
@@ -59,3 +60,20 @@ class ImmoSearchUser(ImmoSearchModel):
         else:
             self._current_handlers = 0
         self.save()
+
+
+@create
+class QRCode(ImmoSearchModel):
+    """QR code service settings"""
+
+    customer = ForeignKeyField(
+        Customer, db_column='customer', related_name='qrcodes')
+    base_url = CharField(255, default='http://{0}.{1}.123xp.de/')
+    scale = IntegerField(default=2)
+    logo = BlobField(null=True, default=None)   # XXX: Must be a PNG file!
+
+    def render(self, immobilie):
+        """Renders QR code for an OpenImmo immmobilie DOM"""
+        idents = (immobilie.openimmo_obid, self.customer.id)
+        qrcode = PNGQRCode(self.base_url, idents=idents, scale=self.scale)
+        return qrcode.render(logo=self.logo)
