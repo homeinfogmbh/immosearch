@@ -11,8 +11,11 @@ from .qrcode import PNGQRCode
 __all__ = ['ImmoSearchUser', 'QRCode']
 
 database = MySQLDatabase(
-    db['DB'], host=db['HOST'],
-    user=db['USER'], passwd=db['PASSWD'])
+    db['DB'],
+    host=db['HOST'],
+    user=db['USER'],
+    passwd=db['PASSWD'],
+    closing=True)
 
 
 class ImmoSearchModel(Model):
