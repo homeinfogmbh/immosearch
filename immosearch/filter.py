@@ -1,7 +1,7 @@
 """Realtor and real estate filtering"""
 
 from homeinfo.lib.boolparse import SecurityError, BooleanEvaluator
-from openimmodb2.db import Immobilie
+from openimmodb3.db import Immobilie
 
 from .lib import cast, Operators, Realtor, RealEstateWrapper
 from .errors import FilterOperationNotImplemented, InvalidFilterOption,\
