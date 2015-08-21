@@ -7,7 +7,7 @@ from urllib.parse import unquote
 
 from homeinfo.lib.wsgi import WsgiController, OK, Error, InternalServerError
 from openimmo import factories
-from filedb.db import File
+from openimmodb3.db import Attachment
 
 from .db import ImmoSearchUser
 from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
@@ -334,11 +334,12 @@ class AttachmentController(WsgiController):
         """Returns the queried attachment"""
         ident = self._identifier
         try:
-            f = File.get(File.sha256sum == ident)
+            a = Attachment.get(Attachment.id == ident)
         except DoesNotExist:
             return Error('File not found')
         else:
-            return OK(f, content_type=f.mimetype)
+            f = a.file
+            return OK(f.data, content_type=f.mimetype)
 
     @property
     def _identifier(self):
