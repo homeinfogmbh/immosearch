@@ -36,7 +36,4 @@ class RealEstateDataSelector():
             # Discard freitexte iff not selected
             if Selections.FREITEXTE not in self.selections:
                 real_estate.freitexte = None
-            # Discard attachments iff not selected
-            if Selections.ATTACHMENTS not in self.selections:
-                real_estate.anhaenge = None
             yield real_estate
