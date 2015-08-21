@@ -83,10 +83,7 @@ class ImageScaler():
 
     def __init__(self, resolution):
         """Class to scale attachments of real estates"""
-        if resolution is None:
-            raise NoScalingProvided()
-        else:
-            self._resolution = resolution
+        self._resolution = resolution
 
     @property
     def resolution(self):
@@ -97,6 +94,8 @@ class ImageScaler():
         """Returns the real estates with scaled attachments
         XXX: Image is assumed to be external or internal - NOT remote
         """
+        if self.resolution is None:
+            raise NoScalingProvided()
         with NamedTemporaryFile('wb') as tmp:
             tmp.write(image.data)
             scaled = ScaledImage(tmp.name, self.resolution)
