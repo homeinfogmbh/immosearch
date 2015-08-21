@@ -7,21 +7,19 @@ from urllib.parse import unquote
 
 from homeinfo.lib.wsgi import WsgiController, OK, Error, InternalServerError
 from openimmo import factories
+from filedb.db import File
 
 from .db import ImmoSearchUser
 from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
-    InvalidPathNode, InvalidOptionsCount, InvalidRenderingResolution,\
-    OptionAlreadySet, InvalidParameterError, UserNotAllowed,\
-    InvalidAuthenticationOptions, InvalidCredentials, HandlersExhausted,\
-    NotAnInteger
+    InvalidPathNode, InvalidOptionsCount, OptionAlreadySet,\
+    InvalidParameterError, UserNotAllowed, InvalidAuthenticationOptions,\
+    InvalidCredentials, HandlersExhausted, NotAnInteger
 from .config import core
 from .filter import UserRealEstateSieve
 from .selector import RealEstateDataSelector
 from .sort import RealEstateSorter
 from .pager import Pager
-from .attachments import AttachmentSelector, AttachmentLimiter,\
-    AttachmentLoader
-from homie.mods.is24.lib import MissingIdentifier
+from .attachments import AttachmentSelector, AttachmentLoader
 
 __all__ = ['RealEstateController', 'AttachmentController']
 
@@ -77,11 +75,6 @@ class RealEstateController(WsgiController):
         self._attachment_indexes = None
         self._attachment_titles = None
         self._attachment_groups = None
-
-        # Attachment limits
-        self._picture_limit = None
-        self._floorplan_limit = None
-        self._document_limit = None
 
         # Paging
         self._page_size = None
@@ -228,53 +221,7 @@ class RealEstateController(WsgiController):
                 split_option = render_opt.split(Separators.ATTR)
                 option = split_option[0]
                 value = Separators.ATTR.join(split_option[1:])
-                if option == 'scaling':
-                    if self._scaling is None:
-                        try:
-                            str_x, str_y = value.split('x')
-                        except ValueError:
-                            raise InvalidRenderingResolution(value)
-                        else:
-                            try:
-                                x = int(str_x)
-                                y = int(str_y)
-                            except:
-                                raise InvalidRenderingResolution(value)
-                            else:
-                                self._scaling = (x, y)
-                    else:
-                        raise OptionAlreadySet(option, self._scaling)
-                elif option == 'pictures':
-                    if self._picture_limit is None:
-                        try:
-                            limit = int(value)
-                        except (ValueError, TypeError):
-                            raise NotAnInteger(value)
-                        else:
-                            self._picture_limit = limit
-                    else:
-                        raise OptionAlreadySet(option, self._picture_limit)
-                elif option == 'floorplans':
-                    if self._floorplan_limit is None:
-                        try:
-                            limit = int(value)
-                        except (ValueError, TypeError):
-                            raise NotAnInteger(value)
-                        else:
-                            self._floorplan_limit = limit
-                    else:
-                        raise OptionAlreadySet(option, self._floorplan_limit)
-                elif option == 'documents':
-                    if self._document_limit is None:
-                        try:
-                            limit = int(value)
-                        except (ValueError, TypeError):
-                            raise NotAnInteger(value)
-                        else:
-                            self._document_limit = limit
-                    else:
-                        raise OptionAlreadySet(option, self._document_limit)
-                elif option == 'select':
+                if option == 'select':
                     if self._attachment_index is not None:
                         raise OptionAlreadySet(option, self._attachment_index)
                     elif self._attachment_title is not None:
@@ -351,12 +298,6 @@ class RealEstateController(WsgiController):
                         indexes=self._attachment_indexes,
                         titles=self._attachment_titles,
                         groups=self._attachment_groups)
-                    # 2) Limit attachments
-                    attachments = AttachmentLimiter(
-                        attachments,
-                        picture_limit=self._picture_limit,
-                        floorplan_limit=self._floorplan_limit,
-                        document_limit=self._document_limit)
                     # 4) Load attachments
                     attachments = AttachmentLoader(
                         attachments, self.user.max_bytes, self._scaling)
@@ -392,6 +333,12 @@ class AttachmentController(WsgiController):
     def _run(self):
         """Returns the queried attachment"""
         ident = self._identifier
+        try:
+            f = File.get(File.sha256sum == ident)
+        except DoesNotExist:
+            return Error('File not found')
+        else:
+            return OK(f, content_type=f.mimetype)
 
     @property
     def _identifier(self):
