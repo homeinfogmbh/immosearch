@@ -341,7 +341,7 @@ class AttachmentController(WsgiController):
             return Error('File not found')
         else:
             f = a.file
-            return OK(f.data, content_type=f.mimetype)
+            return OK(f.data, content_type=f.mimetype, charset=None)
 
     @property
     def _identifier(self):
