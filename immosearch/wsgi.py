@@ -330,6 +330,8 @@ class RealEstateController(WsgiController):
 class AttachmentController(WsgiController):
     """Controller for attachment queries"""
 
+    DEBUG = True
+
     def _run(self):
         """Returns the queried attachment"""
         ident = self._identifier
