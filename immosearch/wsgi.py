@@ -21,8 +21,9 @@ from .sort import RealEstateSorter
 from .pager import Pager
 from .attachments import AttachmentSelector, AttachmentLimiter,\
     AttachmentLoader
+from homie.mods.is24.lib import MissingIdentifier
 
-__all__ = ['Controller']
+__all__ = ['RealEstateController', 'AttachmentController']
 
 
 class Separators():
@@ -54,7 +55,7 @@ class PathNodes():
     CUSTOMER = 'customer'
 
 
-class Controller(WsgiController):
+class RealEstateController(WsgiController):
     """Class that interprets and translates WSGI environment
     variables into a filter, sort and scaling queries
     """
@@ -383,3 +384,23 @@ class Controller(WsgiController):
         finally:
             if self._handler_opened:
                 self.user.current_handlers += -1
+
+
+class AttachmentController(WsgiController):
+    """Controller for attachment queries"""
+
+    def _run(self):
+        """Returns the queried attachment"""
+        ident = self._identifier
+
+    @property
+    def _identifier(self):
+        """Extracts the customer ID from the query path"""
+        if len(self.path) > 1:
+            if self.path[1] == 'attachments':
+                if len(self.path) == 3:
+                    return self.path[2]
+                else:
+                    raise InvalidPathLength(len(self.path))
+            else:
+                raise InvalidPathNode(self.path[1])

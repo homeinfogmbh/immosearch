@@ -9,7 +9,7 @@ __all__ = ['InvalidCustomerID', 'InvalidPathLength', 'InvalidPathNode',
            'FilterOperationNotImplemented', 'SievingError', 'SecurityBreach'
            'InvalidSortingOption', 'InvalidAuthenticationOptions',
            'InvalidCredentials', 'HandlersExhausted', 'MemoryExhausted',
-           'InvalidLimiting']
+           'InvalidLimiting', 'MissingIdentifier']
 
 # Error codes:
 # <nn>    WSGI top-level errors
@@ -18,6 +18,7 @@ __all__ = ['InvalidCustomerID', 'InvalidPathLength', 'InvalidPathNode',
 # 3<nn>   Scaling errors
 # 4<nn>   Authentication errors
 # 5<nn>   Limitation errors
+# 6<nn>   Attachment errors
 
 
 class RenderableError(Exception):
@@ -244,3 +245,13 @@ class InvalidLimiting(RenderableError):
     def __init__(self, msg):
         """Creates message with memory limit info"""
         super().__init__(503, 'Invalid limiting: {0}'.format(msg), status=400)
+
+
+class MissingIdentifier(RenderableError):
+    """Indicates that no identifier was
+    provided on an attachment request
+    """
+
+    def __init__(self):
+        """Creates message"""
+        super().__init__(601, 'Missing identifier', status=400)
