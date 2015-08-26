@@ -335,7 +335,7 @@ class AttachmentController(WsgiController):
     def _run(self):
         """Returns the queried attachment"""
         try:
-            ident = self._identifier
+            ident = int(self._identifier)
         except (TypeError, ValueError):
             return Error('Attachment ID must be an integer')
         else:
