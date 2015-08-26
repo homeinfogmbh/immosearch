@@ -351,7 +351,7 @@ class AttachmentController(WsgiController):
     def _identifier(self):
         """Extracts the customer ID from the query path"""
         if len(self.path) > 1:
-            if self.path[1] == 'attachments':
+            if self.path[1] == 'attachment':
                 if len(self.path) == 3:
                     return self.path[2]
                 else:
