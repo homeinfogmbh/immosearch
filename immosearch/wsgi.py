@@ -334,14 +334,18 @@ class AttachmentController(WsgiController):
 
     def _run(self):
         """Returns the queried attachment"""
-        ident = self._identifier
         try:
-            a = Attachment.get(Attachment.id == ident)
-        except DoesNotExist:
-            return Error('File not found')
+            ident = self._identifier
+        except (TypeError, ValueError):
+            return Error('Attachment ID must be an integer')
         else:
-            f = a.file
-            return OK(f.data, content_type=f.mimetype, charset=None)
+            try:
+                a = Attachment.get(Attachment.id == ident)
+            except DoesNotExist:
+                return Error('Attachment not found')
+            else:
+                f = a.file
+                return OK(f.data, content_type=f.mimetype, charset=None)
 
     @property
     def _identifier(self):
