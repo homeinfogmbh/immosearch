@@ -60,9 +60,9 @@ class RealEstateController(WsgiController):
 
     DEBUG = True
 
-    def __init__(self, path_info, query_string):
+    def __init__(self, environ=None, cors=True, date_format=None):
         """Initializes the WSGI application with a query string"""
-        super().__init__(path_info, query_string)
+        super().__init__(environ=environ, cors=cors, date_format=date_format)
         self._handler_opened = False
 
         self._filters = None
@@ -308,7 +308,7 @@ class RealEstateController(WsgiController):
         else:
             raise UserNotAllowed(self.cid)
 
-    def _run(self):
+    def get(self):
         """Main method to call"""
         try:
             result = self._data
@@ -332,7 +332,19 @@ class AttachmentController(WsgiController):
 
     DEBUG = True
 
-    def _run(self):
+    @property
+    def _identifier(self):
+        """Extracts the customer ID from the query path"""
+        if len(self.path) > 1:
+            if self.path[1] == 'attachment':
+                if len(self.path) == 3:
+                    return self.path[2]
+                else:
+                    raise InvalidPathLength(len(self.path))
+            else:
+                raise InvalidPathNode(self.path[1])
+
+    def get(self):
         """Returns the queried attachment"""
         try:
             ident = int(self._identifier)
@@ -346,15 +358,3 @@ class AttachmentController(WsgiController):
             else:
                 f = a.file
                 return OK(f.data, content_type=f.mimetype, charset=None)
-
-    @property
-    def _identifier(self):
-        """Extracts the customer ID from the query path"""
-        if len(self.path) > 1:
-            if self.path[1] == 'attachment':
-                if len(self.path) == 3:
-                    return self.path[2]
-                else:
-                    raise InvalidPathLength(len(self.path))
-            else:
-                raise InvalidPathNode(self.path[1])
