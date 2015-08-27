@@ -60,9 +60,9 @@ class RealEstateController(WsgiController):
 
     DEBUG = True
 
-    def __init__(self, environ=None, cors=True, date_format=None):
-        """Initializes the WSGI application with a query string"""
-        super().__init__(environ=environ, cors=cors, date_format=date_format)
+    def __init__(self):
+        """Initializes the WSGI application for CORS"""
+        super().__init__(cors=True)
         self._handler_opened = False
 
         self._filters = None
@@ -331,6 +331,10 @@ class AttachmentController(WsgiController):
     """Controller for attachment queries"""
 
     DEBUG = True
+
+    def __init__(self):
+        """Initializes the WSGI application for CORS"""
+        super().__init__(cors=True)
 
     @property
     def _identifier(self):
