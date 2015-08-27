@@ -119,6 +119,7 @@ class RealEstateSieve():
                'objektnr_intern': (str, lambda f: f.objektnr_intern),
                'objektnr_extern': (str, lambda f: f.objektnr_extern),
                'barrierefrei': lambda f: f.barrierefrei,
+               'rollstuhlgerecht': lambda f: f.rollstuhlgerecht,
                'haustiere': lambda f: f.haustiere,
                'raucher': lambda f: f.raucher,
                'kaufbar': lambda f: f.kaufbar,

@@ -546,6 +546,16 @@ class RealEstateWrapper():
             return False
 
     @property
+    def rollstuhlgerecht(self):
+        """Returns whether the real estate is wheelchair-
+        compatible aka 'limited barrier free'
+        """
+        try:
+            return bool(self.immobilie.ausstattung.rollstuhlgerecht)
+        except AttributeError:
+            return False
+
+    @property
     def haustiere(self):
         """Returns pets allowed flag"""
         try:
