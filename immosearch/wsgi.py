@@ -63,6 +63,10 @@ class RealEstateController(WsgiController):
     def __init__(self):
         """Initializes the WSGI application for CORS"""
         super().__init__(cors=True)
+        self._reset()
+
+    def _reset(self):
+        """Resets the controller"""
         self._handler_opened = False
 
         self._filters = None
@@ -325,6 +329,7 @@ class RealEstateController(WsgiController):
         finally:
             if self._handler_opened:
                 self.user.current_handlers += -1
+            self._reset()
 
 
 class AttachmentController(WsgiController):
