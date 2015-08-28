@@ -9,20 +9,22 @@ from .errors import FilterOperationNotImplemented, InvalidFilterOption,\
 
 __all__ = ['UserRealEstateSieve']
 
-operations = {Operators.EQ: lambda x, y: x == y,
-              # Operators.EG: ,
-              Operators.EC: lambda x, y: x.lower() == y.lower(),
-              Operators.NE: lambda x, y: x != y,
-              # Operators.NG: ,
-              Operators.NC: lambda x, y: x.lower() != y.lower(),
-              Operators.LT: lambda x, y: x < y,
-              Operators.LE: lambda x, y: x <= y,
-              Operators.GT: lambda x, y: x > y,
-              Operators.GE: lambda x, y: x >= y,
-              Operators.IN: lambda x, y: x in y,
-              Operators.NI: lambda x, y: x not in y,
-              Operators.CO: lambda x, y: y in x,
-              Operators.CN: lambda x, y: y not in x}
+operations = {
+    Operators.EQ: lambda x, y: x == y,
+    # Operators.EG: ,
+    Operators.EC: lambda x, y: x.lower() == y.lower(),
+    Operators.NE: lambda x, y: x != y,
+    # Operators.NG: ,
+    Operators.NC: lambda x, y: x.lower() != y.lower(),
+    Operators.LT: lambda x, y: x < y,
+    Operators.LE: lambda x, y: x <= y,
+    Operators.GT: lambda x, y: x > y,
+    Operators.GE: lambda x, y: x >= y,
+    Operators.IN: lambda x, y: x in y,
+    Operators.NI: lambda x, y: x not in y,
+    Operators.CO: lambda x, y: y in x,
+    Operators.CN: lambda x, y: y not in x
+}
 
 
 class RealtorSieve():
@@ -33,7 +35,8 @@ class RealtorSieve():
     options = {
         'openimmo_anid': (str, lambda f: f.openimmo_anid),
         'anbieternr': (str, lambda f: f.anbieternr),
-        'firma': lambda f: f.firma}
+        'firma': lambda f: f.firma
+    }
 
     def __init__(self, openimmo, filters):
         """Sets the respective realtor and filter tuples like:
@@ -92,58 +95,59 @@ class RealtorSieve():
 class RealEstateSieve():
     """Class that sieves real estates by certain filters"""
 
-    options = {'objektart': lambda f: f.objektart,
-               'objekttyp': lambda f: f.objekttypen,
-               'land': lambda f: f.land,
-               'ort': lambda f: f.ort,
-               'ortsteil': lambda f: f.ortsteil,
-               'plz': lambda f: f.plz,
-               'strasse': lambda f: f.strasse,
-               'hausnummer': lambda f: f.hausnummer,
-               'zimmer': lambda f: f.zimmer,
-               'etage': lambda f: f.etage,
-               'etagen': lambda f: f.etagen,
-               'wohnflaeche': lambda f: f.wohnflaeche,
-               'grundstuecksflaeche': lambda f: f.grundstuecksflaeche,
-               'balkone': lambda f: f.balkone,
-               'terrassen': lambda f: f.terrassen,
-               'kaltmiete': lambda f: f.kaltmiete or f.nettokaltmiete,
-               'warmmiete': lambda f: f.warmmiete or f.gesamtmiete,
-               'nebenkosten': lambda f: f.nebenkosten,
-               'kaufpreis': lambda f: f.kaufpreis,
-               'pacht': lambda f: f.pacht,
-               'erbpacht': lambda f: f.erbpacht,
-               'aussen_courtage': lambda f: f.aussen_courtage,
-               'innen_courtage': lambda f: f.innen_courtage,
-               'openimmo_obid': (str, lambda f: f.openimmo_obid),
-               'objektnr_intern': (str, lambda f: f.objektnr_intern),
-               'objektnr_extern': (str, lambda f: f.objektnr_extern),
-               'barrierefrei': lambda f: f.barrierefrei,
-               'rollstuhlgerecht': lambda f: f.rollstuhlgerecht,
-               'haustiere': lambda f: f.haustiere,
-               'raucher': lambda f: f.raucher,
-               'kaufbar': lambda f: f.kaufbar,
-               'mietbar': lambda f: f.mietbar,
-               'erbpachtbar': lambda f: f.erbpachtbar,
-               'leasing': lambda f: f.leasing,
-               'verfuegbar_ab': lambda f: f.verfuegbar_ab,
-               'abdatum': lambda f: f.abdatum,
-               'moebliert': lambda f: f.moebliert,
-               'seniorengerecht': lambda f: f.seniorengerecht,
-               'baujahr': (str, lambda f: f.baujahr),
-               'zustand': lambda f: f.zustand,
-               'epart': lambda f: f.epart,
-               'energieverbrauchkennwert':
-                   lambda f: f.energieverbrauchkennwert,
-               'endenergiebedarf': lambda f: f.endenergiebedarf,
-               'primaerenergietraeger': lambda f: f.primaerenergietraeger,
-               'stromwert': lambda f: f.stromwert,
-               'waermewert': lambda f: f.waermewert,
-               'wertklasse': lambda f: f.wertklasse,
-               'min_mietdauer': lambda f: f.min_mietdauer,
-               'max_mietdauer': lambda f: f.max_mietdauer,
-               'laufzeit': lambda f: f.laufzeit,
-               'max_personen': lambda f: f.max_personen}
+    options = {
+        'objektart': lambda f: f.objektart,
+        'objekttyp': lambda f: f.objekttypen,
+        'land': lambda f: f.land,
+        'ort': lambda f: f.ort,
+        'ortsteil': lambda f: f.ortsteil,
+        'plz': lambda f: f.plz,
+        'strasse': lambda f: f.strasse,
+        'hausnummer': lambda f: f.hausnummer,
+        'zimmer': lambda f: f.zimmer,
+        'etage': lambda f: f.etage,
+        'etagen': lambda f: f.etagen,
+        'wohnflaeche': lambda f: f.wohnflaeche,
+        'grundstuecksflaeche': lambda f: f.grundstuecksflaeche,
+        'balkone': lambda f: f.balkone,
+        'terrassen': lambda f: f.terrassen,
+        'kaltmiete': lambda f: f.kaltmiete or f.nettokaltmiete,
+        'warmmiete': lambda f: f.warmmiete or f.gesamtmiete,
+        'nebenkosten': lambda f: f.nebenkosten,
+        'kaufpreis': lambda f: f.kaufpreis,
+        'pacht': lambda f: f.pacht,
+        'erbpacht': lambda f: f.erbpacht,
+        'aussen_courtage': lambda f: f.aussen_courtage,
+        'innen_courtage': lambda f: f.innen_courtage,
+        'openimmo_obid': (str, lambda f: f.openimmo_obid),
+        'objektnr_intern': (str, lambda f: f.objektnr_intern),
+        'objektnr_extern': (str, lambda f: f.objektnr_extern),
+        'barrierefrei': lambda f: f.barrierefrei,
+        'rollstuhlgerecht': lambda f: f.rollstuhlgerecht,
+        'haustiere': lambda f: f.haustiere,
+        'raucher': lambda f: f.raucher,
+        'kaufbar': lambda f: f.kaufbar,
+        'mietbar': lambda f: f.mietbar,
+        'erbpachtbar': lambda f: f.erbpachtbar,
+        'leasing': lambda f: f.leasing,
+        'verfuegbar_ab': lambda f: f.verfuegbar_ab,
+        'abdatum': lambda f: f.abdatum,
+        'moebliert': lambda f: f.moebliert,
+        'seniorengerecht': lambda f: f.seniorengerecht,
+        'baujahr': (str, lambda f: f.baujahr),
+        'zustand': lambda f: f.zustand,
+        'epart': lambda f: f.epart,
+        'energieverbrauchkennwert': lambda f: f.energieverbrauchkennwert,
+        'endenergiebedarf': lambda f: f.endenergiebedarf,
+        'primaerenergietraeger': lambda f: f.primaerenergietraeger,
+        'stromwert': lambda f: f.stromwert,
+        'waermewert': lambda f: f.waermewert,
+        'wertklasse': lambda f: f.wertklasse,
+        'min_mietdauer': lambda f: f.min_mietdauer,
+        'max_mietdauer': lambda f: f.max_mietdauer,
+        'laufzeit': lambda f: f.laufzeit,
+        'max_personen': lambda f: f.max_personen
+    }
 
     def __init__(self, real_estates, filters):
         """Sets the respective realtor and filter tuples like:
