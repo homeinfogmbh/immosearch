@@ -2,7 +2,7 @@
 
 from operator import itemgetter
 
-from .lib import RealEstateWrapper
+from .filter import FilterableRealEstate
 from .errors import InvalidSortingOption
 
 __all__ = ['Sortable']
@@ -149,7 +149,7 @@ class RealEstateSorter():
     @property
     def _keyed(self):
         """Generates (<keys>, <real_estate>) tuples"""
-        for real_estate in (RealEstateWrapper(r) for r in self.immobilie):
+        for real_estate in (FilterableRealEstate(r) for r in self.immobilie):
             keys = []
             for sort_option in self.sort_options:
                 option, desc = sort_option
