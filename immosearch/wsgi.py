@@ -5,7 +5,7 @@ from traceback import format_exc
 from peewee import DoesNotExist
 from urllib.parse import unquote
 
-from homeinfo.lib.wsgi import WsgiController, OK, Error, InternalServerError
+from homeinfo.lib.wsgi import WsgiApp, OK, Error, InternalServerError
 from openimmo import factories
 from openimmodb3.db import Attachment
 from filedb import FileError, File
@@ -54,7 +54,7 @@ class PathNodes():
     CUSTOMER = 'customer'
 
 
-class RealEstateController(WsgiController):
+class RealEstateController(WsgiApp):
     """Class that interprets and translates WSGI environment
     variables into a filter, sort and scaling queries
     """
@@ -333,7 +333,7 @@ class RealEstateController(WsgiController):
             self._reset()
 
 
-class AttachmentController(WsgiController):
+class AttachmentController(WsgiApp):
     """Controller for attachment queries"""
 
     DEBUG = True
