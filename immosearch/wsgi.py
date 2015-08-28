@@ -15,7 +15,7 @@ from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     InvalidPathNode, InvalidOptionsCount, OptionAlreadySet,\
     InvalidParameterError, UserNotAllowed, InvalidAuthenticationOptions,\
     InvalidCredentials, HandlersExhausted, NotAnInteger
-from .config import core
+from .config import core, www
 from .filter import UserRealEstateSieve
 from .selector import RealEstateDataSelector
 from .sort import RealEstateSorter
@@ -366,7 +366,7 @@ class AttachmentController(WsgiController):
             except DoesNotExist:
                 return Error('Attachment not found')
             else:
-                file = File('895c89b6-fe15-45d6-9b35-78ae64544e96')
+                file = File(www['FILEDB_KEY'])
                 try:
                     mimetype = file.mimetype(a.file)
                     data = file.get(a.file)

@@ -11,3 +11,4 @@ config.read(CONFIG_FILE)
 
 core = config['core']
 db = config['db']
+www = config['www']
