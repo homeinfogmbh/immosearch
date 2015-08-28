@@ -366,9 +366,10 @@ class AttachmentController(WsgiController):
             except DoesNotExist:
                 return Error('Attachment not found')
             else:
+                file = File('895c89b6-fe15-45d6-9b35-78ae64544e96')
                 try:
-                    mimetype = File.mimetype(a.file)
-                    data = File.get(a.file)
+                    mimetype = file.mimetype(a.file)
+                    data = file.get(a.file)
                 except FileError:
                     pass  # TODO: handle
                 else:
