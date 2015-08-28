@@ -3,93 +3,10 @@
 from homeinfo.lib.boolparse import SecurityError, BooleanEvaluator
 from openimmodb3.db import Immobilie
 
-from .lib import cast, Operators, Realtor, RealEstateWrapper
-from .errors import FilterOperationNotImplemented, InvalidFilterOption,\
-    SievingError, SecurityBreach
+from .lib import RealEstateWrapper
+from .errors import SecurityBreach
 
 __all__ = ['UserRealEstateSieve']
-
-operations = {
-    Operators.EQ: lambda x, y: x == y,
-    # Operators.EG: ,
-    Operators.EC: lambda x, y: x.lower() == y.lower(),
-    Operators.NE: lambda x, y: x != y,
-    # Operators.NG: ,
-    Operators.NC: lambda x, y: x.lower() != y.lower(),
-    Operators.LT: lambda x, y: x < y,
-    Operators.LE: lambda x, y: x <= y,
-    Operators.GT: lambda x, y: x > y,
-    Operators.GE: lambda x, y: x >= y,
-    Operators.IN: lambda x, y: x in y,
-    Operators.NI: lambda x, y: x not in y,
-    Operators.CO: lambda x, y: y in x,
-    Operators.CN: lambda x, y: y not in x
-}
-
-
-class RealtorSieve():
-    """Class that sieves realtors of an
-    OpenImmo™ document by certain filters
-    """
-
-    options = {
-        'openimmo_anid': (str, lambda f: f.openimmo_anid),
-        'anbieternr': (str, lambda f: f.anbieternr),
-        'firma': lambda f: f.firma
-    }
-
-    def __init__(self, openimmo, filters):
-        """Sets the respective realtor and filter tuples like:
-        (<option>, <operation>, <target_value>)
-        """
-        self._openimmo = openimmo
-        self._filters = filters
-
-    @property
-    def openimmo(self):
-        """Returns the realtor"""
-        return self._openimmo
-
-    @property
-    def filters(self):
-        """Returns the filters"""
-        return self._filters
-
-    @property
-    def anbieter(self):
-        """Property alias to sieve()"""
-        return self.sieve()
-
-    def __iter__(self):
-        """Sieve real estates by the given filters"""
-        for anbieter in self.openimmo.anbieter:
-            candidate = Realtor(anbieter)
-            for f in self.filters:
-                option, operation, raw_value = f
-                operation_func = operations.get(operation)
-                if operation_func is None:
-                    raise FilterOperationNotImplemented(operation)
-                else:
-                    option_ = self.options.get(option)
-                    if option_ is None:
-                        raise InvalidFilterOption(option)
-                    else:
-                        try:
-                            option_format, option_func = option_
-                        except TypeError:
-                            option_format = None
-                            option_func = option_
-                        value = cast(raw_value, typ=option_format)
-                        try:
-                            result = operation_func(
-                                option_func(candidate), value)
-                        except (AttributeError, TypeError, ValueError):
-                            raise SievingError(option, operation, raw_value)
-                        else:
-                            if not result:
-                                break
-            else:
-                yield anbieter
 
 
 class RealEstateSieve():
@@ -160,8 +77,9 @@ class RealEstateSieve():
         """Sieve real estates by the given filters"""
         if self._filters:
             for real_estate in self.real_estates:
+                wrapped_real_estate = RealEstateWrapper(real_estate)
                 be = BooleanEvaluator(
-                    self._filters, callback=self._evaluate(real_estate))
+                    self._filters, callback=wrapped_real_estate.evaluate)
                 try:
                     if be:
                         yield real_estate
@@ -180,61 +98,15 @@ class RealEstateSieve():
         """Returns the filters"""
         return self._filters
 
-    def _evaluate(self, real_estate):
-        """Callback generator for evaluating real estate properties"""
-
-        wrapped_real_estate = RealEstateWrapper(real_estate)
-
-        def evaluate(operation):
-            """Real estate evaluation callback"""
-            option = None
-            raw_value = None
-            for operator in operations:
-                try:
-                    option, raw_value = operation.split(operator)
-                except ValueError:
-                    continue
-                else:
-                    break
-            if option is None or raw_value is None:
-                raise InvalidFilterOption(operation)
-            else:
-                operation_func = operations.get(operator)
-                if operation_func is None:
-                    raise FilterOperationNotImplemented(operator)
-                else:
-                    option_ = self.options.get(option)
-                    if option_ is None:
-                        raise InvalidFilterOption(option)
-                    else:
-                        try:
-                            option_format, option_func = option_
-                        except TypeError:
-                            option_format = None
-                            option_func = option_
-                        value = cast(raw_value, typ=option_format)
-                        try:
-                            val = option_func(wrapped_real_estate)
-                            result = operation_func(val, value)
-                        except (TypeError, ValueError):
-                            # Exclude for None values and wrong types
-                            return False
-                        except AttributeError:
-                            raise SievingError(option, operation, raw_value)
-                        else:
-                            return True if result else False
-
-        return evaluate
-
 
 class UserRealEstateSieve(RealEstateSieve):
     """Class that sieves real estates of a user"""
 
     def __init__(self, user, filters):
         """Initializes super class with the user's real estates"""
-        super().__init__((i.immobilie for i in
-                          Immobilie.by_cid(user.cid)),
-                         filters)
+        super().__init__(
+            (i.immobilie for i in Immobilie.by_cid(user.cid)),
+            filters)
         self._user = user
 
     @property

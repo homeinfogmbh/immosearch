@@ -1,14 +1,17 @@
 """General API library"""
 
 from datetime import datetime
+from .errors import InvalidFilterOption, FilterOperationNotImplemented,\
+    SievingError
 
 __all__ = ['boolean', 'debug', 'pdate', 'tags', 'cast', 'Sorting', 'Delims',
-           'Operators', 'Realtor', 'RealEstateWrapper']
+           'Operators', 'operations', 'Realtor', 'RealEstateWrapper']
 
 
 boolean = {
     'true': True,
-    'false': False}
+    'false': False
+    }
 
 
 def debug(s, d=None):
@@ -174,6 +177,23 @@ class RealEstateWrapper():
     """Wrapper class for an OpenImmo™-immobilie
     that can be filtered by certain attributes
     """
+
+    operations = {
+        Operators.EQ: lambda x, y: x == y,
+        # Operators.EG: ,
+        Operators.EC: lambda x, y: x.lower() == y.lower(),
+        Operators.NE: lambda x, y: x != y,
+        # Operators.NG: ,
+        Operators.NC: lambda x, y: x.lower() != y.lower(),
+        Operators.LT: lambda x, y: x < y,
+        Operators.LE: lambda x, y: x <= y,
+        Operators.GT: lambda x, y: x > y,
+        Operators.GE: lambda x, y: x >= y,
+        Operators.IN: lambda x, y: x in y,
+        Operators.NI: lambda x, y: x not in y,
+        Operators.CO: lambda x, y: y in x,
+        Operators.CN: lambda x, y: y not in x
+    }
 
     def __init__(self, immobilie):
         """Sets the appropriate OpenImmo™-immobilie"""
@@ -780,3 +800,42 @@ class RealEstateWrapper():
             return None
         else:
             return int(max_personen) if max_personen else None
+
+    def evaluate(self, operation):
+        """Real estate evaluation callback"""
+        option = None
+        raw_value = None
+        for operator in self.operations:
+            try:
+                option, raw_value = operation.split(operator)
+            except ValueError:
+                continue
+            else:
+                break
+        if option is None or raw_value is None:
+            raise InvalidFilterOption(operation)
+        else:
+            operation_func = self.operations.get(operator)
+            if operation_func is None:
+                raise FilterOperationNotImplemented(operator)
+            else:
+                option_ = self.options.get(option)
+                if option_ is None:
+                    raise InvalidFilterOption(option)
+                else:
+                    try:
+                        option_format, option_func = option_
+                    except TypeError:
+                        option_format = None
+                        option_func = option_
+                    value = cast(raw_value, typ=option_format)
+                    try:
+                        val = option_func(self)
+                        result = operation_func(val, value)
+                    except (TypeError, ValueError):
+                        # Exclude for None values and wrong types
+                        return False
+                    except AttributeError:
+                        raise SievingError(option, operation, raw_value)
+                    else:
+                        return True if result else False
