@@ -8,6 +8,7 @@ from urllib.parse import unquote
 from homeinfo.lib.wsgi import WsgiController, OK, Error, InternalServerError
 from openimmo import factories
 from openimmodb3.db import Attachment
+from filedb import FileError, File
 
 from .db import ImmoSearchUser
 from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
@@ -365,5 +366,10 @@ class AttachmentController(WsgiController):
             except DoesNotExist:
                 return Error('Attachment not found')
             else:
-                f = a.file
-                return OK(f.data, content_type=f.mimetype, charset=None)
+                try:
+                    mimetype = File.mimetype(a.file)
+                    data = File.get(a.file)
+                except FileError:
+                    pass  # TODO: handle
+                else:
+                    return OK(data, content_type=mimetype, charset=None)
