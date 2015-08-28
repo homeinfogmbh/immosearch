@@ -371,6 +371,6 @@ class AttachmentController(WsgiController):
                     mimetype = file.mimetype(a.file)
                     data = file.get(a.file)
                 except FileError:
-                    pass  # TODO: handle
+                    raise
                 else:
                     return OK(data, content_type=mimetype, charset=None)
