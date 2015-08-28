@@ -8,14 +8,13 @@ from urllib.parse import unquote
 from homeinfo.lib.wsgi import WsgiApp, OK, Error, InternalServerError
 from openimmo import factories
 from openimmodb3.db import Attachment
-from filedb import FileError, File
 
 from .db import ImmoSearchUser
 from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     InvalidPathNode, InvalidOptionsCount, OptionAlreadySet,\
     InvalidParameterError, UserNotAllowed, InvalidAuthenticationOptions,\
     InvalidCredentials, HandlersExhausted, NotAnInteger
-from .config import core, www
+from .config import core
 from .filter import UserRealEstateSieve
 from .selector import RealEstateDataSelector
 from .sort import RealEstateSorter
@@ -366,11 +365,5 @@ class AttachmentController(WsgiApp):
             except DoesNotExist:
                 return Error('Attachment not found')
             else:
-                file = File(www['FILEDB_KEY'])
-                try:
-                    mimetype = file.mimetype(a.file)
-                    data = file.get(a.file)
-                except FileError:
-                    raise
-                else:
-                    return OK(data, content_type=mimetype, charset=None)
+                mimetype, data = a.data
+                return OK(data, content_type=mimetype, charset=None)
