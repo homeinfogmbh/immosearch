@@ -38,7 +38,6 @@ class Operations():
     """Valid query operations"""
 
     AUTH_TOKEN = 'auth_token'
-    SELECT = 'select'
     FILTER = 'filter'
     INCLUDE = 'include'
     SORT = 'sort'
@@ -217,12 +216,12 @@ class RealEstateController(WsgiApp):
 
     def _attachments(self, value):
         """Generate scaling data"""
-        render_opts = value.split(Separators.OPTION)
-        if len(render_opts) < 1:
+        attachment_opts = value.split(Separators.OPTION)
+        if len(attachment_opts) < 1:
             raise InvalidOptionsCount()
         else:
-            for render_opt in render_opts:
-                split_option = render_opt.split(Separators.ATTR)
+            for attachment_opt in attachment_opts:
+                split_option = attachment_opt.split(Separators.ATTR)
                 option = split_option[0]
                 value = Separators.ATTR.join(split_option[1:])
                 if option == 'select':
