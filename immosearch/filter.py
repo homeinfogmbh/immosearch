@@ -86,7 +86,8 @@ class FilterableRealEstate():
         'min_mietdauer': lambda f: f.min_mietdauer,
         'max_mietdauer': lambda f: f.max_mietdauer,
         'laufzeit': lambda f: f.laufzeit,
-        'max_personen': lambda f: f.max_personen
+        'max_personen': lambda f: f.max_personen,
+        'portale': lambda f: f.portale
     }
 
     def __init__(self, immobilie):
@@ -694,6 +695,13 @@ class FilterableRealEstate():
             return None
         else:
             return int(max_personen) if max_personen else None
+
+    @property
+    def portale(self):
+        """Yields portals to which the real estate may be sent"""
+        for portal in self.immobilie.weitergabe_positiv:
+            if portal not in self.immobilie.weitergabe_negativ:
+                yield portal
 
     def evaluate(self, operation):
         """Real estate evaluation callback"""
