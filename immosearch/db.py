@@ -1,8 +1,9 @@
 """Realtor and real estate filtering"""
 
-from peewee import MySQLDatabase, Model, IntegerField, BooleanField,\
-    ForeignKeyField, CharField, create, BlobField
+from peewee import Model, IntegerField, BooleanField, ForeignKeyField,\
+    CharField, BlobField
 
+from homeinfo.peewee import MySQLDatabase, create
 from homeinfo.crm import Customer
 
 from .config import db
