@@ -65,7 +65,7 @@ class RealEstateController(WsgiApp):
         """Initializes the WSGI application for CORS"""
         super().__init__(cors=True)
         self._reset()
-        self._cache = {}  # Initialize cache
+        self._cache = None
         self.__update_cache()
         #caching = Thread(target=self._update_cache, args=[3600])
         #caching.daemon = True
@@ -127,6 +127,7 @@ class RealEstateController(WsgiApp):
             real_estates = [
                 i.immobilie for i in Immobilie.by_cid(user.cid)]
             self._cache[user.cid] = real_estates
+        raise Exception(self._cache)
 
     def _update_cache(self, interval):
         """Re-cache user data in background"""
