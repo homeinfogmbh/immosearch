@@ -66,10 +66,9 @@ class RealEstateController(WsgiApp):
         super().__init__(cors=True)
         self._reset()
         self._cache = None
-        self.__update_cache()
-        #caching = Thread(target=self._update_cache, args=[3600])
-        #caching.daemon = True
-        #caching.start()
+        caching = Thread(target=self._update_cache, args=[3600])
+        caching.daemon = True
+        caching.start()
 
     def _reset(self):
         """Resets the controller"""
@@ -300,8 +299,7 @@ class RealEstateController(WsgiApp):
         user = self.user
         self._parse()
         if not self._cache:
-            raise Exception(self._cache)
-            # raise Caching()
+            raise Caching()
         elif self._chkuser(user):
             try:
                 real_estates = self._cache[user.cid]
