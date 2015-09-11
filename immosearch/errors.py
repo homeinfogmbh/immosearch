@@ -9,7 +9,7 @@ __all__ = ['InvalidCustomerID', 'InvalidPathLength', 'InvalidPathNode',
            'FilterOperationNotImplemented', 'SievingError', 'SecurityBreach'
            'InvalidSortingOption', 'InvalidAuthenticationOptions',
            'InvalidCredentials', 'HandlersExhausted', 'MemoryExhausted',
-           'InvalidLimiting', 'MissingIdentifier']
+           'InvalidLimiting', 'MissingIdentifier', 'NoDataCached']
 
 # Error codes:
 # <nn>    WSGI top-level errors
@@ -19,6 +19,7 @@ __all__ = ['InvalidCustomerID', 'InvalidPathLength', 'InvalidPathNode',
 # 4<nn>   Authentication errors
 # 5<nn>   Limitation errors
 # 6<nn>   Attachment errors
+# 7<nn>   Caching errors
 
 
 class RenderableError(Exception):
@@ -255,3 +256,12 @@ class MissingIdentifier(RenderableError):
     def __init__(self):
         """Creates message"""
         super().__init__(601, 'Missing identifier', status=400)
+
+
+class NoDataCached(RenderableError):
+    """Indicates that no data has been cached for the respective user"""
+
+    def __init__(self, cid):
+        """Creates message"""
+        super().__init__(
+            701, 'No data cached for user "{0}"'.format(cid), status=500)

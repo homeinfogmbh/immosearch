@@ -7,20 +7,21 @@ from urllib.parse import unquote
 
 from homeinfo.lib.wsgi import WsgiApp, OK, Error, InternalServerError
 from openimmo import factories
-from openimmodb3.db import Attachment
+from openimmodb3.db import Attachment, Immobilie
 
 from .db import ImmoSearchUser
 from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     InvalidPathNode, InvalidOptionsCount, OptionAlreadySet,\
     InvalidParameterError, UserNotAllowed, InvalidAuthenticationOptions,\
-    InvalidCredentials, HandlersExhausted, NotAnInteger
-from .cache import CacheManager
+    InvalidCredentials, HandlersExhausted, NotAnInteger, NoDataCached
 from .config import core
 from .filter import RealEstateSieve
 from .selector import RealEstateDataSelector
 from .sort import RealEstateSorter
 from .pager import Pager
 from .attachments import AttachmentSelector, AttachmentLoader
+from time import sleep
+from threading import Thread
 
 __all__ = ['RealEstateController', 'AttachmentController']
 
@@ -66,6 +67,9 @@ class RealEstateController(WsgiApp):
         super().__init__(cors=True)
         self._reset()
         self._cache = {}  # Initialize cache
+        caching = Thread(target=self._update_cache)
+        caching.daemon = True
+        caching.start()
 
     def _reset(self):
         """Resets the controller"""
@@ -115,6 +119,16 @@ class RealEstateController(WsgiApp):
             raise InvalidCustomerID(str(cid))
         else:
             return user
+
+    def _update_cache(self, interval):
+        """Re-cache user data in background"""
+        while True:
+            for user in ImmoSearchUser.select().where(
+                    ImmoSearchUser.enabled == 1):
+                real_estates = [i.immobilie for i in
+                                Immobilie.by_cid(user.cid)]
+                self._cache[user.cid] = real_estates
+            sleep(interval)
 
     def _chkhandlers(self, user):
         """Check for used handlers"""
@@ -284,39 +298,42 @@ class RealEstateController(WsgiApp):
         user = self.user
         self._parse()
         if self._chkuser(user):
-            # Cache real estates
-            cache = self._cache if self._caching else None
-            real_estates = CacheManager(user, cache)
-            # Filter real estates
-            real_estates = RealEstateSieve(real_estates, self._filters)
-            # Select appropriate data
-            real_estates = RealEstateDataSelector(
-                real_estates, selections=self._includes)
-            # Sort real estates
-            real_estates = RealEstateSorter(real_estates, self._sort_options)
-            # Page result
-            real_estates = Pager(
-                real_estates, limit=self._page_size, page=self._page)
-            # Generate realtor
-            realtor = factories.anbieter(
-                str(user.cid), user.name, str(user.cid))
-            # Manage attachments for each real estate
-            for real_estate in real_estates:
-                if real_estate.anhaenge:
-                    attachments = real_estate.anhaenge.anhang
-                    # 1) Select attachments
-                    attachments = AttachmentSelector(
-                        attachments,
-                        indexes=self._attachment_indexes,
-                        titles=self._attachment_titles,
-                        groups=self._attachment_groups)
-                    # 4) Load attachments
-                    attachments = AttachmentLoader(
-                        attachments, self.user.max_bytes, self._scaling)
-                    # 5) Set manipulated attachments on real estate
-                    real_estate.anhaenge.anhang = [a for a in attachments]
-                realtor.immobilie.append(real_estate)
-            return realtor
+            try:
+                real_estates = self._cache[user.cid]
+            except KeyError:
+                raise NoDataCached(user.cid)
+            else:
+                # Filter real estates
+                real_estates = RealEstateSieve(real_estates, self._filters)
+                # Select appropriate data
+                real_estates = RealEstateDataSelector(
+                    real_estates, selections=self._includes)
+                # Sort real estates
+                real_estates = RealEstateSorter(
+                    real_estates, self._sort_options)
+                # Page result
+                real_estates = Pager(
+                    real_estates, limit=self._page_size, page=self._page)
+                # Generate realtor
+                realtor = factories.anbieter(
+                    str(user.cid), user.name, str(user.cid))
+                # Manage attachments for each real estate
+                for real_estate in real_estates:
+                    if real_estate.anhaenge:
+                        attachments = real_estate.anhaenge.anhang
+                        # 1) Select attachments
+                        attachments = AttachmentSelector(
+                            attachments,
+                            indexes=self._attachment_indexes,
+                            titles=self._attachment_titles,
+                            groups=self._attachment_groups)
+                        # 4) Load attachments
+                        attachments = AttachmentLoader(
+                            attachments, self.user.max_bytes, self._scaling)
+                        # 5) Set manipulated attachments on real estate
+                        real_estate.anhaenge.anhang = [a for a in attachments]
+                    realtor.immobilie.append(real_estate)
+                return realtor
         else:
             raise UserNotAllowed(self.cid)
 
