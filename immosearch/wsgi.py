@@ -301,7 +301,7 @@ class RealEstateController(WsgiApp):
         self._parse()
         if not self._cache:
             raise Exception(self._cache)
-            raise Caching()
+            # raise Caching()
         elif self._chkuser(user):
             try:
                 real_estates = self._cache[user.cid]
