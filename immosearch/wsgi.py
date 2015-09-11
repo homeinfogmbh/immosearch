@@ -286,23 +286,23 @@ class RealEstateController(WsgiApp):
         if self._chkuser(user):
             # Cache real estates
             cache = None if self._nocache else self._cache
-            real_estates = CacheManager(user, cache)
+            cache_manager = CacheManager(user, cache)
             # Filter real estates
-            real_estates = RealEstateSieve(real_estates, self._filters)
+            real_estate_sieve = RealEstateSieve(cache_manager, self._filters)
             # Select appropriate data
-            real_estates = RealEstateDataSelector(
-                real_estates, selections=self._includes)
+            real_estate_selector = RealEstateDataSelector(
+                real_estate_sieve, selections=self._includes)
             # Sort real estates
-            real_estates = RealEstateSorter(
-                real_estates, self._sort_options)
+            real_estate_sorter = RealEstateSorter(
+                real_estate_selector, self._sort_options)
             # Page result
-            real_estates = Pager(
-                real_estates, limit=self._page_size, page=self._page)
+            real_estate_pager = Pager(
+                real_estate_sorter, limit=self._page_size, page=self._page)
             # Generate realtor
             realtor = factories.anbieter(
                 str(user.cid), user.name, str(user.cid))
             # Manage attachments for each real estate
-            for real_estate in real_estates:
+            for real_estate in real_estate_pager:
                 if real_estate.anhaenge:
                     attachments = real_estate.anhaenge.anhang
                     # 1) Select attachments
