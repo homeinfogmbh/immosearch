@@ -73,14 +73,8 @@ class RealEstateController(WsgiApp):
         self._filters = None
         self._sort_options = None
         self._includes = None
-        self._scaling = None
         self._auth_token = None
         self._nocache = None
-
-        # Attachment selection
-        self._attachment_indexes = None
-        self._attachment_titles = None
-        self._attachment_groups = None
 
         # Paging
         self._page_size = None
@@ -160,8 +154,6 @@ class RealEstateController(WsgiApp):
                 self._filter(value)
             elif key == Operations.SORT:
                 self._sort(value)
-            elif key == Operations.ATTACHMENTS:
-                self._attachments(value)
             elif key == Operations.PAGING:
                 self._paging(value)
             elif key == Operations.NOCACHE:
@@ -221,37 +213,6 @@ class RealEstateController(WsgiApp):
                 self._sort_options.append((key, mode))
         else:
             raise OptionAlreadySet(Operations.SORT, str(self._sort_options))
-
-    def _attachments(self, value):
-        """Generate scaling data"""
-        attachment_opts = value.split(Separators.OPTION)
-        if len(attachment_opts) < 1:
-            raise InvalidOptionsCount()
-        else:
-            for attachment_opt in attachment_opts:
-                split_option = attachment_opt.split(Separators.ATTR)
-                option = split_option[0]
-                value = Separators.ATTR.join(split_option[1:])
-                if option == 'select':
-                    if self._attachment_index is not None:
-                        raise OptionAlreadySet(option, self._attachment_index)
-                    elif self._attachment_title is not None:
-                        raise OptionAlreadySet(option, self._attachment_title)
-                    elif self._attachment_group is not None:
-                        raise OptionAlreadySet(option, self._attachment_group)
-                    try:
-                        n = int(value)
-                    except (ValueError, TypeError):
-                        filter_str = value.replace('"', '')
-                        if filter_str.startswith('%'):
-                            self._attachment_group = filter_str.replace(
-                                '%', '').upper()
-                        else:
-                            self._attachment_title = filter_str
-                    else:
-                        self._attachment_index = n
-                else:
-                    raise InvalidParameterError(option)
 
     def _paging(self, value):
         """Generate scaling data"""
