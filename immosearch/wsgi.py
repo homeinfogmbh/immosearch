@@ -286,7 +286,7 @@ class RealEstateController(WsgiApp):
         if self._chkuser(user):
             # Cache real estates
             cache = self._cache if self._caching else None
-            real_estates = CacheManager(self._caching, user, cache)
+            real_estates = CacheManager(user, cache)
             # Filter real estates
             real_estates = RealEstateSieve(real_estates, self._filters)
             # Select appropriate data
