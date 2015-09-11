@@ -67,7 +67,7 @@ class RealEstateController(WsgiApp):
         super().__init__(cors=True)
         self._reset()
         self._cache = {}  # Initialize cache
-        caching = Thread(target=self._update_cache)
+        caching = Thread(target=self._update_cache, args=[3600])
         caching.daemon = True
         caching.start()
 
