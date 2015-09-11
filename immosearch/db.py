@@ -65,6 +65,19 @@ class ImmoSearchUser(ImmoSearchModel):
             self._current_handlers = 0
         self.save()
 
+    def authenticate(self, token):
+        """Authenticates the user with a specified token"""
+        if self.protected:
+            if self.auth_token:
+                if self.auth_token == token:
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        else:
+            return True
+
 
 @create
 class QRCode(ImmoSearchModel):

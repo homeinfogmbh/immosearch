@@ -117,29 +117,6 @@ class RealEstateController(WsgiApp):
         else:
             raise HandlersExhausted(user.max_handlers)
 
-    def _chkuser(self, user):
-        """Check whether user is allowed to retrieve real estates"""
-        if user is None:
-            return False
-        elif user.enabled:
-            user = self.user
-            if user.protected:
-                auth_token = self._auth_token
-                if auth_token:
-                    if user.auth_token:
-                        if auth_token == user.auth_token:
-                            return self._chkhandlers(user)
-                        else:
-                            raise InvalidCredentials()
-                    else:
-                        raise InvalidCredentials()
-                else:
-                    raise InvalidCredentials()
-            else:
-                return self._chkhandlers(user)
-        else:
-            return False
-
     def _parse(self):
         """Parses a URI for query commands"""
         qd = self.qd
@@ -246,7 +223,9 @@ class RealEstateController(WsgiApp):
         """Perform sieving, sorting and rendering"""
         user = self.user
         self._parse()
-        if self._chkuser(user):
+        if not user.enabled:
+            raise UserNotAllowed(self.cid)
+        elif user.authenticate(self._auth_token):
             # Cache real estates
             if self._nocache:
                 self._cache.pop(user.cid)
@@ -270,7 +249,7 @@ class RealEstateController(WsgiApp):
                 immobilie=immobilie)
             return realtor
         else:
-            raise UserNotAllowed(self.cid)
+            raise InvalidCredentials()
 
     def get(self):
         """Main method to call"""
