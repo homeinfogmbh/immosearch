@@ -248,8 +248,9 @@ class RealEstateController(WsgiApp):
         self._parse()
         if self._chkuser(user):
             # Cache real estates
-            cache = None if self._nocache else self._cache
-            cache_manager = CacheManager(user, cache)
+            if self._nocache:
+                self._cache.pop(user.cid)
+            cache_manager = CacheManager(user, self._cache)
             # Filter real estates
             real_estate_sieve = RealEstateSieve(cache_manager, self._filters)
             # Select appropriate data
