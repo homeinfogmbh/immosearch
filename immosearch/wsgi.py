@@ -66,7 +66,7 @@ class RealEstateController(WsgiApp):
         super().__init__(cors=True)
         self._reset()
         self._cache = {}  # Initialize cache
-        self._caching = True
+        self.__update_cache()
         #caching = Thread(target=self._update_cache, args=[3600])
         #caching.daemon = True
         #caching.start()
@@ -119,17 +119,20 @@ class RealEstateController(WsgiApp):
         else:
             return user
 
+    def __update_cache(self):
+        """Re-cache user data in background"""
+        self._cache = {}
+        for user in ImmoSearchUser.select().where(
+                ImmoSearchUser.enabled == 1):
+            real_estates = [
+                i.immobilie for i in Immobilie.by_cid(user.cid)]
+            self._cache[user.cid] = real_estates
+
     def _update_cache(self, interval):
         """Re-cache user data in background"""
         while True:
-            self._caching = True
-            for user in ImmoSearchUser.select().where(
-                    ImmoSearchUser.enabled == 1):
-                real_estates = [
-                    i.immobilie for i in Immobilie.by_cid(user.cid)]
-                self._cache[user.cid] = real_estates
-            self._caching = False
             sleep(interval)
+            self.__update_cache()
 
     def _chkhandlers(self, user):
         """Check for used handlers"""
@@ -296,7 +299,7 @@ class RealEstateController(WsgiApp):
         """Perform sieving, sorting and rendering"""
         user = self.user
         self._parse()
-        if self._caching:
+        if not self._cache:
             raise Caching()
         elif self._chkuser(user):
             try:
