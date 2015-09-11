@@ -169,8 +169,11 @@ class RealEstateController(WsgiApp):
             # Ignore jQuery anti-cache timestamp
             elif key == '_':
                 continue
+            # else:
+            #    raise InvalidParameterError(key)
+            # XXX: Fix Niko's obsolete params
             else:
-                raise InvalidParameterError(key)
+                continue
 
     def _auth(self, value):
         """Extract authentication data"""
