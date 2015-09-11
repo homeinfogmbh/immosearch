@@ -20,7 +20,7 @@ class CacheManager():
         now = datetime.now()
         try:
             cached_data = self._cache[cid]
-        except IndexError:
+        except KeyError:
             real_estates = [i.immobilie for i in Immobilie.by_cid(cid)]
             self._cache[cid] = (real_estates, now)
             yield from real_estates
