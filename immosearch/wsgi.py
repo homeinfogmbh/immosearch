@@ -14,14 +14,13 @@ from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     InvalidPathNode, InvalidOptionsCount, OptionAlreadySet,\
     InvalidParameterError, UserNotAllowed, InvalidAuthenticationOptions,\
     InvalidCredentials, HandlersExhausted, NotAnInteger, NoDataCached, Caching
+from .cache import CacheManager
 from .config import core
 from .filter import RealEstateSieve
 from .selector import RealEstateDataSelector
 from .sort import RealEstateSorter
 from .pager import Pager
 from .attachments import AttachmentSelector, AttachmentLoader
-from time import sleep
-from threading import Thread
 
 __all__ = ['RealEstateController', 'AttachmentController']
 
@@ -45,6 +44,7 @@ class Operations():
     SORT = 'sort'
     ATTACHMENTS = 'attachments'
     PAGING = 'paging'
+    NOCACHE = 'nocache'
 
 
 class PathNodes():
@@ -66,9 +66,6 @@ class RealEstateController(WsgiApp):
         super().__init__(cors=True)
         self._reset()
         self._cache = None
-        caching = Thread(target=self._update_cache, args=[3600])
-        caching.daemon = True
-        caching.start()
 
     def _reset(self):
         """Resets the controller"""
@@ -79,6 +76,7 @@ class RealEstateController(WsgiApp):
         self._includes = None
         self._scaling = None
         self._auth_token = None
+        self._nocache = None
 
         # Attachment selection
         self._attachment_indexes = None
@@ -118,7 +116,7 @@ class RealEstateController(WsgiApp):
         else:
             return user
 
-    def __update_cache(self):
+    def _update_cache(self):
         """Re-cache user data in background"""
         self._cache = {}
         for user in ImmoSearchUser.select().where(
@@ -126,12 +124,6 @@ class RealEstateController(WsgiApp):
             real_estates = [
                 i.immobilie for i in Immobilie.by_cid(user.cid)]
             self._cache[user.cid] = real_estates
-
-    def _update_cache(self, interval):
-        """Re-cache user data in background"""
-        while True:
-            self.__update_cache()
-            sleep(interval)
 
     def _chkhandlers(self, user):
         """Check for used handlers"""
@@ -182,6 +174,8 @@ class RealEstateController(WsgiApp):
                 self._attachments(value)
             elif key == Operations.PAGING:
                 self._paging(value)
+            elif key == Operations.NOCACHE:
+                self._nocache = True
             # Ignore jQuery anti-cache timestamp
             elif key == '_':
                 continue
@@ -298,45 +292,41 @@ class RealEstateController(WsgiApp):
         """Perform sieving, sorting and rendering"""
         user = self.user
         self._parse()
-        if not self._cache:
-            raise Caching()
-        elif self._chkuser(user):
-            try:
-                real_estates = self._cache[user.cid]
-            except KeyError:
-                raise NoDataCached(user.cid)
-            else:
-                # Filter real estates
-                real_estates = RealEstateSieve(real_estates, self._filters)
-                # Select appropriate data
-                real_estates = RealEstateDataSelector(
-                    real_estates, selections=self._includes)
-                # Sort real estates
-                real_estates = RealEstateSorter(
-                    real_estates, self._sort_options)
-                # Page result
-                real_estates = Pager(
-                    real_estates, limit=self._page_size, page=self._page)
-                # Generate realtor
-                realtor = factories.anbieter(
-                    str(user.cid), user.name, str(user.cid))
-                # Manage attachments for each real estate
-                for real_estate in real_estates:
-                    if real_estate.anhaenge:
-                        attachments = real_estate.anhaenge.anhang
-                        # 1) Select attachments
-                        attachments = AttachmentSelector(
-                            attachments,
-                            indexes=self._attachment_indexes,
-                            titles=self._attachment_titles,
-                            groups=self._attachment_groups)
-                        # 4) Load attachments
-                        attachments = AttachmentLoader(
-                            attachments, self.user.max_bytes, self._scaling)
-                        # 5) Set manipulated attachments on real estate
-                        real_estate.anhaenge.anhang = [a for a in attachments]
-                    realtor.immobilie.append(real_estate)
-                return realtor
+        if self._chkuser(user):
+            # Cache real estates
+            cache = None if self._nocache else self._cache
+            real_estates = CacheManager(user, cache)
+            # Filter real estates
+            real_estates = RealEstateSieve(real_estates, self._filters)
+            # Select appropriate data
+            real_estates = RealEstateDataSelector(
+                real_estates, selections=self._includes)
+            # Sort real estates
+            real_estates = RealEstateSorter(
+                real_estates, self._sort_options)
+            # Page result
+            real_estates = Pager(
+                real_estates, limit=self._page_size, page=self._page)
+            # Generate realtor
+            realtor = factories.anbieter(
+                str(user.cid), user.name, str(user.cid))
+            # Manage attachments for each real estate
+            for real_estate in real_estates:
+                if real_estate.anhaenge:
+                    attachments = real_estate.anhaenge.anhang
+                    # 1) Select attachments
+                    attachments = AttachmentSelector(
+                        attachments,
+                        indexes=self._attachment_indexes,
+                        titles=self._attachment_titles,
+                        groups=self._attachment_groups)
+                    # 4) Load attachments
+                    attachments = AttachmentLoader(
+                        attachments, self.user.max_bytes, self._scaling)
+                    # 5) Set manipulated attachments on real estate
+                    real_estate.anhaenge.anhang = [a for a in attachments]
+                realtor.immobilie.append(real_estate)
+            return realtor
         else:
             raise UserNotAllowed(self.cid)
 
