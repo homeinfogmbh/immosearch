@@ -127,7 +127,6 @@ class RealEstateController(WsgiApp):
             real_estates = [
                 i.immobilie for i in Immobilie.by_cid(user.cid)]
             self._cache[user.cid] = real_estates
-        raise Exception(self._cache)
 
     def _update_cache(self, interval):
         """Re-cache user data in background"""
@@ -301,6 +300,7 @@ class RealEstateController(WsgiApp):
         user = self.user
         self._parse()
         if not self._cache:
+            raise Exception(self._cache)
             raise Caching()
         elif self._chkuser(user):
             try:
