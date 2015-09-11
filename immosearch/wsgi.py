@@ -67,9 +67,9 @@ class RealEstateController(WsgiApp):
         self._reset()
         self._cache = {}  # Initialize cache
         self._caching = True
-        caching = Thread(target=self._update_cache, args=[3600])
-        caching.daemon = True
-        caching.start()
+        #caching = Thread(target=self._update_cache, args=[3600])
+        #caching.daemon = True
+        #caching.start()
 
     def _reset(self):
         """Resets the controller"""
