@@ -14,8 +14,9 @@ from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     InvalidPathNode, InvalidOptionsCount, OptionAlreadySet,\
     InvalidParameterError, UserNotAllowed, InvalidAuthenticationOptions,\
     InvalidCredentials, HandlersExhausted, NotAnInteger
+from .cache import CacheManager
 from .config import core
-from .filter import UserRealEstateSieve
+from .filter import RealEstateSieve
 from .selector import RealEstateDataSelector
 from .sort import RealEstateSorter
 from .pager import Pager
@@ -63,6 +64,7 @@ class RealEstateController(WsgiApp):
         """Initializes the WSGI application for CORS"""
         super().__init__(cors=True)
         self._reset()
+        self._cache = {}  # Initialize cache
 
     def _reset(self):
         """Resets the controller"""
@@ -278,14 +280,16 @@ class RealEstateController(WsgiApp):
         user = self.user
         self._parse()
         if self._chkuser(user):
-            # 1) Filter real estates
-            real_estates = UserRealEstateSieve(user, self._filters)
-            # 2) Select appropriate data
+            # Cache real estates
+            real_estates = CacheManager(user, self._cache)
+            # Filter real estates
+            real_estates = RealEstateSieve(real_estates, self._filters)
+            # Select appropriate data
             real_estates = RealEstateDataSelector(
                 real_estates, selections=self._includes)
-            # 4) Sort real estates
+            # Sort real estates
             real_estates = RealEstateSorter(real_estates, self._sort_options)
-            # 5) Page result
+            # Page result
             real_estates = Pager(
                 real_estates, limit=self._page_size, page=self._page)
             # Generate realtor

@@ -3,13 +3,12 @@
 from datetime import datetime
 
 from homeinfo.lib.boolparse import SecurityError, BooleanEvaluator
-from openimmodb3.db import Immobilie
 
 from .lib import cast, Operators
 from .errors import SecurityBreach,  InvalidFilterOption,\
     FilterOperationNotImplemented, SievingError
 
-__all__ = ['UserRealEstateSieve']
+__all__ = ['RealEstateSieve']
 
 
 operations = {
@@ -809,19 +808,3 @@ class RealEstateSieve():
     def filters(self):
         """Returns the filters"""
         return self._filters
-
-
-class UserRealEstateSieve(RealEstateSieve):
-    """Class that sieves real estates of a user"""
-
-    def __init__(self, user, filters):
-        """Initializes super class with the user's real estates"""
-        super().__init__(
-            (i.immobilie for i in Immobilie.by_cid(user.cid)),
-            filters)
-        self._user = user
-
-    @property
-    def user(self):
-        """Returns the user"""
-        return self._user
