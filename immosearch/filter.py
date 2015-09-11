@@ -729,13 +729,15 @@ class FilterableRealEstate():
     def evaluate(self, operation):
         """Real estate evaluation callback"""
         option = None
+        operator = None
         raw_value = None
-        for operator in operations:
+        for op in operations:
             try:
-                option, raw_value = operation.split(operator)
+                option, raw_value = operation.split(op)
             except ValueError:
                 continue
             else:
+                operator = op
                 break
         if option is None or raw_value is None:
             raise InvalidFilterOption(operation)
@@ -766,7 +768,7 @@ class FilterableRealEstate():
                             # Exclude for None values and wrong types
                             return False
                         except AttributeError:
-                            raise SievingError(option, operation, raw_value)
+                            raise SievingError(option, operator, raw_value)
                         else:
                             return True if result else False
 
