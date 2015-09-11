@@ -125,8 +125,8 @@ class RealEstateController(WsgiApp):
             self._caching = True
             for user in ImmoSearchUser.select().where(
                     ImmoSearchUser.enabled == 1):
-                real_estates = [i.immobilie for i in
-                                Immobilie.by_cid(user.cid)]
+                real_estates = [
+                    i.immobilie for i in Immobilie.by_cid(user.cid)]
                 self._cache[user.cid] = real_estates
             self._caching = False
             sleep(interval)
@@ -304,6 +304,7 @@ class RealEstateController(WsgiApp):
             except KeyError:
                 raise NoDataCached(user.cid)
             else:
+                raise Exception('WTF')
                 # Filter real estates
                 real_estates = RealEstateSieve(real_estates, self._filters)
                 # Select appropriate data
