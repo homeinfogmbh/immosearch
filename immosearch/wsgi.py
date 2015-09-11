@@ -20,7 +20,6 @@ from .filter import RealEstateSieve
 from .selector import RealEstateDataSelector
 from .sort import RealEstateSorter
 from .pager import Pager
-from .attachments import AttachmentSelector, AttachmentLoader
 
 __all__ = ['RealEstateController', 'AttachmentController']
 
@@ -298,25 +297,12 @@ class RealEstateController(WsgiApp):
             # Page result
             real_estate_pager = Pager(
                 real_estate_sorter, limit=self._page_size, page=self._page)
+            # Generate real estate list
+            immobilie = [i for i in real_estate_pager]
             # Generate realtor
             realtor = factories.anbieter(
-                str(user.cid), user.name, str(user.cid))
-            # Manage attachments for each real estate
-            for real_estate in real_estate_pager:
-                if real_estate.anhaenge:
-                    attachments = real_estate.anhaenge.anhang
-                    # 1) Select attachments
-                    attachments = AttachmentSelector(
-                        attachments,
-                        indexes=self._attachment_indexes,
-                        titles=self._attachment_titles,
-                        groups=self._attachment_groups)
-                    # 4) Load attachments
-                    attachments = AttachmentLoader(
-                        attachments, self.user.max_bytes, self._scaling)
-                    # 5) Set manipulated attachments on real estate
-                    real_estate.anhaenge.anhang = [a for a in attachments]
-                realtor.immobilie.append(real_estate)
+                str(user.cid), user.name, str(user.cid),
+                immobilie=immobilie)
             return realtor
         else:
             raise UserNotAllowed(self.cid)
