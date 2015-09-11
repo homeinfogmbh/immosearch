@@ -228,7 +228,7 @@ class RealEstateController(WsgiApp):
         elif user.authenticate(self._auth_token):
             # Cache real estates
             if self._nocache:
-                self._cache.pop(user.cid)
+                self._cache.pop(user.cid, None)
             cache_manager = CacheManager(user, self._cache)
             # Filter real estates
             real_estate_sieve = RealEstateSieve(cache_manager, self._filters)
