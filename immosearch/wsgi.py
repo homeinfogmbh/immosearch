@@ -130,8 +130,8 @@ class RealEstateController(WsgiApp):
     def _update_cache(self, interval):
         """Re-cache user data in background"""
         while True:
-            sleep(interval)
             self.__update_cache()
+            sleep(interval)
 
     def _chkhandlers(self, user):
         """Check for used handlers"""
