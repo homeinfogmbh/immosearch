@@ -116,15 +116,6 @@ class RealEstateController(WsgiApp):
         else:
             return user
 
-    def _update_cache(self):
-        """Re-cache user data in background"""
-        self._cache = {}
-        for user in ImmoSearchUser.select().where(
-                ImmoSearchUser.enabled == 1):
-            real_estates = [
-                i.immobilie for i in Immobilie.by_cid(user.cid)]
-            self._cache[user.cid] = real_estates
-
     def _chkhandlers(self, user):
         """Check for used handlers"""
         if user.current_handlers < user.max_handlers:
