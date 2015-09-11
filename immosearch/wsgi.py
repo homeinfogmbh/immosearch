@@ -41,7 +41,6 @@ class Operations():
     FILTER = 'filter'
     INCLUDE = 'include'
     SORT = 'sort'
-    ATTACHMENTS = 'attachments'
     PAGING = 'paging'
     NOCACHE = 'nocache'
 
@@ -145,27 +144,28 @@ class RealEstateController(WsgiApp):
         """Parses a URI for query commands"""
         qd = self.qd
         for key in qd:
-            value = unquote(qd[key])
-            if key == Operations.AUTH_TOKEN:
-                self._auth(value)
-            elif key == Operations.INCLUDE:
-                self._include(value)
-            elif key == Operations.FILTER:
-                self._filter(value)
-            elif key == Operations.SORT:
-                self._sort(value)
-            elif key == Operations.PAGING:
-                self._paging(value)
-            elif key == Operations.NOCACHE:
+            if key == Operations.NOCACHE:
                 self._nocache = True
-            # Ignore jQuery anti-cache timestamp
-            elif key == '_':
-                continue
-            # else:
-            #    raise InvalidParameterError(key)
-            # XXX: Fix Niko's obsolete params
             else:
-                continue
+                value = unquote(qd[key])
+                if key == Operations.AUTH_TOKEN:
+                    self._auth(value)
+                elif key == Operations.INCLUDE:
+                    self._include(value)
+                elif key == Operations.FILTER:
+                    self._filter(value)
+                elif key == Operations.SORT:
+                    self._sort(value)
+                elif key == Operations.PAGING:
+                    self._paging(value)
+                # Ignore jQuery anti-cache timestamp
+                elif key == '_':
+                    continue
+                # else:
+                #    raise InvalidParameterError(key)
+                # XXX: Fix Niko's obsolete params
+                else:
+                    continue
 
     def _auth(self, value):
         """Extract authentication data"""
