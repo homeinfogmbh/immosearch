@@ -2,14 +2,15 @@
 
 from .dom import error
 
-__all__ = ['InvalidCustomerID', 'InvalidPathLength', 'InvalidPathNode',
-           'InvalidParameterError', 'UserNotAllowed', 'OptionAlreadySet',
-           'InvalidOptionsCount', 'NotAnInteger', 'InvalidRenderingResolution',
-           'NoValidFilterOperation', 'InvalidFilterOption',
-           'FilterOperationNotImplemented', 'SievingError', 'SecurityBreach'
-           'InvalidSortingOption', 'InvalidAuthenticationOptions',
-           'InvalidCredentials', 'HandlersExhausted', 'MemoryExhausted',
-           'InvalidLimiting', 'MissingIdentifier', 'NoDataCached']
+__all__ = [
+    'InvalidCustomerID', 'InvalidPathLength', 'InvalidPathNode',
+    'InvalidParameterError', 'UserNotAllowed', 'OptionAlreadySet',
+    'InvalidOptionsCount', 'NotAnInteger', 'InvalidRenderingResolution',
+    'NoValidFilterOperation', 'InvalidFilterOption',
+    'FilterOperationNotImplemented', 'SievingError', 'SecurityBreach'
+    'InvalidSortingOption', 'InvalidAuthenticationOptions',
+    'InvalidCredentials', 'HandlersExhausted', 'MemoryExhausted',
+    'InvalidLimiting', 'MissingIdentifier', 'Caching', 'NoDataCached']
 
 # Error codes:
 # <nn>    WSGI top-level errors
@@ -258,10 +259,20 @@ class MissingIdentifier(RenderableError):
         super().__init__(601, 'Missing identifier', status=400)
 
 
+class Caching(RenderableError):
+    """Indicates that the server is currently (re-)caching data"""
+
+    def __init__(self):
+        """Creates message"""
+        super().__init__(
+            701, 'Server is currently caching data - please be patient',
+            status=500)
+
+
 class NoDataCached(RenderableError):
     """Indicates that no data has been cached for the respective user"""
 
     def __init__(self, cid):
         """Creates message"""
         super().__init__(
-            701, 'No data cached for user "{0}"'.format(cid), status=500)
+            702, 'No data cached for user "{0}"'.format(cid), status=500)

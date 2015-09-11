@@ -13,7 +13,7 @@ from .db import ImmoSearchUser
 from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     InvalidPathNode, InvalidOptionsCount, OptionAlreadySet,\
     InvalidParameterError, UserNotAllowed, InvalidAuthenticationOptions,\
-    InvalidCredentials, HandlersExhausted, NotAnInteger, NoDataCached
+    InvalidCredentials, HandlersExhausted, NotAnInteger, NoDataCached, Caching
 from .config import core
 from .filter import RealEstateSieve
 from .selector import RealEstateDataSelector
@@ -45,7 +45,6 @@ class Operations():
     SORT = 'sort'
     ATTACHMENTS = 'attachments'
     PAGING = 'paging'
-    NO_CACHE = 'nocache'
 
 
 class PathNodes():
@@ -67,6 +66,7 @@ class RealEstateController(WsgiApp):
         super().__init__(cors=True)
         self._reset()
         self._cache = {}  # Initialize cache
+        self._caching = True
         caching = Thread(target=self._update_cache, args=[3600])
         caching.daemon = True
         caching.start()
@@ -80,7 +80,6 @@ class RealEstateController(WsgiApp):
         self._includes = None
         self._scaling = None
         self._auth_token = None
-        self._caching = True
 
         # Attachment selection
         self._attachment_indexes = None
@@ -123,11 +122,13 @@ class RealEstateController(WsgiApp):
     def _update_cache(self, interval):
         """Re-cache user data in background"""
         while True:
+            self._caching = True
             for user in ImmoSearchUser.select().where(
                     ImmoSearchUser.enabled == 1):
                 real_estates = [i.immobilie for i in
                                 Immobilie.by_cid(user.cid)]
                 self._cache[user.cid] = real_estates
+            self._caching = False
             sleep(interval)
 
     def _chkhandlers(self, user):
@@ -179,8 +180,6 @@ class RealEstateController(WsgiApp):
                 self._attachments(value)
             elif key == Operations.PAGING:
                 self._paging(value)
-            elif key == Operations.NO_CACHE:
-                self._caching = False
             # Ignore jQuery anti-cache timestamp
             elif key == '_':
                 continue
@@ -297,7 +296,9 @@ class RealEstateController(WsgiApp):
         """Perform sieving, sorting and rendering"""
         user = self.user
         self._parse()
-        if self._chkuser(user):
+        if self._caching:
+            raise Caching()
+        elif self._chkuser(user):
             try:
                 real_estates = self._cache[user.cid]
             except KeyError:
