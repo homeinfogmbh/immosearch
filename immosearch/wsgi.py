@@ -65,7 +65,7 @@ class RealEstateController(WsgiApp):
         """Initializes the WSGI application for CORS"""
         super().__init__(cors=True)
         self._reset()
-        self._cache = None
+        self._cache = {}
 
     def _reset(self):
         """Resets the controller"""
