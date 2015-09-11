@@ -306,7 +306,6 @@ class RealEstateController(WsgiApp):
             except KeyError:
                 raise NoDataCached(user.cid)
             else:
-                raise Exception('WTF')
                 # Filter real estates
                 real_estates = RealEstateSieve(real_estates, self._filters)
                 # Select appropriate data
