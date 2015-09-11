@@ -102,7 +102,9 @@ class FilterableRealEstate():
         'max_mietdauer': lambda f: f.max_mietdauer,
         'laufzeit': lambda f: f.laufzeit,
         'max_personen': lambda f: f.max_personen,
-        'portale': lambda f: f.portale
+        'weitergabe_generell': lambda f: f.weitergabe_generell,
+        'weitergabe_negativ': lambda f: f.weitergabe_negativ,
+        'weitergabe_positiv': lambda f: f.weitergabe_positiv
     }
 
     def __init__(self, immobilie):
