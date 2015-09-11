@@ -44,6 +44,7 @@ class Operations():
     SORT = 'sort'
     ATTACHMENTS = 'attachments'
     PAGING = 'paging'
+    NO_CACHE = 'nocache'
 
 
 class PathNodes():
@@ -75,6 +76,7 @@ class RealEstateController(WsgiApp):
         self._includes = None
         self._scaling = None
         self._auth_token = None
+        self._caching = True
 
         # Attachment selection
         self._attachment_indexes = None
@@ -163,6 +165,8 @@ class RealEstateController(WsgiApp):
                 self._attachments(value)
             elif key == Operations.PAGING:
                 self._paging(value)
+            elif key == Operations.NO_CACHE:
+                self._caching = False
             # Ignore jQuery anti-cache timestamp
             elif key == '_':
                 continue
@@ -281,7 +285,8 @@ class RealEstateController(WsgiApp):
         self._parse()
         if self._chkuser(user):
             # Cache real estates
-            real_estates = CacheManager(user, self._cache)
+            cache = self._cache if self._caching else None
+            real_estates = CacheManager(self._caching, user, cache)
             # Filter real estates
             real_estates = RealEstateSieve(real_estates, self._filters)
             # Select appropriate data

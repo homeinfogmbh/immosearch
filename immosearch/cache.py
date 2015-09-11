@@ -17,16 +17,20 @@ class CacheManager():
     def __iter__(self):
         """Iterates over the user's real estates"""
         cid = self._user.cid
-        now = datetime.now()
-        try:
-            cached_data = self._cache[cid]
-        except KeyError:
-            real_estates = [i.immobilie for i in Immobilie.by_cid(cid)]
-            self._cache[cid] = (real_estates, now)
-            yield from real_estates
+        if self._cache is None:
+            for i in Immobilie.by_cid(cid):
+                yield i.immobilie
         else:
-            real_estates, cache_time = cached_data
-            if now - cache_time >= timedelta(seconds=self._refresh):
+            now = datetime.now()
+            try:
+                cached_data = self._cache[cid]
+            except KeyError:
                 real_estates = [i.immobilie for i in Immobilie.by_cid(cid)]
                 self._cache[cid] = (real_estates, now)
-            yield from real_estates
+                yield from real_estates
+            else:
+                real_estates, cache_time = cached_data
+                if now - cache_time >= timedelta(seconds=self._refresh):
+                    real_estates = [i.immobilie for i in Immobilie.by_cid(cid)]
+                    self._cache[cid] = (real_estates, now)
+                yield from real_estates
