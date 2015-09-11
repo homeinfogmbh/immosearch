@@ -30,6 +30,21 @@ operations = {
     }
 
 
+class DontCare(Exception):
+    """Indicates that a filtering option
+    does not care for the compared value
+    """
+
+    def __init__(self, val):
+        """Sets the avaluated boolean value"""
+        super().__init__(val)
+        self._val = val
+
+    def __bool__(self):
+        """Returns the value"""
+        return self._val
+
+
 class FilterableRealEstate():
     """Wrapper class for an OpenImmo™-immobilie
     that can be filtered by certain attributes
@@ -697,11 +712,19 @@ class FilterableRealEstate():
             return int(max_personen) if max_personen else None
 
     @property
-    def portale(self):
+    def weitergabe_positiv(self):
         """Yields portals to which the real estate may be sent"""
-        for portal in self.immobilie.weitergabe_positiv:
-            if portal not in self.immobilie.weitergabe_negativ:
-                yield portal
+        return self.immobilie.weitergabe_positiv
+
+    @property
+    def weitergabe_negativ(self):
+        """Yields portals to which the real estate may NOT be sent"""
+        return self.immobilie.weitergabe_negativ
+
+    @property
+    def weitergabe_generell(self):
+        """Determines general redirection restrictions"""
+        return self.immobilie.weitergabe_generell
 
     def evaluate(self, operation):
         """Real estate evaluation callback"""
@@ -731,17 +754,21 @@ class FilterableRealEstate():
                     except TypeError:
                         option_format = None
                         option_func = option_
-                    value = cast(raw_value, typ=option_format)
                     try:
-                        val = option_func(self)
-                        result = operation_func(val, value)
-                    except (TypeError, ValueError):
-                        # Exclude for None values and wrong types
-                        return False
-                    except AttributeError:
-                        raise SievingError(option, operation, raw_value)
+                        value = cast(raw_value, typ=option_format)
+                    except DontCare as dc:
+                        return True if dc else False
                     else:
-                        return True if result else False
+                        try:
+                            val = option_func(self)
+                            result = operation_func(val, value)
+                        except (TypeError, ValueError):
+                            # Exclude for None values and wrong types
+                            return False
+                        except AttributeError:
+                            raise SievingError(option, operation, raw_value)
+                        else:
+                            return True if result else False
 
 
 class RealEstateSieve():
