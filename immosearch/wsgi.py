@@ -7,13 +7,13 @@ from urllib.parse import unquote
 
 from homeinfo.lib.wsgi import WsgiApp, OK, Error, InternalServerError
 from openimmo import factories
-from openimmodb3.db import Attachment, Immobilie
+from openimmodb3.db import Attachment
 
 from .db import ImmoSearchUser
 from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     InvalidPathNode, InvalidOptionsCount, OptionAlreadySet,\
     InvalidParameterError, UserNotAllowed, InvalidAuthenticationOptions,\
-    InvalidCredentials, HandlersExhausted, NotAnInteger, NoDataCached, Caching
+    InvalidCredentials, HandlersExhausted, NotAnInteger
 from .cache import CacheManager
 from .config import core
 from .filter import RealEstateSieve
