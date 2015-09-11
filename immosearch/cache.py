@@ -27,14 +27,15 @@ class CacheManager():
             try:
                 cached_data = self._cache[cid]
             except KeyError:
-                raise Exception('DEBUG2')
                 real_estates = [i.immobilie for i in Immobilie.by_cid(cid)]
                 self._cache[cid] = (real_estates, now)
+                raise Exception('DEBUG2')
                 yield from real_estates
             else:
-                raise Exception('DEBUG3')
                 real_estates, cache_time = cached_data
                 if now - cache_time >= timedelta(seconds=self._refresh):
                     real_estates = [i.immobilie for i in Immobilie.by_cid(cid)]
                     self._cache[cid] = (real_estates, now)
+                    raise Exception('DEBUG3')
+                raise Exception('DEBUG4')
                 yield from real_estates
