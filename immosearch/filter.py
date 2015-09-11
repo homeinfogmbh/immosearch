@@ -736,6 +736,7 @@ class FilterableRealEstate():
                         val = option_func(self)
                         result = operation_func(val, value)
                     except (TypeError, ValueError):
+                        raise  # DEBUG
                         # Exclude for None values and wrong types
                         return False
                     except AttributeError:
