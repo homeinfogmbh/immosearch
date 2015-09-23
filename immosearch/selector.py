@@ -74,4 +74,9 @@ class RealEstateDataSelector():
                     anhaenge = openimmo.anhaenge()
                     anhaenge.anhang.append(title_picture.dom)
                     real_estate.dom.anhaenge = anhaenge
+            # HACK
+            if real_estate.dom.freitexte:
+                if not real_estate.dom.freitexte.objektbeschreibung:
+                    real_estate.dom.freitexte.objektbeschreibung = \
+                        real_estate.dom.freitexte.dreizeiler
             yield real_estate
