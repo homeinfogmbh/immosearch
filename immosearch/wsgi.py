@@ -196,7 +196,7 @@ class RealEstateController(WsgiApp):
                 page_size, pageno = paging
                 re_gen = Pager(re_gen, limit=page_size, page=pageno)
             # Generate real estate list from real estate generator
-            immobilie = [i for i in re_gen]
+            immobilie = [i.dom for i in re_gen]
             # Generate realtor
             anbieter = factories.anbieter(
                 str(user.cid), user.name, str(user.cid),
