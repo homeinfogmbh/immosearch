@@ -129,17 +129,17 @@ class RealEstateSorter():
                'laufzeit': lambda f: f.laufzeit,
                'max_personen': lambda f: f.max_personen}
 
-    def __init__(self, immobilie, sort_options):
+    def __init__(self, real_estate, sort_options):
         """Sets the respective realtor and filter tuples like:
         (<option>, <operation>, <target_value>)
         """
-        self._immobilie = immobilie
+        self._real_estate = real_estate
         self._sort_options = sort_options or []
 
     @property
-    def immobilie(self):
+    def real_estate(self):
         """Returns the real estates"""
-        return self._immobilie
+        return self._real_estate
 
     @property
     def sort_options(self):
@@ -149,7 +149,8 @@ class RealEstateSorter():
     @property
     def _keyed(self):
         """Generates (<keys>, <real_estate>) tuples"""
-        for real_estate in (FilterableRealEstate(r) for r in self.immobilie):
+        for real_estate in self.real_estates:
+            f_re = FilterableRealEstate(real_estate.dom)
             keys = []
             for sort_option in self.sort_options:
                 option, desc = sort_option
@@ -157,10 +158,10 @@ class RealEstateSorter():
                 if option_func is None:
                     raise InvalidSortingOption(option)
                 else:
-                    keys.append(Key(option_func(real_estate), desc=desc))
+                    keys.append(Key(option_func(f_re), desc=desc))
             yield (keys, real_estate)
 
     def __iter__(self):
         """Sort real estates by the given options"""
         for _, real_estate in sorted(self._keyed, key=itemgetter(0)):
-            yield real_estate.immobilie
+            yield real_estate

@@ -22,12 +22,12 @@ class CacheManager():
         try:
             cached_data = self._cache[cid]
         except KeyError:
-            real_estates = [i.immobilie for i in Immobilie.by_cid(cid)]
+            real_estates = [i.dom() for i in Immobilie.by_cid(cid)]
             self._cache[cid] = (real_estates, now)
             yield from real_estates
         else:
             real_estates, cache_time = cached_data
             if now - cache_time >= timedelta(seconds=self._refresh):
-                real_estates = [i.immobilie for i in Immobilie.by_cid(cid)]
+                real_estates = [i.dom() for i in Immobilie.by_cid(cid)]
                 self._cache[cid] = (real_estates, now)
             yield from real_estates

@@ -3,7 +3,7 @@
 from datetime import datetime
 
 __all__ = ['boolean', 'debug', 'pdate', 'tags', 'cast',
-           'Sorting', 'Delims', 'Operators']
+           'Sorting', 'Delims', 'Operators', 'RealEstate']
 
 
 boolean = {
@@ -136,3 +136,22 @@ class Operators():
         for attr in dir(self):
             if (attr.upper() == attr) and (len(attr) == 2):
                 yield getattr(self, attr)
+
+
+class RealEstate():
+    """Real estate ORM / DOM wrapper"""
+
+    def __init__(self, immobilie_orm):
+        """Creates the real estate from a database record"""
+        self._orm = immobilie_orm
+        self._dom = None
+
+    @property
+    def orm(self):
+        return self._orm
+
+    @property
+    def dom(self):
+        if self._dom is None:
+            self._dom = self._orm.dom()
+        return self._dom

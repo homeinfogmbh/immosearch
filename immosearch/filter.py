@@ -788,7 +788,7 @@ class RealEstateSieve():
         """Sieve real estates by the given filters"""
         if self._filters:
             for real_estate in self.real_estates:
-                wrapped_real_estate = FilterableRealEstate(real_estate)
+                wrapped_real_estate = FilterableRealEstate(real_estate.dom)
                 be = BooleanEvaluator(
                     self._filters, callback=wrapped_real_estate.evaluate)
                 try:

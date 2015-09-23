@@ -7,14 +7,15 @@ from urllib.parse import unquote
 
 from homeinfo.lib.wsgi import WsgiApp, OK, Error, InternalServerError
 from openimmo import factories
-from openimmodb3.db import Attachment
+from openimmodb3.db import Attachment, Immobilie
 
 from .db import ImmoSearchUser
 from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     InvalidPathNode, InvalidOptionsCount, InvalidParameterError,\
     UserNotAllowed, InvalidAuthenticationOptions, InvalidCredentials,\
     NotAnInteger
-from .cache import CacheManager
+# from .cache import CacheManager
+from .lib import RealEstate
 from .config import core
 from .filter import RealEstateSieve
 from .selector import RealEstateDataSelector
@@ -149,45 +150,38 @@ class RealEstateController(WsgiApp):
     def _parse_opts(self, qd):
         """Parses the query dictionary for options"""
         auth_token = None
-        cache = True
         filters = None
-        includes = None
         sort = None
         paging = None
+        includes = None
         for key in qd:
-            if key == Operations.NOCACHE:
-                cache = False
+            value = unquote(qd[key])
+            if key == Operations.AUTH_TOKEN:
+                auth_token = self._auth(value)
+            elif key == Operations.INCLUDE:
+                includes = [i for i in self._include(value)]
+            elif key == Operations.FILTER:
+                filters = value
+            elif key == Operations.SORT:
+                sort = [i for i in self._sort(value)]
+            elif key == Operations.PAGING:
+                paging = self._paging(value)
+            # Ignore jQuery anti-cache timestamp
+            elif key == '_':
+                continue
+            # else:
+            #    raise InvalidParameterError(key)
+            # XXX: Fix Niko's obsolete params
             else:
-                value = unquote(qd[key])
-                if key == Operations.AUTH_TOKEN:
-                    auth_token = self._auth(value)
-                elif key == Operations.INCLUDE:
-                    includes = [i for i in self._include(value)]
-                elif key == Operations.FILTER:
-                    filters = value
-                elif key == Operations.SORT:
-                    sort = [i for i in self._sort(value)]
-                elif key == Operations.PAGING:
-                    paging = self._paging(value)
-                # Ignore jQuery anti-cache timestamp
-                elif key == '_':
-                    continue
-                # else:
-                #    raise InvalidParameterError(key)
-                # XXX: Fix Niko's obsolete params
-                else:
-                    continue
-        return (auth_token, cache, filters, includes, sort, paging)
+                continue
+        return (auth_token, filters, sort, paging, includes)
 
-    def _data(self, user, auth_token, cache, filters, includes, sort, paging):
+    def _data(self, user, auth_token, filters, sort, paging, includes):
         """Perform sieving, sorting and rendering"""
         if not user.enabled:
             raise UserNotAllowed(user.cid)
         elif user.authenticate(auth_token):
-            # Cache real estates
-            if not cache:
-                self._cache.pop(user.cid, None)
-            re_gen = CacheManager(user, self._cache)
+            re_gen = (RealEstate(i) for i in Immobilie.by_cid(user.cid))
             # Filter real estates
             if filters is not None:
                 re_gen = RealEstateSieve(re_gen, filters)
