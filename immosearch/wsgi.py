@@ -1,6 +1,7 @@
 """WSGI-environ interpreter"""
 
 from traceback import format_exc
+from contextlib import suppress
 
 from peewee import DoesNotExist
 from urllib.parse import unquote
@@ -155,7 +156,8 @@ class RealEstateController(WsgiApp):
         paging = None
         includes = None
         for key in qd:
-            value = unquote(qd[key])
+            with suppress(TypeError):
+                value = unquote(qd[key])
             if key == Operations.AUTH_TOKEN:
                 auth_token = self._auth(value)
             elif key == Operations.INCLUDE:
