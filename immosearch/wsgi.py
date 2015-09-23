@@ -214,9 +214,11 @@ class RealEstateController(WsgiApp):
 
     def get(self, environ):
         """Main method to call"""
-        qd = self.qd(environ)
+        query_string = self.query_string(environ)
+        qd = self.qd(query_string)
+        path_info = self.path_info(environ)
+        path = self.path(path_info)
         options = self._parse_opts(qd)
-        path = self.path(environ)
         cid = self._cid(path)
         user = self._user(cid)
         try:
@@ -255,7 +257,8 @@ class AttachmentController(WsgiApp):
 
     def get(self, environ):
         """Returns the queried attachment"""
-        path = self.path(environ)
+        path_info = self.path_info(environ)
+        path = self.path(path_info)
         ident = self._identifier(path)
         try:
             ident = int(ident)
