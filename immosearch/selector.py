@@ -71,5 +71,5 @@ class RealEstateDataSelector():
                 for attachment in Attachment.select().where(
                         Attachment.immobilie == real_estate.orm):
                     anhaenge.anhang.append(attachment.dom)
-                real_estate.anhaenge = anhaenge
+                real_estate.dom.anhaenge = anhaenge
             yield real_estate
