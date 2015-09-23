@@ -186,8 +186,7 @@ class RealEstateController(WsgiApp):
             if filters is not None:
                 re_gen = RealEstateSieve(re_gen, filters)
             # Select appropriate data
-            if includes is not None:
-                re_gen = RealEstateDataSelector(re_gen, selections=includes)
+            re_gen = RealEstateDataSelector(re_gen, selections=includes)
             # Sort real estates
             if sort is not None:
                 re_gen = RealEstateSorter(re_gen, sort)
