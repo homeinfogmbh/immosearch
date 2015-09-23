@@ -181,7 +181,6 @@ class RealEstateController(WsgiApp):
 
     def _data(self, user, auth_token, cache, filters, includes, sort, paging):
         """Perform sieving, sorting and rendering"""
-        self._parse()
         if not user.enabled:
             raise UserNotAllowed(user.cid)
         elif user.authenticate(auth_token):
