@@ -42,7 +42,7 @@ class RealEstateDataSelector():
         for real_estate in self.real_estates:
             # Discard freitexte iff not selected
             if not freitexte:
-                real_estate.freitexte = None
+                real_estate.dom.freitexte = None
             if allatts:
                 anhaenge = openimmo.anhaenge()
                 for attachment in Attachment.select().where(
