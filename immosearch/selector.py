@@ -64,7 +64,7 @@ class RealEstateDataSelector():
                                 title_picture = None
                 if title_picture is not None:
                     anhaenge = openimmo.anhaenge()
-                    anhaenge.anhang.append(title_picture)
+                    anhaenge.anhang.append(title_picture.dom())
                     real_estate.dom.anhaenge = anhaenge
             else:
                 anhaenge = openimmo.anhaenge()
