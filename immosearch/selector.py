@@ -35,8 +35,8 @@ class RealEstateDataSelector():
 
     def __iter__(self):
         """Returns real estates limited to the selections"""
-        freitexte = self.selections.get(Selections.FREITEXTE)
-        titlepic = self.selections.get(Selections.TITLEPIC)
+        freitexte = Selections.FREITEXTE in self.selections
+        titlepic = Selections.TITLEPIC in self.selections
         for real_estate in self.real_estates:
             # Discard freitexte iff not selected
             if not freitexte:
