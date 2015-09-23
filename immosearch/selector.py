@@ -64,12 +64,12 @@ class RealEstateDataSelector():
                                 title_picture = None
                 if title_picture is not None:
                     anhaenge = openimmo.anhaenge()
-                    anhaenge.anhang.append(title_picture.dom())
+                    anhaenge.anhang.append(title_picture.dom)
                     real_estate.dom.anhaenge = anhaenge
             else:
                 anhaenge = openimmo.anhaenge()
                 for attachment in Attachment.select().where(
                         Attachment.immobilie == real_estate.orm):
-                    anhaenge.anhang.append(attachment.dom())
+                    anhaenge.anhang.append(attachment.dom)
                 real_estate.anhaenge = anhaenge
             yield real_estate

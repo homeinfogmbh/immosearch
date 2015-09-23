@@ -153,5 +153,5 @@ class RealEstate():
     @property
     def dom(self):
         if self._dom is None:
-            self._dom = self._orm.dom()
+            self._dom = self._orm.dom
         return self._dom
