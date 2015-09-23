@@ -11,6 +11,7 @@ class Selections():
 
     FREITEXTE = 'freitexte'
     TITLEPIC = 'titlepic'
+    ALLATTS = 'allatts'  # All attachments
 
 
 class RealEstateDataSelector():
@@ -37,11 +38,18 @@ class RealEstateDataSelector():
         """Returns real estates limited to the selections"""
         freitexte = Selections.FREITEXTE in self.selections
         titlepic = Selections.TITLEPIC in self.selections
+        allatts = Selections.ALLATTS in self.selections
         for real_estate in self.real_estates:
             # Discard freitexte iff not selected
             if not freitexte:
                 real_estate.freitexte = None
-            if titlepic:
+            if allatts:
+                anhaenge = openimmo.anhaenge()
+                for attachment in Attachment.select().where(
+                        Attachment.immobilie == real_estate.orm):
+                    anhaenge.anhang.append(attachment.dom)
+                real_estate.dom.anhaenge = anhaenge
+            elif titlepic:
                 try:
                     title_picture = Attachment.get(
                         (Attachment.immobilie == real_estate.orm) &
@@ -66,10 +74,4 @@ class RealEstateDataSelector():
                     anhaenge = openimmo.anhaenge()
                     anhaenge.anhang.append(title_picture.dom)
                     real_estate.dom.anhaenge = anhaenge
-            else:
-                anhaenge = openimmo.anhaenge()
-                for attachment in Attachment.select().where(
-                        Attachment.immobilie == real_estate.orm):
-                    anhaenge.anhang.append(attachment.dom)
-                real_estate.dom.anhaenge = anhaenge
             yield real_estate
