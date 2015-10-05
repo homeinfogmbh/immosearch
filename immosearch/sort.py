@@ -129,17 +129,17 @@ class RealEstateSorter():
                'laufzeit': lambda f: f.laufzeit,
                'max_personen': lambda f: f.max_personen}
 
-    def __init__(self, real_estate, sort_options):
+    def __init__(self, real_estates, sort_options):
         """Sets the respective realtor and filter tuples like:
         (<option>, <operation>, <target_value>)
         """
-        self._real_estate = real_estate
+        self._real_estates = real_estates
         self._sort_options = sort_options or []
 
     @property
-    def real_estate(self):
+    def real_estates(self):
         """Returns the real estates"""
-        return self._real_estate
+        return self._real_estates
 
     @property
     def sort_options(self):
