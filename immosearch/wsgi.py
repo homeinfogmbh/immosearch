@@ -272,4 +272,5 @@ class AttachmentController(WsgiApp):
                         'Attachment with id {0} could not be found'.format(
                             a.id))
                 else:
+                    return OK('debug!')
                     return OK(data, content_type=mimetype, charset=None)
