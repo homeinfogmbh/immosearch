@@ -269,7 +269,6 @@ class AttachmentController(WsgiApp):
                     mimetype, data = a.data
                 except FileError:
                     return InternalServerError(
-                        'Could not find file for attachment '
-                        'with id {0} '.format(a.id))
+                        'Could not find file for attachment')
                 else:
                     return OK(data, content_type=mimetype, charset=None)
