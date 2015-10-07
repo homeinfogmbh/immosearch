@@ -22,6 +22,7 @@ from .filter import RealEstateSieve
 from .selector import RealEstateDataSelector
 from .sort import RealEstateSorter
 from .pager import Pager
+from filedb.http import FileError
 
 __all__ = ['RealEstateController', 'AttachmentController']
 
@@ -264,5 +265,11 @@ class AttachmentController(WsgiApp):
             except DoesNotExist:
                 return Error('Attachment not found')
             else:
-                mimetype, data = a.data
-                return OK(data, content_type=mimetype, charset=None)
+                try:
+                    mimetype, data = a.data
+                except FileError:
+                    return InternalServerError(
+                        'Attachment with id {0} could not be found'.format(
+                            a.id))
+                else:
+                    return OK(data, content_type=mimetype, charset=None)
