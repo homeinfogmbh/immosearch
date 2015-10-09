@@ -214,9 +214,9 @@ class RealEstateController(WsgiApp):
         path_info = self.path_info(environ)
         path = self.path(path_info)
         options = self._parse_opts(qd)
-        cid = self._cid(path)
-        user = self._user(cid)
         try:
+            cid = self._cid(path)
+            user = self._user(cid)
             result = self._data(user, *options)
         except RenderableError as r:
             status = r.status or 400
