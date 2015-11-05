@@ -35,5 +35,5 @@ class Pager():
             i0 = self.page * self.limit
             i1 = (self.page + 1) * self.limit - 1
             for i, item in enumerate(self.items):
-                if i >= i0 and i <= i1:
+                if i0 <= i <= i1:
                     yield item

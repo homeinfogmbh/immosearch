@@ -788,11 +788,11 @@ class RealEstateSieve():
         """Sieve real estates by the given filters"""
         if self._filters:
             for real_estate in self.real_estates:
-                wrapped_real_estate = FilterableRealEstate(real_estate.dom)
-                be = BooleanEvaluator(
-                    self._filters, callback=wrapped_real_estate.evaluate)
+                filterable_real_estate = FilterableRealEstate(real_estate.dom)
+                applicable = BooleanEvaluator(
+                    self._filters, callback=filterable_real_estate.evaluate)
                 try:
-                    if be:
+                    if applicable:
                         yield real_estate
                 except SecurityError as sec_err:
                     raise SecurityBreach(str(sec_err)) from None

@@ -74,7 +74,8 @@ class RealEstateDataSelector():
                     anhaenge = openimmo.anhaenge()
                     anhaenge.anhang.append(title_picture.dom)
                     real_estate.dom.anhaenge = anhaenge
-            # HACK
+            # Iff object description is missing,
+            # replace it with the three-liner
             if real_estate.dom.freitexte:
                 if not real_estate.dom.freitexte.objektbeschreibung:
                     real_estate.dom.freitexte.objektbeschreibung = \
