@@ -35,9 +35,6 @@ class ImmoSearchUser(ImmoSearchModel):
         Customer, db_column='customer', related_name='immosearch')
     enabled = BooleanField(default=False)
     ignore_restrictions = BooleanField(default=False)
-    max_handlers = IntegerField(11, default=10)
-    _current_handlers = IntegerField(11, db_column='current_handlers')
-    max_bytes = IntegerField(11, default=134217728)  # = 128 MiB
     protected = BooleanField(default=True)
     auth_token = CharField(36, null=True)
 
