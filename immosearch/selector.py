@@ -44,11 +44,11 @@ class RealEstateDataSelector():
             if not freitexte:
                 real_estate.dom.freitexte = None
             if allatts:
-                anhaenge = openimmo.anhaenge()
+                if real_estate.dom.anhaenge is None:
+                    real_estate.dom.anhaenge = openimmo.anhaenge()
                 for attachment in Attachment.select().where(
                         Attachment.immobilie == real_estate.orm):
-                    anhaenge.anhang.append(attachment.dom)
-                real_estate.dom.anhaenge = anhaenge
+                    real_estate.dom.anhaenge.anhang.append(attachment.dom)
             elif titlepic:
                 try:
                     title_picture = Attachment.get(
