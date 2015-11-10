@@ -145,6 +145,7 @@ class RealEstate():
         """Creates the real estate from a database record"""
         self._orm = immobilie_orm
         self._dom = None
+        self._minidom = None
 
     @property
     def orm(self):
@@ -155,3 +156,9 @@ class RealEstate():
         if self._dom is None:
             self._dom = self._orm.dom
         return self._dom
+
+    @property
+    def minidom(self):
+        if self._minidom is None:
+            self._minidom = self._orm.minidom
+        return self._minidom
