@@ -150,5 +150,5 @@ class RealEstate():
     def dom(self):
         """Returns a minimalistic DOM wothout attachments"""
         if self._dom is None:
-            self._dom = self._orm.minidom
+            self._dom = self.orm.minidom
         return self._dom
