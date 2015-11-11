@@ -143,22 +143,12 @@ class RealEstate():
 
     def __init__(self, immobilie_orm):
         """Creates the real estate from a database record"""
-        self._orm = immobilie_orm
+        self.orm = immobilie_orm
         self._dom = None
-        self._minidom = None
-
-    @property
-    def orm(self):
-        return self._orm
 
     @property
     def dom(self):
+        """Returns a minimalistic DOM wothout attachments"""
         if self._dom is None:
-            self._dom = self._orm.dom
+            self._dom = self._orm.minidom
         return self._dom
-
-    @property
-    def minidom(self):
-        if self._minidom is None:
-            self._minidom = self._orm.minidom
-        return self._minidom
