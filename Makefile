@@ -8,9 +8,11 @@ uninstall:
 	@ while read FILE; do
 		rm "${FILE}"
 	done < ${FILE_LIST}
-	
-clean:
-	@ rm -R ./build 
 
-all:
-	@ $(ECHO) "Nothing to do here.\nTry 'make install'"
+clean:
+	@ rm -R ./build
+
+check:
+	find . -type f -name "*.py" -not -path "./build/*" -exec pep8 --hang-closing {} \;
+
+all:	uninstall clean install
