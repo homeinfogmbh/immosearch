@@ -13,6 +13,12 @@ clean:
 	@ rm -R ./build
 
 check:
-	find . -type f -name "*.py" -not -path "./build/*" -exec pep8 --hang-closing {} \;
+	@ find . -type f -name "*.py" -not -path "./build/*" -exec pep8 --hang-closing {} \;
 
-all:	uninstall clean install
+pull:
+	@ git pull
+
+push:
+	@ git push
+
+all:	pull uninstall clean install
