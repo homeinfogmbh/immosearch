@@ -6,6 +6,7 @@ from contextlib import suppress
 from peewee import DoesNotExist
 from urllib.parse import unquote
 
+from filedb.http import FileError
 from homeinfo.lib.wsgi import WsgiApp, OK, Error, InternalServerError
 from openimmo import factories
 from openimmodb3.db import Attachment, Immobilie
@@ -22,7 +23,6 @@ from .filter import RealEstateSieve
 from .selector import RealEstateDataSelector
 from .sort import RealEstateSorter
 from .pager import Pager
-from filedb.http import FileError
 
 __all__ = ['ImmoSearch']
 
@@ -77,6 +77,17 @@ class ImmoSearch(WsgiApp):
                         raise InvalidCustomerID(cid_str)
                     else:
                         return cid
+                else:
+                    raise InvalidPathLength(len(path))
+            else:
+                raise InvalidPathNode(path[1])
+
+    def _aid(self, path):
+        """Extracts an attachment identifier from the path"""
+        if len(path) > 1:
+            if path[1] == 'attachment':
+                if len(path) == 3:
+                    return path[2]
                 else:
                     raise InvalidPathLength(len(path))
             else:
@@ -205,23 +216,8 @@ class ImmoSearch(WsgiApp):
         else:
             raise InvalidCredentials()
 
-    def _identifier(self, path):
-        """Extracts the customer ID from the query path"""
-        if len(path) > 1:
-            if path[1] == 'attachment':
-                if len(path) == 3:
-                    return path[2]
-                else:
-                    raise InvalidPathLength(len(path))
-            else:
-                raise InvalidPathNode(path[1])
-
-    def _realestates(self, environ):
+    def _realestates(self, path, qd):
         """Gets real estates (XML) data"""
-        path_info = self.path_info(environ)
-        path = self.path(path_info)
-        query_string = self.query_string(environ)
-        qd = self.qd(query_string)
         options = self._parse_opts(qd)
         try:
             cid = self._cid(path)
@@ -238,11 +234,9 @@ class ImmoSearch(WsgiApp):
         else:
             return OK(result, content_type='application/xml')
 
-    def _attachments(self, environ):
+    def _attachments(self, path, qd):
         """Returns the queried attachment"""
-        path_info = self.path_info(environ)
-        path = self.path(path_info)
-        ident = self._identifier(path)
+        ident = self._aid(path)
         try:
             ident = int(ident)
         except (TypeError, ValueError):
@@ -265,11 +259,13 @@ class ImmoSearch(WsgiApp):
         """Main method to call"""
         path_info = self.path_info(environ)
         path = self.path(path_info)
+        query_string = self.query_string(environ)
+        qd = self.qd(query_string)
         if len(path) > 1:
             if path[1] == 'attachment':
-                return self._attachments(environ)
+                return self._attachments(path, qd)
             elif path[1] in ['customer', 'realestates']:
-                return self._realestates(environ)
+                return self._realestates(path, qd)
             else:
                 raise InvalidPathNode(path[1])
         else:
