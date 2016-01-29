@@ -24,7 +24,7 @@ from .sort import RealEstateSorter
 from .pager import Pager
 from filedb.http import FileError
 
-__all__ = ['RealEstateController', 'AttachmentController']
+__all__ = ['ImmoSearch']
 
 
 class Separators():
@@ -55,10 +55,8 @@ class PathNodes():
     CUSTOMER = 'customer'
 
 
-class RealEstateController(WsgiApp):
-    """Class that interprets and translates WSGI environment
-    variables into a filter, sort and scaling queries
-    """
+class ImmoSearch(WsgiApp):
+    """ImmoSearch web application"""
 
     DEBUG = True
 
@@ -207,12 +205,23 @@ class RealEstateController(WsgiApp):
         else:
             raise InvalidCredentials()
 
-    def get(self, environ):
-        """Main method to call"""
-        query_string = self.query_string(environ)
-        qd = self.qd(query_string)
+    def _identifier(self, path):
+        """Extracts the customer ID from the query path"""
+        if len(path) > 1:
+            if path[1] == 'attachment':
+                if len(path) == 3:
+                    return path[2]
+                else:
+                    raise InvalidPathLength(len(path))
+            else:
+                raise InvalidPathNode(path[1])
+
+    def _realestates(self, environ):
+        """Gets real estates (XML) data"""
         path_info = self.path_info(environ)
         path = self.path(path_info)
+        query_string = self.query_string(environ)
+        qd = self.qd(query_string)
         options = self._parse_opts(qd)
         try:
             cid = self._cid(path)
@@ -229,28 +238,7 @@ class RealEstateController(WsgiApp):
         else:
             return OK(result, content_type='application/xml')
 
-
-class AttachmentController(WsgiApp):
-    """Controller for attachment queries"""
-
-    DEBUG = True
-
-    def __init__(self):
-        """Initializes the WSGI application for CORS"""
-        super().__init__(cors=True)
-
-    def _identifier(self, path):
-        """Extracts the customer ID from the query path"""
-        if len(path) > 1:
-            if path[1] == 'attachment':
-                if len(path) == 3:
-                    return path[2]
-                else:
-                    raise InvalidPathLength(len(path))
-            else:
-                raise InvalidPathNode(path[1])
-
-    def get(self, environ):
+    def _attachments(self, environ):
         """Returns the queried attachment"""
         path_info = self.path_info(environ)
         path = self.path(path_info)
@@ -272,3 +260,17 @@ class AttachmentController(WsgiApp):
                         'Could not find file for attachment')
                 else:
                     return OK(data, content_type=mimetype, charset=None)
+
+    def get(self, environ):
+        """Main method to call"""
+        path_info = self.path_info(environ)
+        path = self.path(path_info)
+        if len(path) > 1:
+            if path[1] == 'attachment':
+                return self._attachments(environ)
+            elif path[1] in ['customer', 'realestates']:
+                return self._realestates(environ)
+            else:
+                raise InvalidPathNode(path[1])
+        else:
+            raise InvalidPathLength(len(path))
