@@ -8,7 +8,7 @@ from homeinfo.crm import Customer
 
 from .config import db
 
-__all__ = ['ImmoSearchUser', 'QRCode']
+__all__ = ['ImmoSearchUser']
 
 database = MySQLDatabase(
     db['DB'],
