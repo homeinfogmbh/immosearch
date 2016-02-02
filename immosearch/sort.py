@@ -13,18 +13,8 @@ class Key():
 
     def __init__(self, val, desc=False):
         """Sets the actual value"""
-        self._val = val
-        self._desc = desc
-
-    @property
-    def val(self):
-        """Returns the value"""
-        return self._val
-
-    @property
-    def desc(self):
-        """Determines whether we are in descending mode"""
-        return self._desc
+        self.val = val
+        self.desc = desc
 
     def __eq__(self, other):
         """Equality check"""
@@ -65,7 +55,7 @@ class Key():
         return self.__eq__(other) or self.__lt__(other)
 
 
-class Sorting():
+class Sorting(Enumeration):
     """Sorting types"""
 
     ASC = True
@@ -128,25 +118,19 @@ class RealEstateSorter():
         'min_mietdauer': lambda f: f.min_mietdauer,
         'max_mietdauer': lambda f: f.max_mietdauer,
         'laufzeit': lambda f: f.laufzeit,
-        'max_personen': lambda f: f.max_personen
-    }
+        'max_personen': lambda f: f.max_personen}
 
     def __init__(self, real_estates, sort_options):
         """Sets the respective realtor and filter tuples like:
         (<option>, <operation>, <target_value>)
         """
-        self._real_estates = real_estates
-        self._sort_options = sort_options or []
+        self.real_estates = real_estates
+        self.sort_options = sort_options or []
 
-    @property
-    def real_estates(self):
-        """Returns the real estates"""
-        return self._real_estates
-
-    @property
-    def sort_options(self):
-        """Returns the sorting options"""
-        return self._sort_options
+    def __iter__(self):
+        """Sort real estates by the given options"""
+        for _, real_estate in sorted(self.keyed, key=itemgetter(0)):
+            yield real_estate
 
     @property
     def keyed(self):
@@ -162,8 +146,3 @@ class RealEstateSorter():
                 else:
                     keys.append(Key(option_func(f_re), desc=desc))
             yield (keys, real_estate)
-
-    def __iter__(self):
-        """Sort real estates by the given options"""
-        for _, real_estate in sorted(self.keyed, key=itemgetter(0)):
-            yield real_estate

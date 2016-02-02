@@ -11,23 +11,23 @@ class CacheManager():
 
     def __init__(self, user, cache, refresh=3600):
         """Sets the user and cache"""
-        self._user = user
-        self._cache = cache
-        self._refresh = refresh
+        self.user = user
+        self.cache = cache
+        self.refresh = refresh
 
     def __iter__(self):
         """Iterates over the user's real estates"""
-        cid = self._user.cid
+        cid = self.user.cid
         now = datetime.now()
         try:
-            cached_data = self._cache[cid]
+            cached_data = self.cache[cid]
         except KeyError:
             real_estates = [i.dom() for i in Immobilie.by_cid(cid)]
-            self._cache[cid] = (real_estates, now)
+            self.cache[cid] = (real_estates, now)
             yield from real_estates
         else:
             real_estates, cache_time = cached_data
-            if now - cache_time >= timedelta(seconds=self._refresh):
+            if now - cache_time >= timedelta(seconds=self.refresh):
                 real_estates = [i.dom() for i in Immobilie.by_cid(cid)]
-                self._cache[cid] = (real_estates, now)
+                self.cache[cid] = (real_estates, now)
             yield from real_estates

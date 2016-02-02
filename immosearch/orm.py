@@ -7,7 +7,6 @@ from homeinfo.peewee import MySQLDatabase, create
 from homeinfo.crm import Customer
 
 from .config import db
-from .qrcode import PNGQRCode
 
 __all__ = ['ImmoSearchUser', 'QRCode']
 
@@ -74,20 +73,3 @@ class ImmoSearchUser(ImmoSearchModel):
                 return False
         else:
             return True
-
-
-@create
-class QRCode(ImmoSearchModel):
-    """QR code service settings"""
-
-    customer = ForeignKeyField(
-        Customer, db_column='customer', related_name='qrcodes')
-    base_url = CharField(255, default='http://{0}.{1}.123xp.de/')
-    scale = IntegerField(default=2)
-    logo = BlobField(null=True, default=None)   # XXX: Must be a PNG file!
-
-    def render(self, immobilie):
-        """Renders QR code for an OpenImmo immmobilie DOM"""
-        idents = (immobilie.openimmo_obid, self.customer.id)
-        qrcode = PNGQRCode(self.base_url, idents=idents, scale=self.scale)
-        return qrcode.render(logo=self.logo)

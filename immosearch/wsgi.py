@@ -11,7 +11,7 @@ from homeinfo.lib.wsgi import WsgiApp, OK, Error, InternalServerError
 from openimmo import factories
 from openimmodb3.db import Attachment, Immobilie
 
-from .db import ImmoSearchUser
+from .orm import ImmoSearchUser
 from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     InvalidPathNode, InvalidOptionsCount, InvalidParameterError,\
     UserNotAllowed, InvalidAuthenticationOptions, InvalidCredentials,\

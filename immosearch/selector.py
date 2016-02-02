@@ -1,12 +1,15 @@
 """Real estate data selecting"""
-from openimmodb3.db import Attachment
+
 from peewee import DoesNotExist
+
+from homeinfo.lib.misc import Enumeration
 from openimmo import openimmo
+from openimmodb3.db import Attachment
 
 __all__ = ['Selections', 'RealEstateDataSelector']
 
 
-class Selections():
+class Selections(Enumeration):
     """Specifies sleection options"""
 
     FREITEXTE = 'freitexte'
@@ -21,18 +24,8 @@ class RealEstateDataSelector():
         """Initializes with a real estate,
         selection options and a picture limit
         """
-        self._real_estates = real_estates
-        self._selections = selections or []
-
-    @property
-    def real_estates(self):
-        """Returns the real estates"""
-        return self._real_estates
-
-    @property
-    def selections(self):
-        """Returns the selections"""
-        return self._selections
+        self.real_estates = real_estates
+        self.selections = selections or []
 
     def __iter__(self):
         """Returns real estates limited to the selections"""

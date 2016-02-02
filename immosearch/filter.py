@@ -25,8 +25,7 @@ operations = {
     Operators.IN: lambda x, y: x in y,
     Operators.NI: lambda x, y: x not in y,
     Operators.CO: lambda x, y: y in x,
-    Operators.CN: lambda x, y: y not in x
-    }
+    Operators.CN: lambda x, y: y not in x}
 
 
 class DontCare(Exception):
@@ -103,8 +102,7 @@ class FilterableRealEstate():
         'max_personen': lambda f: f.max_personen,
         'weitergabe_generell': lambda f: f.weitergabe_generell,
         'weitergabe_negativ': lambda f: f.weitergabe_negativ,
-        'weitergabe_positiv': lambda f: f.weitergabe_positiv
-    }
+        'weitergabe_positiv': lambda f: f.weitergabe_positiv}
 
     def __init__(self, immobilie):
         """Sets the appropriate OpenImmo™-immobilie"""

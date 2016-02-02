@@ -29,20 +29,15 @@ class RenderableError(Exception):
     def __init__(self, ident, msg, status=None):
         """Sets a unique identifier and a message"""
         super().__init__(msg)
-        self._ident = ident
-        self._msg = msg
-        self._status = status
-
-    @property
-    def status(self):
-        """Returns an options HTTP status for override"""
-        return self._status
+        self.ident = ident
+        self.msg = msg
+        self.status = status
 
     def toxml(self, encoding='utf-8'):
         """Returns an XML message"""
         result = error()
-        result.code = self._ident
-        result.msg = self._msg
+        result.code = self.ident
+        result.msg = self.msg
         return result.toxml(encoding=encoding)
 
 

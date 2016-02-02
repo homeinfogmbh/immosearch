@@ -2,14 +2,15 @@
 
 from datetime import datetime
 
+from homeinfo.lib.misc import Enumeration
+
 __all__ = ['boolean', 'debug', 'pdate', 'tags', 'cast',
            'Sorting', 'Delims', 'Operators', 'RealEstate']
 
 
 boolean = {
     'true': True,
-    'false': False
-    }
+    'false': False}
 
 
 def debug(s, d=None):
@@ -96,14 +97,14 @@ def cast(val, typ=None):
         return typ(val)  # Cast with specified constructor method
 
 
-class Sorting():
+class Sorting(Enumeration):
     """Sorting types"""
 
     ASC = 'ASC'
     DESC = 'DESC'
 
 
-class Delims():
+class Delims(Enumeration):
     """Delimiters"""
 
     SL = '['    # Start list
@@ -113,7 +114,7 @@ class Delims():
     END_INDEX = ']'
 
 
-class Operators():
+class Operators(Enumeration):
     """Filtering operators"""
 
     EQ = '=='   # Equals
@@ -130,12 +131,6 @@ class Operators():
     NI = '∉'    # Element not in iterable
     CO = '∋'    # List contains element
     CN = '∌'    # List does not contain element
-
-    def __iter__(self):
-        """Iterates over the operators"""
-        for attr in dir(self):
-            if (attr.upper() == attr) and (len(attr) == 2):
-                yield getattr(self, attr)
 
 
 class RealEstate():
