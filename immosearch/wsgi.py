@@ -7,6 +7,8 @@ from peewee import DoesNotExist
 from urllib.parse import unquote
 
 from filedb.http import FileError
+from homeinfo.lib.misc import Enumeration
+
 from homeinfo.lib.wsgi import WsgiApp, OK, Error, InternalServerError
 from openimmo import factories
 from openimmodb3.db import Attachment, Immobilie
@@ -27,7 +29,7 @@ from .pager import Pager
 __all__ = ['ImmoSearch']
 
 
-class Separators():
+class Separators(Enumeration):
     """Special separation characters"""
 
     QUERY = '&'
@@ -37,7 +39,7 @@ class Separators():
     PATH = '/'
 
 
-class Operations():
+class Operations(Enumeration):
     """Valid query operations"""
 
     AUTH_TOKEN = 'auth_token'
@@ -48,7 +50,7 @@ class Operations():
     NOCACHE = 'nocache'
 
 
-class PathNodes():
+class PathNodes(Enumeration):
     """Valid path nodes"""
 
     OPENIMMO = 'openimmo'
