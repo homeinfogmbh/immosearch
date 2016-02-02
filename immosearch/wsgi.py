@@ -7,7 +7,7 @@ from peewee import DoesNotExist
 from urllib.parse import unquote
 
 from filedb.http import FileError
-from homeinfo.lib.misc import Enumerations
+from homeinfo.lib.misc import Enumeration
 from homeinfo.lib.wsgi import WsgiApp, OK, Error, InternalServerError
 from openimmo import factories
 from openimmodb3.db import Attachment, Immobilie
