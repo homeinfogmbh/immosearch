@@ -106,7 +106,7 @@ class FilterableRealEstate():
 
     def __init__(self, immobilie):
         """Sets the appropriate OpenImmo™-immobilie"""
-        self._immobilie = immobilie
+        self.immobilie = immobilie
 
     @classmethod
     def fromopenimmo(cls, openimmo):
@@ -119,11 +119,6 @@ class FilterableRealEstate():
         """Yields filterable real estates from a realtor"""
         for immobilie in anbieter.immobilie:
             yield cls(immobilie)
-
-    @property
-    def immobilie(self):
-        """Returns the appropriate immobilie"""
-        return self._immobilie
 
     @property
     def objektart(self):
@@ -779,16 +774,16 @@ class RealEstateSieve():
         """Sets the respective realtor and filter tuples like:
         (<option>, <operation>, <target_value>)
         """
-        self._real_estates = real_estates
-        self._filters = filters
+        self.real_estates = real_estates
+        self.filters = filters
 
     def __iter__(self):
         """Sieve real estates by the given filters"""
-        if self._filters:
+        if self.filters:
             for real_estate in self.real_estates:
                 filterable_real_estate = FilterableRealEstate(real_estate.dom)
                 applicable = BooleanEvaluator(
-                    self._filters, callback=filterable_real_estate.evaluate)
+                    self.filters, callback=filterable_real_estate.evaluate)
                 try:
                     if applicable:
                         yield real_estate
@@ -796,13 +791,3 @@ class RealEstateSieve():
                     raise SecurityBreach(str(sec_err)) from None
         else:
             yield from self.real_estates
-
-    @property
-    def real_estates(self):
-        """Returns the real estates"""
-        return self._real_estates
-
-    @property
-    def filters(self):
-        """Returns the filters"""
-        return self._filters
