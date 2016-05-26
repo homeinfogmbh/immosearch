@@ -17,6 +17,7 @@ def debug(s, d=None):
     """Write debug data"""
     msg = ''.join([str(datetime.now()), '\t',
                    str(s) if d is None else '\t'.join([d, str(s)]), '\n'])
+
     with open('/tmp/auth.txt', 'a') as f:
         f.write(msg)
 
@@ -32,30 +33,36 @@ def tags(template, tag_open='<%', tag_close='%>'):
     window = ''
     token = tag_open
     tag = ''
+
     for c in template:
         # Records tag content iff in record mode
         if record:
             tag += c
+
         # Increase window size
         if len(window) < len(token):
             window += c
         else:   # Move window
             window = window[1:len(token)] + c
+
         # Check for opening tag
         if not record and window == tag_open:
             # Reset window, record and token
             record = True
             window = ''
             token = tag_close
+
         # Check for closing tag
         elif record and window == tag_close:
             # Remove current window from end of tag
             tag_content = tag[:-len(window)]
+
             # Reset window, record, token and tag
             window = ''
             record = False
             token = tag_open
             tag = ''
+
             yield tag_content
 
 
@@ -78,6 +85,7 @@ def cast(val, typ=None):
                 except ValueError:
                     # Check for boolean
                     b = boolean.get(val.lower())
+
                     if b is not None:
                         return b
                     else:
@@ -146,4 +154,5 @@ class RealEstate():
         """Returns a minimalistic DOM wothout attachments"""
         if self._dom is None:
             self._dom = self.orm.minidom
+
         return self._dom

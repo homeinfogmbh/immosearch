@@ -126,6 +126,7 @@ class FilterableRealEstate():
         XXX: This can only be one for one real estate according to OpenImmo™
         """
         oa = self.immobilie.objektkategorie.objektart
+
         if oa.zimmer:
             return 'zimmer'
         elif oa.wohnung:
@@ -157,6 +158,7 @@ class FilterableRealEstate():
     def objekttypen(self):
         """Returns a generator for the object's types"""
         oa = self.immobilie.objektkategorie.objektart
+
         for zimmer in oa.zimmer:
             if zimmer.zimmertyp:
                 yield str(zimmer.zimmertyp)
@@ -363,14 +365,17 @@ class FilterableRealEstate():
             result = self.kaltmiete
         else:
             result = self.nettokaltmiete
+
         if result:
             if self.nebenkosten:
                 result += self.nebenkosten
+
             if not self.immobilie.preise.heizkosten_enthalten:
                 if self.heizkosten:
                     result += self.heizkosten
         else:
             result = self.warmmiete
+
         return result
 
     @property
@@ -725,6 +730,7 @@ class FilterableRealEstate():
         option = None
         operator = None
         raw_value = None
+
         for op in operations:
             try:
                 option, raw_value = operation.split(op)
@@ -733,10 +739,12 @@ class FilterableRealEstate():
             else:
                 operator = op
                 break
+
         if option is None or raw_value is None:
             raise InvalidFilterOption(operation)
         else:
             operation_func = operations.get(operator)
+
             if operation_func is None:
                 raise FilterOperationNotImplemented(operator)
             else:
@@ -750,6 +758,7 @@ class FilterableRealEstate():
                     except TypeError:
                         option_format = None
                         option_func = option_
+
                     try:
                         value = cast(raw_value, typ=option_format)
                     except DontCare as dc:
@@ -784,6 +793,7 @@ class RealEstateSieve():
                 filterable_real_estate = FilterableRealEstate(real_estate.dom)
                 applicable = BooleanEvaluator(
                     self.filters, callback=filterable_real_estate.evaluate)
+
                 try:
                     if applicable:
                         yield real_estate

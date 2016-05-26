@@ -19,6 +19,7 @@ class Pager():
         else:
             start = self.page * self.limit
             end = (self.page + 1) * self.limit - 1
+
             for i, item in enumerate(self.items):
                 if start <= i <= end:
                     yield item

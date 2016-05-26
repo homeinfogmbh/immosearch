@@ -59,6 +59,7 @@ class ImmoSearchUser(ImmoSearchModel):
             self._current_handlers = current_handlers
         else:
             self._current_handlers = 0
+
         self.save()
 
     def authenticate(self, token):
