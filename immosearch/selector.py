@@ -6,6 +6,8 @@ from homeinfo.lib.misc import Enumeration
 from openimmo import openimmo
 from openimmodb3.db import Attachment
 
+from .errors import InvalidAttachmentLimit
+
 __all__ = ['Selections', 'RealEstateDataSelector']
 
 
@@ -43,9 +45,7 @@ class RealEstateDataSelector():
                     try:
                         attachments = int(n)
                     except ValueError:
-                        raise ValueError(
-                            'Amount of attachments must to be '
-                            'an integer, not {}'.format(n))
+                        raise InvalidAttachmentLimit(n)
 
         for real_estate in self.real_estates:
             # Discard freitexte iff not selected

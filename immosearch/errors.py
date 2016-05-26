@@ -254,6 +254,15 @@ class MissingIdentifier(RenderableError):
         super().__init__(601, 'Missing identifier', status=400)
 
 
+class InvalidAttachmentLimit(RenderableError):
+    """Indicates that an invalid attachment limit has been provided"""
+
+    def __init__(self, limit):
+        """Creates message"""
+        super().__init__(
+            602, 'Invalid attachment limit: {0}'.format(limit), status=400)
+
+
 class Caching(RenderableError):
     """Indicates that the server is currently (re-)caching data"""
 
