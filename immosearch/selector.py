@@ -35,16 +35,17 @@ class RealEstateDataSelector():
         allatts = Selections.ALLATTS in self.selections
         attachments = None
 
-        for selection in self.selections:
-            if selection.startswith(Selections.N_ATTS):
-                n, _ = selection.split(Selections.N_ATTS)
+        if not allatts:
+            for selection in self.selections:
+                if selection.endswith(Selections.N_ATTS):
+                    n, _ = selection.split(Selections.N_ATTS)
 
-                try:
-                    attachments = int(n)
-                except ValueError:
-                    raise ValueError(
-                        'Amount of attachments must to be '
-                        'an integer, not {}'.format(n))
+                    try:
+                        attachments = int(n)
+                    except ValueError:
+                        raise ValueError(
+                            'Amount of attachments must to be '
+                            'an integer, not {}'.format(n))
 
         for real_estate in self.real_estates:
             # Discard freitexte iff not selected
