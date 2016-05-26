@@ -59,7 +59,7 @@ class RealEstateDataSelector():
                 for attachment in Attachment.select().where(
                         Attachment.immobilie == real_estate.orm):
                     real_estate.dom.anhaenge.anhang.append(attachment.dom)
-            elif attachments:
+            elif attachments is not None:
                 real_estate_dom = real_estate.orm.todom(attachments)
                 real_estate.dom.anhaenge = real_estate_dom.anhaenge
             elif titlepic:
