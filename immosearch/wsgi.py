@@ -285,6 +285,8 @@ class ImmoSearchRequestHandler(RequestHandler):
 
     def get(self):
         """Main method to call"""
+        path = self.path
+
         if len(path) > 1:
             if path[1] == 'attachment':
                 return self._attachments
