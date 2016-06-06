@@ -60,8 +60,8 @@ class PathNodes(Enumeration):
 class ImmoSearchRequestHandler(RequestHandler):
     """HAndles requests for ImmoSearch"""
 
-    def __init__(self, environ):
-        super().__init__(environ)
+    def __init__(self, environ, cors, date_format, debug):
+        super().__init__(environ, cors, date_format, debug)
         self._cache = {}
 
     @property
