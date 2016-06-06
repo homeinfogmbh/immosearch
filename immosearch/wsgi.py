@@ -204,41 +204,7 @@ class ImmoSearchRequestHandler(RequestHandler):
 
         return (auth_token, filters, sort, paging, includes)
 
-    def _data(self, user, auth_token, filters, sort, paging, includes):
-        """Perform sieving, sorting and rendering"""
-        if not user.enabled:
-            raise UserNotAllowed(user.cid)
-        elif user.authenticate(auth_token):
-            re_gen = (RealEstate(i) for i in Immobilie.by_cid(user.cid))
-
-            # Filter real estates
-            if filters is not None:
-                re_gen = RealEstateSieve(re_gen, filters)
-
-            # Select appropriate data
-            re_gen = RealEstateDataSelector(re_gen, selections=includes)
-
-            # Sort real estates
-            if sort is not None:
-                re_gen = RealEstateSorter(re_gen, sort)
-
-            # Page result
-            if paging is not None:
-                page_size, pageno = paging
-                re_gen = Pager(re_gen, limit=page_size, page=pageno)
-
-            # Generate real estate list from real estate generator
-            immobilie = [i.dom for i in re_gen]
-
-            # Generate realtor
-            anbieter = factories.anbieter(
-                str(user.cid), user.name, str(user.cid),
-                immobilie=immobilie)
-
-            return anbieter
-        else:
-            raise InvalidCredentials()
-
+    @property
     def _realestates(self):
         """Gets real estates (XML) data"""
         options = self._options
@@ -282,6 +248,41 @@ class ImmoSearchRequestHandler(RequestHandler):
                         'Could not find file for attachment')
                 else:
                     return OK(data, content_type=mimetype, charset=None)
+
+    def _data(self, user, auth_token, filters, sort, paging, includes):
+        """Perform sieving, sorting and rendering"""
+        if not user.enabled:
+            raise UserNotAllowed(user.cid)
+        elif user.authenticate(auth_token):
+            re_gen = (RealEstate(i) for i in Immobilie.by_cid(user.cid))
+
+            # Filter real estates
+            if filters is not None:
+                re_gen = RealEstateSieve(re_gen, filters)
+
+            # Select appropriate data
+            re_gen = RealEstateDataSelector(re_gen, selections=includes)
+
+            # Sort real estates
+            if sort is not None:
+                re_gen = RealEstateSorter(re_gen, sort)
+
+            # Page result
+            if paging is not None:
+                page_size, pageno = paging
+                re_gen = Pager(re_gen, limit=page_size, page=pageno)
+
+            # Generate real estate list from real estate generator
+            immobilie = [i.dom for i in re_gen]
+
+            # Generate realtor
+            anbieter = factories.anbieter(
+                str(user.cid), user.name, str(user.cid),
+                immobilie=immobilie)
+
+            return anbieter
+        else:
+            raise InvalidCredentials()
 
     def get(self):
         """Main method to call"""
