@@ -1,4 +1,4 @@
-"""WSGI-environ interpreter"""
+"""WSGI app"""
 
 from traceback import format_exc
 from contextlib import suppress
@@ -8,7 +8,8 @@ from urllib.parse import unquote
 
 from filedb.http import FileError
 from homeinfo.lib.misc import Enumeration
-from homeinfo.lib.wsgi import WsgiApp, OK, Error, InternalServerError
+from homeinfo.lib.wsgi import OK, Error, InternalServerError, handler, \
+    RequestHandler, WsgiApp
 from openimmo import factories
 from openimmodb3.db import Attachment, Immobilie
 
@@ -56,18 +57,18 @@ class PathNodes(Enumeration):
     CUSTOMER = 'customer'
 
 
-class ImmoSearch(WsgiApp):
-    """ImmoSearch web application"""
+class ImmoSearchRequestHandler(RequestHandler):
+    """HAndles requests for ImmoSearch"""
 
-    DEBUG = True
-
-    def __init__(self):
-        """Initializes the WSGI application for CORS"""
-        super().__init__(cors=True)
+    def __init__(self, environ):
+        super().__init__(environ)
         self._cache = {}
 
-    def _cid(self, path):
+    @property
+    def _cid(self):
         """Extracts the customer ID from the query path"""
+        path = self._path
+
         if len(path) > 1:
             if path[1] == PathNodes.CUSTOMER:
                 if len(path) == 3:
@@ -83,8 +84,11 @@ class ImmoSearch(WsgiApp):
             else:
                 raise InvalidPathNode(path[1])
 
-    def _aid(self, path):
+    @property
+    def _aid(self):
         """Extracts an attachment identifier from the path"""
+        path = self.path
+
         if len(path) > 1:
             if path[1] == 'attachment':
                 if len(path) == 3:
@@ -106,6 +110,7 @@ class ImmoSearch(WsgiApp):
     def _auth(self, value):
         """Extract authentication data"""
         auth_opts = value.split(Separators.OPTION)
+
         if len(auth_opts) != 1:
             raise InvalidAuthenticationOptions()    # Do not propagate data
         else:
@@ -114,6 +119,7 @@ class ImmoSearch(WsgiApp):
     def _include(self, value):
         """Select options"""
         includes = value.split(Separators.OPTION)
+
         for include in includes:
             yield include
 
@@ -130,6 +136,7 @@ class ImmoSearch(WsgiApp):
                     desc = True
                 else:
                     desc = False
+
             yield (key, desc)
 
     def _paging(self, value):
@@ -140,10 +147,12 @@ class ImmoSearch(WsgiApp):
         else:
             limit = None
             page = None
+
             for paging_opt in paging_opts:
                 split_option = paging_opt.split(Separators.ATTR)
                 option = split_option[0]
                 value = Separators.ATTR.join(split_option[1:])
+
                 if option == 'limit':
                     try:
                         limit = int(value)
@@ -156,16 +165,21 @@ class ImmoSearch(WsgiApp):
                         raise NotAnInteger(value)
                 else:
                     raise InvalidParameterError(option)
+
             if limit is not None and page is not None:
                 return (limit, page)
 
-    def _parse_opts(self, qd):
+    @property
+    def _options(self):
         """Parses the query dictionary for options"""
+        qd = self.query_dict
+
         auth_token = None
         filters = None
         sort = None
         paging = None
         includes = None
+
         for key in qd:
             with suppress(TypeError):
                 value = unquote(qd[key])
@@ -187,6 +201,7 @@ class ImmoSearch(WsgiApp):
             # XXX: Fix Niko's obsolete params
             else:
                 continue
+
         return (auth_token, filters, sort, paging, includes)
 
     def _data(self, user, auth_token, filters, sort, paging, includes):
@@ -195,33 +210,41 @@ class ImmoSearch(WsgiApp):
             raise UserNotAllowed(user.cid)
         elif user.authenticate(auth_token):
             re_gen = (RealEstate(i) for i in Immobilie.by_cid(user.cid))
+
             # Filter real estates
             if filters is not None:
                 re_gen = RealEstateSieve(re_gen, filters)
+
             # Select appropriate data
             re_gen = RealEstateDataSelector(re_gen, selections=includes)
+
             # Sort real estates
             if sort is not None:
                 re_gen = RealEstateSorter(re_gen, sort)
+
             # Page result
             if paging is not None:
                 page_size, pageno = paging
                 re_gen = Pager(re_gen, limit=page_size, page=pageno)
+
             # Generate real estate list from real estate generator
             immobilie = [i.dom for i in re_gen]
+
             # Generate realtor
             anbieter = factories.anbieter(
                 str(user.cid), user.name, str(user.cid),
                 immobilie=immobilie)
+
             return anbieter
         else:
             raise InvalidCredentials()
 
-    def _realestates(self, path, qd):
+    def _realestates(self):
         """Gets real estates (XML) data"""
-        options = self._parse_opts(qd)
+        options = self._options
+
         try:
-            cid = self._cid(path)
+            cid = self._cid
             user = self._user(cid)
             result = self._data(user, *options)
         except RenderableError as r:
@@ -229,15 +252,19 @@ class ImmoSearch(WsgiApp):
             return Error(r, content_type='application/xml', status=status)
         except:
             msg = 'Internal Server Error :-('
+
             if core.get('DEBUG', False):
                 msg = '\n'.join([msg, format_exc()])
+
             return InternalServerError(msg)
         else:
             return OK(result, content_type='application/xml')
 
-    def _attachments(self, path, qd):
+    @property
+    def _attachments(self):
         """Returns the queried attachment"""
-        ident = self._aid(path)
+        ident = self._aid
+
         try:
             ident = int(ident)
         except (TypeError, ValueError):
@@ -258,16 +285,23 @@ class ImmoSearch(WsgiApp):
 
     def get(self, environ):
         """Main method to call"""
-        path_info = self.path_info(environ)
-        path = self.path(path_info)
-        query_string = self.query_string(environ)
-        qd = self.qd(query_string)
         if len(path) > 1:
             if path[1] == 'attachment':
-                return self._attachments(path, qd)
+                return self._attachments
             elif path[1] in ['customer', 'realestates']:
-                return self._realestates(path, qd)
+                return self._realestates
             else:
                 raise InvalidPathNode(path[1])
         else:
             raise InvalidPathLength(len(path))
+
+
+@handler(ImmoSearchRequestHandler)
+class ImmoSearch(WsgiApp):
+    """ImmoSearch web application"""
+
+    DEBUG = True
+
+    def __init__(self):
+        """Initializes the WSGI application for CORS"""
+        super().__init__(cors=True)
