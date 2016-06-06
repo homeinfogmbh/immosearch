@@ -67,7 +67,7 @@ class ImmoSearchRequestHandler(RequestHandler):
     @property
     def _cid(self):
         """Extracts the customer ID from the query path"""
-        path = self._path
+        path = self.path
 
         if len(path) > 1:
             if path[1] == PathNodes.CUSTOMER:
