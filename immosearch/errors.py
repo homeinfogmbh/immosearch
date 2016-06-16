@@ -1,5 +1,7 @@
 """Errors of immosearch"""
 
+from homeinfo.lib.wsgi import XML
+
 from .dom import error
 
 __all__ = [
@@ -23,22 +25,22 @@ __all__ = [
 # 7<nn>   Caching errors
 
 
-class RenderableError(Exception):
+class RenderableError(XML):
     """An error, that can be rendered"""
 
     def __init__(self, ident, msg, status=None):
         """Sets a unique identifier and a message"""
-        super().__init__(msg)
         self.ident = ident
         self.msg = msg
         self.status = status
+        super().__init__(self.todom())
 
-    def toxml(self, encoding='utf-8'):
+    def todom(self):
         """Returns an XML message"""
         result = error()
         result.code = self.ident
         result.msg = self.msg
-        return result.toxml(encoding=encoding)
+        return result
 
 
 class InvalidCustomerID(RenderableError):
