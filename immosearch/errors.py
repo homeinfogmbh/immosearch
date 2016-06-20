@@ -30,18 +30,40 @@ class RenderableError(XML):
 
     def __init__(self, ident, msg, status=None):
         """Sets a unique identifier and a message"""
+        super().__init__(error())
         self.ident = ident
         self.msg = msg
         self.status = status
-        super().__init__(self.dom)
 
     @property
-    def dom(self):
-        """Returns an XML message"""
-        result = error()
-        result.code = self.ident
-        result.msg = self.msg
-        return result
+    def ident(self):
+        """Returns the error identifier"""
+        return self.dom.ident
+
+    @ident.setter
+    def ident(self, ident):
+        """Sets the error identifier"""
+        self.dom.ident = ident
+
+    @property
+    def msg(self):
+        """Returns the error msg"""
+        return self.dom.msg
+
+    @msg.setter
+    def msg(self, msg):
+        """Sets the error msg"""
+        self.dom.msg = msg
+
+    @property
+    def status(self):
+        """Returns the error status"""
+        return self.dom.status
+
+    @status.setter
+    def status(self, status):
+        """Sets the error status"""
+        self.dom.status = status
 
 
 class InvalidCustomerID(RenderableError):
