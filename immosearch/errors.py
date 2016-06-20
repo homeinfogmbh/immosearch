@@ -33,9 +33,10 @@ class RenderableError(XML):
         self.ident = ident
         self.msg = msg
         self.status = status
-        super().__init__(self.todom())
+        super().__init__(self.dom)
 
-    def todom(self):
+    @property
+    def dom(self):
         """Returns an XML message"""
         result = error()
         result.code = self.ident

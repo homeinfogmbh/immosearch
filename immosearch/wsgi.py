@@ -7,17 +7,17 @@ from peewee import DoesNotExist
 from urllib.parse import unquote
 
 from filedb.http import FileError
+from homeinfo.crm import Customer
 from homeinfo.lib.misc import Enumeration
 from homeinfo.lib.wsgi import OK, Error, InternalServerError, handler, \
     RequestHandler, WsgiApp
 from openimmo import factories
 from openimmodb3.db import Attachment, Immobilie
 
-from .orm import ImmoSearchUser
+from .orm import Blacklist
 from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
     InvalidPathNode, InvalidOptionsCount, InvalidParameterError,\
-    UserNotAllowed, InvalidAuthenticationOptions, InvalidCredentials,\
-    NotAnInteger
+    UserNotAllowed, InvalidAuthenticationOptions, NotAnInteger
 # from .cache import CacheManager
 from .lib import RealEstate
 from .config import core
@@ -42,7 +42,6 @@ class Separators(Enumeration):
 class Operations(Enumeration):
     """Valid query operations"""
 
-    AUTH_TOKEN = 'auth_token'
     FILTER = 'filter'
     INCLUDE = 'include'
     SORT = 'sort'
@@ -72,11 +71,12 @@ class ImmoSearchRequestHandler(RequestHandler):
         if len(path) > 1:
             if path[1] == PathNodes.CUSTOMER:
                 if len(path) == 3:
-                    cid_str = path[2]
+                    cid = path[2]
+
                     try:
-                        cid = int(cid_str)
+                        cid = int(cid)
                     except ValueError:
-                        raise InvalidCustomerID(cid_str)
+                        raise InvalidCustomerID(cid)
                     else:
                         return cid
                 else:
@@ -89,14 +89,20 @@ class ImmoSearchRequestHandler(RequestHandler):
         """Extracts an attachment identifier from the path"""
         path = self.path
 
-        if len(path) > 1:
-            if path[1] == 'attachment':
-                if len(path) == 3:
-                    return path[2]
-                else:
+        try:
+            mode = path[1]
+        except IndexError:
+            raise InvalidPathLength(len(path))
+        else:
+            if mode == 'attachment':
+                try:
+                    attachment_id = path[2]
+                except IndexError:
                     raise InvalidPathLength(len(path))
+                else:
+                    return attachment_id
             else:
-                raise InvalidPathNode(path[1])
+                raise InvalidPathNode(mode)
 
     def _user(self, cid):
         """Returns the user"""
@@ -174,7 +180,6 @@ class ImmoSearchRequestHandler(RequestHandler):
         """Parses the query dictionary for options"""
         qd = self.query_dict
 
-        auth_token = None
         filters = None
         sort = None
         paging = None
@@ -183,9 +188,7 @@ class ImmoSearchRequestHandler(RequestHandler):
         for key in qd:
             with suppress(TypeError):
                 value = unquote(qd[key])
-            if key == Operations.AUTH_TOKEN:
-                auth_token = self._auth(value)
-            elif key == Operations.INCLUDE:
+            if key == Operations.INCLUDE:
                 includes = [i for i in self._include(value)]
             elif key == Operations.FILTER:
                 filters = value
@@ -202,7 +205,7 @@ class ImmoSearchRequestHandler(RequestHandler):
             else:
                 continue
 
-        return (auth_token, filters, sort, paging, includes)
+        return (filters, sort, paging, includes)
 
     @property
     def _realestates(self):
@@ -210,21 +213,29 @@ class ImmoSearchRequestHandler(RequestHandler):
         options = self._options
 
         try:
-            cid = self._cid
-            user = self._user(cid)
-            result = self._data(user, *options)
-        except RenderableError as r:
-            status = r.status or 400
-            return Error(r, content_type='application/xml', status=status)
-        except:
-            msg = 'Internal Server Error :-('
+            customer = Customer.get(Customer.id == self._cid)
+        except DoesNotExist:
+            return NoSuchCustomer(cid)
 
-            if core.get('DEBUG', False):
-                msg = '\n'.join([msg, format_exc()])
+        try:
+            blacklist_entry = Blacklist.get(Blacklist.customer == customer)
+        except DoesNotExist:
+            try:
+                result = self._data(customer, *options)
+            except RenderableError as r:
+                status = r.status or 400
+                return Error(r, content_type='application/xml', status=status)
+            except:
+                msg = 'Internal Server Error :-('
 
-            return InternalServerError(msg)
+                if core.get('DEBUG', False):
+                    msg = '\n'.join([msg, format_exc()])
+
+                return InternalServerError(msg)
+            else:
+                return OK(result, content_type='application/xml')
         else:
-            return OK(result, content_type='application/xml')
+            return UserNotAllowed(cid)
 
     @property
     def _attachments(self):
@@ -249,54 +260,51 @@ class ImmoSearchRequestHandler(RequestHandler):
                 else:
                     return OK(data, content_type=mimetype, charset=None)
 
-    def _data(self, user, auth_token, filters, sort, paging, includes):
+    def _data(self, customer, filters, sort, paging, includes):
         """Perform sieving, sorting and rendering"""
-        if not user.enabled:
-            raise UserNotAllowed(user.cid)
-        elif user.authenticate(auth_token):
-            re_gen = (RealEstate(i) for i in Immobilie.by_cid(user.cid))
+        re_gen = (RealEstate(i) for i in Immobilie.by_cid(customer.cid))
 
-            # Filter real estates
-            if filters is not None:
-                re_gen = RealEstateSieve(re_gen, filters)
+        # Filter real estates
+        if filters is not None:
+            re_gen = RealEstateSieve(re_gen, filters)
 
-            # Select appropriate data
-            re_gen = RealEstateDataSelector(re_gen, selections=includes)
+        # Select appropriate data
+        re_gen = RealEstateDataSelector(re_gen, selections=includes)
 
-            # Sort real estates
-            if sort is not None:
-                re_gen = RealEstateSorter(re_gen, sort)
+        # Sort real estates
+        if sort is not None:
+            re_gen = RealEstateSorter(re_gen, sort)
 
-            # Page result
-            if paging is not None:
-                page_size, pageno = paging
-                re_gen = Pager(re_gen, limit=page_size, page=pageno)
+        # Page result
+        if paging is not None:
+            page_size, pageno = paging
+            re_gen = Pager(re_gen, limit=page_size, page=pageno)
 
-            # Generate real estate list from real estate generator
-            immobilie = [i.dom for i in re_gen]
+        # Generate real estate list from real estate generator
+        immobilie = [i.dom for i in re_gen]
 
-            # Generate realtor
-            anbieter = factories.anbieter(
-                str(user.cid), user.name, str(user.cid),
-                immobilie=immobilie)
+        # Generate realtor
+        anbieter = factories.anbieter(
+            str(customer.cid), customer.name, str(customer.cid),
+            immobilie=immobilie)
 
-            return anbieter
-        else:
-            raise InvalidCredentials()
+        return anbieter
 
     def get(self):
         """Main method to call"""
         path = self.path
 
-        if len(path) > 1:
-            if path[1] == 'attachment':
+        try:
+            mode = path[1]
+        except IndexError:
+            raise InvalidPathLength(len(path))
+        else:
+            if mode == 'attachment':
                 return self._attachments
-            elif path[1] in ['customer', 'realestates']:
+            elif mode in ['customer', 'realestates']:
                 return self._realestates
             else:
-                raise InvalidPathNode(path[1])
-        else:
-            raise InvalidPathLength(len(path))
+                raise InvalidPathNode(mode)
 
 
 @handler(ImmoSearchRequestHandler)
