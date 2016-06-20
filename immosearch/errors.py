@@ -1,8 +1,6 @@
 """Errors of immosearch"""
 
-from homeinfo.lib.wsgi import XML
-
-from .dom import error
+from homeinfo.lib.wsgi import JSON
 
 __all__ = [
     'InvalidCustomerID', 'InvalidPathLength', 'InvalidPathNode',
@@ -25,16 +23,16 @@ __all__ = [
 # 7<nn>   Caching errors
 
 
-class RenderableError(XML):
+class RenderableError(JSON):
     """An error, that can be rendered"""
 
     def __init__(self, ident, msg, status=None):
         """Sets a unique identifier and a message"""
-        dom = error()
-        dom.ident = ident
-        dom.msg = msg
-        dom.status = status
-        super().__init__(dom)
+        error = {}
+        error['ident'] = ident
+        error['msg'] = msg
+        error['status'] = status
+        super().__init__(error)
 
 
 class InvalidCustomerID(RenderableError):
