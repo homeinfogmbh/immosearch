@@ -31,8 +31,7 @@ class RenderableError(JSON):
         error = {}
         error['ident'] = ident
         error['msg'] = msg
-        error['status'] = status
-        super().__init__(error)
+        super().__init__(error, status=status)
 
 
 class InvalidCustomerID(RenderableError):
