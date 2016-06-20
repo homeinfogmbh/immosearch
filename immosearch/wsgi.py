@@ -285,7 +285,7 @@ class ImmoSearchRequestHandler(RequestHandler):
 
         # Generate realtor
         anbieter = factories.anbieter(
-            str(customer.cid), customer.name, str(customer.cid),
+            str(customer.id), customer.name, str(customer.id),
             immobilie=immobilie)
 
         return anbieter
