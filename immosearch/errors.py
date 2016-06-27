@@ -43,7 +43,7 @@ __all__ = [
 class RenderableError(JSON):
     """An error, that can be rendered"""
 
-    def __init__(self, ident, msg, status=None):
+    def __init__(self, ident, msg, status=400):
         """Sets a unique identifier and a message"""
         error = {}
         error['ident'] = ident
