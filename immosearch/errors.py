@@ -3,6 +3,7 @@
 from homeinfo.lib.wsgi import JSON
 
 __all__ = [
+    # <nn>    WSGI top-level errors
     'InvalidCustomerID',
     'NoSuchCustomer',
     'InvalidPathLength',
@@ -12,32 +13,31 @@ __all__ = [
     'OptionAlreadySet',
     'InvalidOptionsCount',
     'NotAnInteger',
-    'InvalidRenderingResolution',
+    # 1<nn>   Filtering errors
     'NoValidFilterOperation',
     'InvalidFilterOption',
     'FilterOperationNotImplemented',
     'SievingError',
     'SecurityBreach',
+    # 2<nn>   Sorting errors
     'InvalidSortingOption',
+    # 3<nn>   Scaling errors
+    'InvalidRenderingResolution',
+    'NoScalingProvided',
+    # 4<nn>   Authentication errors
     'InvalidAuthenticationOptions',
     'InvalidCredentials',
+    # 5<nn>   Limitation errors
     'HandlersExhausted',
     'MemoryExhausted',
     'InvalidLimiting',
+    # 6<nn>   Attachment errors
     'InvalidAttachmentID',
     'AttachmentNotFound',
+    'InvalidAttachmentLimit',
+    # 7<nn>   Caching errors
     'Caching',
     'NoDataCached']
-
-# Error codes:
-# <nn>    WSGI top-level errors
-# 1<nn>   Filtering errors
-# 2<nn>   Sorting errors
-# 3<nn>   Scaling errors
-# 4<nn>   Authentication errors
-# 5<nn>   Limitation errors
-# 6<nn>   Attachment errors
-# 7<nn>   Caching errors
 
 
 class RenderableError(JSON):
@@ -130,6 +130,8 @@ class NotAnInteger(RenderableError):
         """Initializes error code an message"""
         super().__init__(19, 'Not an integer: {0}'.format(i))
 
+
+# ### Filtering errors ### #
 
 class NoValidFilterOperation(RenderableError):
     """Indicates that no valid operation
@@ -276,6 +278,15 @@ class AttachmentNotFound(RenderableError):
     def __init__(self):
         """Creates message"""
         super().__init__(602, 'Attachment not found', status=400)
+
+
+class InvalidAttachmentLimit(RenderableError):
+    """Indicates that an invalid attachment limit was provided"""
+
+    def __init__(self, n):
+        """Creates message"""
+        super().__init__(
+            603, 'Invalid attachment limit: {}'.format(n), status=400)
 
 
 class Caching(RenderableError):
