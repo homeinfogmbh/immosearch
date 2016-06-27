@@ -216,14 +216,14 @@ class ImmoSearchRequestHandler(RequestHandler):
         try:
             customer = Customer.get(Customer.id == self._cid)
         except DoesNotExist:
-            return NoSuchCustomer(cid)
+            return NoSuchCustomer(self._cid)
 
         try:
             blacklist_entry = Blacklist.get(Blacklist.customer == customer)
         except DoesNotExist:
             return XML(self._data(customer, *options))
         else:
-            return UserNotAllowed(cid)
+            return UserNotAllowed(self._cid)
 
     @property
     def _attachments(self):
