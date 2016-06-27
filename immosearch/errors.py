@@ -131,8 +131,6 @@ class NotAnInteger(RenderableError):
         super().__init__(19, 'Not an integer: {0}'.format(i))
 
 
-# ### Filtering errors ### #
-
 class NoValidFilterOperation(RenderableError):
     """Indicates that no valid operation
     was specified in a filter query"""
