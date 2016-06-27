@@ -9,15 +9,16 @@ from urllib.parse import unquote
 from filedb.http import FileError
 from homeinfo.crm import Customer
 from homeinfo.lib.misc import Enumeration
-from homeinfo.lib.wsgi import OK, Error, InternalServerError, handler, \
+from homeinfo.lib.wsgi import XML, OK, InternalServerError, handler, \
     RequestHandler, WsgiApp
 from openimmo import factories
 from openimmodb3.db import Attachment, Immobilie
 
 from .orm import Blacklist
-from .errors import RenderableError, InvalidCustomerID, InvalidPathLength,\
-    InvalidPathNode, InvalidOptionsCount, InvalidParameterError,\
-    UserNotAllowed, InvalidAuthenticationOptions, NotAnInteger
+from .errors import InvalidCustomerID, NoSuchCustomer, InvalidPathLength, \
+    InvalidPathNode, InvalidOptionsCount, InvalidParameterError, \
+    UserNotAllowed, InvalidAuthenticationOptions, NotAnInteger, \
+    InvalidAttachmentID, AttachmentNotFound
 # from .cache import CacheManager
 from .lib import RealEstate
 from .config import core
@@ -220,20 +221,7 @@ class ImmoSearchRequestHandler(RequestHandler):
         try:
             blacklist_entry = Blacklist.get(Blacklist.customer == customer)
         except DoesNotExist:
-            try:
-                result = self._data(customer, *options)
-            except RenderableError as r:
-                status = r.status or 400
-                return Error(r, content_type='application/xml', status=status)
-            except:
-                msg = 'Internal Server Error :-('
-
-                if core.get('DEBUG', False):
-                    msg = '\n'.join([msg, format_exc()])
-
-                return InternalServerError(msg)
-            else:
-                return OK(result, content_type='application/xml')
+            return XML(self._data(customer, *options))
         else:
             return UserNotAllowed(cid)
 
@@ -245,12 +233,12 @@ class ImmoSearchRequestHandler(RequestHandler):
         try:
             ident = int(ident)
         except (TypeError, ValueError):
-            return Error('Attachment ID must be an integer')
+            raise InvalidAttachmentID()
         else:
             try:
                 a = Attachment.get(Attachment.id == ident)
             except DoesNotExist:
-                return Error('Attachment not found')
+                raise AttachmentNotFound()
             else:
                 try:
                     mimetype, data = a.data

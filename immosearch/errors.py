@@ -3,14 +3,31 @@
 from homeinfo.lib.wsgi import JSON
 
 __all__ = [
-    'InvalidCustomerID', 'InvalidPathLength', 'InvalidPathNode',
-    'InvalidParameterError', 'UserNotAllowed', 'OptionAlreadySet',
-    'InvalidOptionsCount', 'NotAnInteger', 'InvalidRenderingResolution',
-    'NoValidFilterOperation', 'InvalidFilterOption',
-    'FilterOperationNotImplemented', 'SievingError', 'SecurityBreach'
-    'InvalidSortingOption', 'InvalidAuthenticationOptions',
-    'InvalidCredentials', 'HandlersExhausted', 'MemoryExhausted',
-    'InvalidLimiting', 'MissingIdentifier', 'Caching', 'NoDataCached']
+    'InvalidCustomerID',
+    'NoSuchCustomer',
+    'InvalidPathLength',
+    'InvalidPathNode',
+    'InvalidParameterError',
+    'UserNotAllowed',
+    'OptionAlreadySet',
+    'InvalidOptionsCount',
+    'NotAnInteger',
+    'InvalidRenderingResolution',
+    'NoValidFilterOperation',
+    'InvalidFilterOption',
+    'FilterOperationNotImplemented',
+    'SievingError',
+    'SecurityBreach',
+    'InvalidSortingOption',
+    'InvalidAuthenticationOptions',
+    'InvalidCredentials',
+    'HandlersExhausted',
+    'MemoryExhausted',
+    'InvalidLimiting',
+    'InvalidAttachmentID',
+    'AttachmentNotFound',
+    'Caching',
+    'NoDataCached']
 
 # Error codes:
 # <nn>    WSGI top-level errors
@@ -42,6 +59,14 @@ class InvalidCustomerID(RenderableError):
         super().__init__(11, 'Invalid customer ID: {0}'.format(cid_str))
 
 
+class NoSuchCustomer(RenderableError):
+    """Indicates that an invalid customer has been selected"""
+
+    def __init__(self, cid_str):
+        """Initializes error code an message"""
+        super().__init__(12, 'No such customer: {0}'.format(cid_str))
+
+
 class InvalidPathLength(RenderableError):
     """Indicates that a query_path with
     an invalid length was provided
@@ -49,7 +74,7 @@ class InvalidPathLength(RenderableError):
 
     def __init__(self, length):
         """Initializes error code an message"""
-        super().__init__(12, 'Invalid path length: {0}'.format(length))
+        super().__init__(13, 'Invalid path length: {0}'.format(length))
 
 
 class InvalidPathNode(RenderableError):
@@ -59,7 +84,7 @@ class InvalidPathNode(RenderableError):
 
     def __init__(self, node):
         """Initializes error code an message"""
-        super().__init__(13, 'Invalid path node: {0}'.format(node))
+        super().__init__(14, 'Invalid path node: {0}'.format(node))
 
 
 class InvalidParameterError(RenderableError):
@@ -67,7 +92,7 @@ class InvalidParameterError(RenderableError):
 
     def __init__(self, operation):
         """Initializes error code an message"""
-        super().__init__(14, 'Invalid parameter: {0}'.format(operation))
+        super().__init__(15, 'Invalid parameter: {0}'.format(operation))
 
 
 class UserNotAllowed(RenderableError):
@@ -75,7 +100,7 @@ class UserNotAllowed(RenderableError):
 
     def __init__(self, cid):
         """Initializes error code an message"""
-        super().__init__(15, 'User not allowed: {0}'.format(cid))
+        super().__init__(16, 'User not allowed: {0}'.format(cid))
 
 
 class OptionAlreadySet(RenderableError):
@@ -84,7 +109,7 @@ class OptionAlreadySet(RenderableError):
     def __init__(self, option, value):
         """Initializes error code an message"""
         super().__init__(
-            16, 'Option "{0}" has already been set to: {1}'.format(
+            17, 'Option "{0}" has already been set to: {1}'.format(
                 option, value))
 
 
@@ -94,7 +119,7 @@ class InvalidOptionsCount(RenderableError):
 
     def __init__(self):
         """Initializes error code an message"""
-        super().__init__(17, 'Invalid options count')
+        super().__init__(18, 'Invalid options count')
 
 
 class NotAnInteger(RenderableError):
@@ -103,7 +128,7 @@ class NotAnInteger(RenderableError):
 
     def __init__(self, i):
         """Initializes error code an message"""
-        super().__init__(18, 'Not an integer: {0}'.format(i))
+        super().__init__(19, 'Not an integer: {0}'.format(i))
 
 
 class NoValidFilterOperation(RenderableError):
@@ -237,23 +262,20 @@ class InvalidLimiting(RenderableError):
         super().__init__(503, 'Invalid limiting: {0}'.format(msg), status=400)
 
 
-class MissingIdentifier(RenderableError):
-    """Indicates that no identifier was
-    provided on an attachment request
-    """
+class InvalidAttachmentID(RenderableError):
+    """Indicates that a faulty ID was provided"""
 
     def __init__(self):
         """Creates message"""
-        super().__init__(601, 'Missing identifier', status=400)
+        super().__init__(601, 'Attachment ID must be an integer', status=400)
 
 
-class InvalidAttachmentLimit(RenderableError):
-    """Indicates that an invalid attachment limit has been provided"""
+class AttachmentNotFound(RenderableError):
+    """Indicates that the attachment could not be found"""
 
-    def __init__(self, limit):
+    def __init__(self):
         """Creates message"""
-        super().__init__(
-            602, 'Invalid attachment limit: {0}'.format(limit), status=400)
+        super().__init__(602, 'Attachment not found', status=400)
 
 
 class Caching(RenderableError):
