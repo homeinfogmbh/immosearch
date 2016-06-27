@@ -14,18 +14,18 @@ from homeinfo.lib.wsgi import XML, OK, InternalServerError, handler, \
 from openimmo import factories
 from openimmodb3.db import Attachment, Immobilie
 
-from .orm import Blacklist
-from .errors import InvalidCustomerID, NoSuchCustomer, InvalidPathLength, \
-    InvalidPathNode, InvalidOptionsCount, InvalidParameterError, \
-    UserNotAllowed, InvalidAuthenticationOptions, NotAnInteger, \
-    InvalidAttachmentID, AttachmentNotFound
-# from .cache import CacheManager
-from .lib import RealEstate
-from .config import core
-from .filter import RealEstateSieve
-from .selector import RealEstateDataSelector
-from .sort import RealEstateSorter
-from .pager import Pager
+from immosearch.cache import CacheManager
+from immosearch.config import core
+from immosearch.errors import NoSuchCustomer, InvalidPathLength, \
+    InvalidPathNode, InvalidOptionsCount, NotAnInteger, \
+    InvalidParameterError, UserNotAllowed, InvalidAuthenticationOptions, \
+    NotAnInteger, AttachmentNotFound
+from immosearch.filter import RealEstateSieve
+from immosearch.lib import RealEstate
+from immosearch.orm import Blacklist
+from immosearch.pager import Pager
+from immosearch.selector import RealEstateDataSelector
+from immosearch.sort import RealEstateSorter
 
 __all__ = ['ImmoSearch']
 
@@ -77,7 +77,7 @@ class ImmoSearchRequestHandler(RequestHandler):
                     try:
                         cid = int(cid)
                     except ValueError:
-                        raise InvalidCustomerID(cid)
+                        raise NotAnInteger(cid)
                     else:
                         return cid
                 else:
@@ -110,7 +110,7 @@ class ImmoSearchRequestHandler(RequestHandler):
         try:
             user = ImmoSearchUser.get(ImmoSearchUser.customer == cid)
         except DoesNotExist:
-            raise InvalidCustomerID(str(cid))
+            raise NotAnInteger(str(cid))
         else:
             return user
 
@@ -233,7 +233,7 @@ class ImmoSearchRequestHandler(RequestHandler):
         try:
             ident = int(ident)
         except (TypeError, ValueError):
-            raise InvalidAttachmentID()
+            raise NotAnInteger()
         else:
             try:
                 a = Attachment.get(Attachment.id == ident)
