@@ -240,13 +240,22 @@ class ImmoSearchRequestHandler(RequestHandler):
             except DoesNotExist:
                 raise AttachmentNotFound()
             else:
-                try:
-                    mimetype, data = a.data
-                except FileError:
-                    return InternalServerError(
-                        'Could not find file for attachment')
+                if self.query_dict.get('sha256sum', False):
+                    try:
+                        sha256sum = a.sha256sum
+                    except FileError:
+                        return InternalServerError(
+                            'Could not find file for attachment')
+                    else:
+                        return OK(sha256sum)
                 else:
-                    return OK(data, content_type=mimetype, charset=None)
+                    try:
+                        mimetype, data = a.data
+                    except FileError:
+                        return InternalServerError(
+                            'Could not find file for attachment')
+                    else:
+                        return OK(data, content_type=mimetype, charset=None)
 
     def _data(self, customer, filters, sort, paging, includes):
         """Perform sieving, sorting and rendering"""
