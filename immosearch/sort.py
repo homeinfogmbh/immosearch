@@ -110,8 +110,7 @@ class RealEstateSorter():
         'seniorengerecht': lambda f: f.seniorengerecht,
         'baujahr': (str, lambda f: f.baujahr),
         'epart': lambda f: f.epart,
-        'energieverbrauchkennwert':
-            lambda f: f.energieverbrauchkennwert,
+        'energieverbrauchkennwert': lambda f: f.energieverbrauchkennwert,
         'endenergiebedarf': lambda f: f.endenergiebedarf,
         'primaerenergietraeger': lambda f: f.primaerenergietraeger,
         'stromwert': lambda f: f.stromwert,
