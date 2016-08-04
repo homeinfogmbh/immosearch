@@ -200,7 +200,10 @@ class ImmoSearchRequestHandler(RequestHandler):
             elif key == Operations.PAGING:
                 paging = self._paging(value)
             elif key == 'json':
-                json = True
+                try:
+                    json = int(value)
+                except (TypeError, ValueError):
+                    json = None
             # Ignore jQuery anti-cache timestamp
             elif key == '_':
                 continue
@@ -227,10 +230,10 @@ class ImmoSearchRequestHandler(RequestHandler):
         except DoesNotExist:
             xml = self._data(customer, filters, sort, paging, includes)
 
-            if json:
-                return JSON(parse(xml.toxml()))
-            else:
+            if json is False:
                 return XML(xml)
+            else:
+                return JSON(parse(xml.toxml()), indent=json)
         else:
             return UserNotAllowed(self._cid)
 
