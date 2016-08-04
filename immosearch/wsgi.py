@@ -5,11 +5,12 @@ from contextlib import suppress
 
 from peewee import DoesNotExist
 from urllib.parse import unquote
+from xmltodict import parse
 
 from filedb.http import FileError
 from homeinfo.crm import Customer
 from homeinfo.lib.misc import Enumeration
-from homeinfo.lib.wsgi import XML, OK, InternalServerError, handler, \
+from homeinfo.lib.wsgi import JSON, XML, OK, InternalServerError, handler, \
     RequestHandler, WsgiApp
 from openimmo import factories
 from openimmodb3.db import Attachment, Immobilie
@@ -185,6 +186,7 @@ class ImmoSearchRequestHandler(RequestHandler):
         sort = None
         paging = None
         includes = None
+        json = False
 
         for key in qd:
             with suppress(TypeError):
@@ -197,6 +199,8 @@ class ImmoSearchRequestHandler(RequestHandler):
                 sort = [i for i in self._sort(value)]
             elif key == Operations.PAGING:
                 paging = self._paging(value)
+            elif key == 'json':
+                json = True
             # Ignore jQuery anti-cache timestamp
             elif key == '_':
                 continue
@@ -206,12 +210,12 @@ class ImmoSearchRequestHandler(RequestHandler):
             else:
                 continue
 
-        return (filters, sort, paging, includes)
+        return (filters, sort, paging, includes, json)
 
     @property
     def _realestates(self):
         """Gets real estates (XML) data"""
-        options = self._options
+        filters, sort, paging, includes, json = self._options
 
         try:
             customer = Customer.get(Customer.id == self._cid)
@@ -221,7 +225,12 @@ class ImmoSearchRequestHandler(RequestHandler):
         try:
             blacklist_entry = Blacklist.get(Blacklist.customer == customer)
         except DoesNotExist:
-            return XML(self._data(customer, *options))
+            xml = self._data(customer, filters, sort, paging, includes)
+
+            if json:
+                return JSON(parse(xml.toxml()))
+            else:
+                return XML(xml)
         else:
             return UserNotAllowed(self._cid)
 
