@@ -131,9 +131,9 @@ class Operators(Enumeration):
     NE = '!='   # Does not equal
     NG = '!~'   # Does not glob
     NC = '!%'   # Does not equal case-insensitive
-    LT = '<<'   # Less-than
+    LT = '<'    # Less-than
     LE = '<='   # Less-than or equal
-    GT = '>>'   # Greater-than
+    GT = '>'    # Greater-than
     GE = '>='   # Greater-than or equal
     IN = '∈'    # Element in iterable
     NI = '∉'    # Element not in iterable

@@ -737,6 +737,15 @@ class FilterableRealEstate():
             except ValueError:
                 continue
             else:
+                # Compensate for ">", "<", "=>" and "<="
+                if option in ['>', '<']:
+                    if raw_value.startswith('='):
+                        option += '='
+                        raw_value = raw_value[1:]
+                    # Compensate for legacy ">>" → ">" and "<<" → "<"
+                    elif raw_value.startswith(option):
+                        raw_value = raw_value[1:]
+
                 operator = op
                 break
 
