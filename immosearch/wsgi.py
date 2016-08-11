@@ -189,8 +189,11 @@ class ImmoSearchRequestHandler(RequestHandler):
         json = False
 
         for key in qd:
-            with suppress(TypeError):
+            try:
                 value = unquote(qd[key])
+            except (TypeError):
+                value = None
+
             if key == Operations.INCLUDE:
                 includes = [i for i in self._include(value)]
             elif key == Operations.FILTER:
