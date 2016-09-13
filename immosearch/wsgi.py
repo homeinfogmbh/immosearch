@@ -5,7 +5,6 @@ from contextlib import suppress
 
 from peewee import DoesNotExist
 from urllib.parse import unquote
-from xmltodict import parse
 
 from filedb.http import FileError
 from homeinfo.crm import Customer
@@ -231,12 +230,12 @@ class ImmoSearchRequestHandler(RequestHandler):
         try:
             blacklist_entry = Blacklist.get(Blacklist.customer == customer)
         except DoesNotExist:
-            xml = self._data(customer, filters, sort, paging, includes)
+            anbieter = self._data(customer, filters, sort, paging, includes)
 
             if json is False:
-                return XML(xml)
+                return XML(anbieter)
             else:
-                return JSON(parse(xml.toxml()), indent=json)
+                return JSON(anbieter.tojson(), indent=json)
         else:
             return UserNotAllowed(self._cid)
 
