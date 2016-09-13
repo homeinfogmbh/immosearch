@@ -235,7 +235,7 @@ class ImmoSearchRequestHandler(RequestHandler):
             if json is False:
                 return XML(anbieter)
             else:
-                return JSON(anbieter.tojson(), indent=json)
+                return JSON(anbieter.todict(), indent=json)
         else:
             return UserNotAllowed(self._cid)
 
