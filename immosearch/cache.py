@@ -1,6 +1,6 @@
 """Real estate data caching"""
 
-from openimmodb3.db import Immobilie
+from openimmodb3.orm import Immobilie
 from datetime import datetime, timedelta
 
 __all__ = ['CacheManager']
