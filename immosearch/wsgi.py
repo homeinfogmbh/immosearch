@@ -12,7 +12,7 @@ from homeinfo.lib.misc import Enumeration
 from homeinfo.lib.wsgi import JSON, XML, OK, InternalServerError, handler, \
     RequestHandler, WsgiApp
 from openimmo import factories
-from openimmodb3.db import Attachment, Immobilie
+from openimmodb3.orm import Attachment, Immobilie
 
 from immosearch.cache import CacheManager
 from immosearch.config import core
