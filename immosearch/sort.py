@@ -7,7 +7,7 @@ from homeinfo.lib.misc import Enumeration
 from .filter import FilterableRealEstate
 from .errors import InvalidSortingOption
 
-__all__ = ['Sortable']
+__all__ = ['Sorting', 'RealEstateSorter']
 
 
 class Key():

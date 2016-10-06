@@ -1,8 +1,5 @@
 """WSGI app"""
 
-from traceback import format_exc
-from contextlib import suppress
-
 from peewee import DoesNotExist
 from urllib.parse import unquote
 
@@ -14,15 +11,14 @@ from homeinfo.lib.wsgi import JSON, XML, OK, InternalServerError, handler, \
 from openimmo import factories
 from openimmodb3.orm import Attachment, Immobilie
 
-from immosearch.cache import CacheManager
-from immosearch.config import core
+# from immosearch.cache import CacheManager
 from immosearch.errors import NoSuchCustomer, InvalidPathLength, \
     InvalidPathNode, InvalidOptionsCount, NotAnInteger, \
     InvalidParameterError, UserNotAllowed, InvalidAuthenticationOptions, \
-    NotAnInteger, AttachmentNotFound
+    AttachmentNotFound
 from immosearch.filter import RealEstateSieve
 from immosearch.lib import RealEstate
-from immosearch.orm import Blacklist
+from immosearch.orm import Blacklist, ImmoSearchUser
 from immosearch.pager import Pager
 from immosearch.selector import RealEstateDataSelector
 from immosearch.sort import RealEstateSorter
@@ -228,7 +224,7 @@ class ImmoSearchRequestHandler(RequestHandler):
             return NoSuchCustomer(self._cid)
 
         try:
-            blacklist_entry = Blacklist.get(Blacklist.customer == customer)
+            Blacklist.get(Blacklist.customer == customer)
         except DoesNotExist:
             anbieter = self._data(customer, filters, sort, paging, includes)
 
