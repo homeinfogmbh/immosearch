@@ -14,8 +14,7 @@ from openimmodb3.orm import Attachment, Immobilie
 # from immosearch.cache import CacheManager
 from immosearch.errors import NoSuchCustomer, InvalidPathLength, \
     InvalidPathNode, InvalidOptionsCount, NotAnInteger, \
-    InvalidParameterError, UserNotAllowed, InvalidAuthenticationOptions, \
-    AttachmentNotFound
+    InvalidParameterError, UserNotAllowed, AttachmentNotFound
 from immosearch.filter import RealEstateSieve
 from immosearch.lib import RealEstate
 from immosearch.orm import Blacklist
@@ -100,15 +99,6 @@ class ImmoSearchRequestHandler(RequestHandler):
                     return attachment_id
             else:
                 raise InvalidPathNode(mode)
-
-    def _auth(self, value):
-        """Extract authentication data"""
-        auth_opts = value.split(Separators.OPTION)
-
-        if len(auth_opts) != 1:
-            raise InvalidAuthenticationOptions()    # Do not propagate data
-        else:
-            return auth_opts[0]
 
     def _include(self, value):
         """Select options"""

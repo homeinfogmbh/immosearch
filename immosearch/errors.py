@@ -23,9 +23,6 @@ __all__ = [
     # 3<nn>   Scaling errors
     'InvalidRenderingResolution',
     'NoScalingProvided',
-    # 4<nn>   Authentication errors
-    'InvalidAuthenticationOptions',
-    'InvalidCredentials',
     # 5<nn>   Limitation errors
     'HandlersExhausted',
     'MemoryExhausted',
@@ -200,24 +197,6 @@ class NoScalingProvided(RenderableError):
     def __init__(self):
         """Initializes error code an message"""
         super().__init__(304, 'No scaling provided')
-
-
-class InvalidAuthenticationOptions(RenderableError):
-    """Indicates that invalid authentication
-    options have been provided
-    """
-
-    def __init__(self):
-        """Initializes error code an message"""
-        super().__init__(401, 'Invalid authentication options')
-
-
-class InvalidCredentials(RenderableError):
-    """Indicates that invalid credentials have been suppliedg"""
-
-    def __init__(self):
-        """Indicates that invalid credentials have been supplied"""
-        super().__init__(402, 'Invalid credentials')
 
 
 class HandlersExhausted(RenderableError):
