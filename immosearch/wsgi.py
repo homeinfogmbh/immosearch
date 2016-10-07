@@ -18,7 +18,7 @@ from immosearch.errors import NoSuchCustomer, InvalidPathLength, \
     AttachmentNotFound
 from immosearch.filter import RealEstateSieve
 from immosearch.lib import RealEstate
-from immosearch.orm import Blacklist, ImmoSearchUser
+from immosearch.orm import Blacklist
 from immosearch.pager import Pager
 from immosearch.selector import RealEstateDataSelector
 from immosearch.sort import RealEstateSorter
@@ -100,15 +100,6 @@ class ImmoSearchRequestHandler(RequestHandler):
                     return attachment_id
             else:
                 raise InvalidPathNode(mode)
-
-    def _user(self, cid):
-        """Returns the user"""
-        try:
-            user = ImmoSearchUser.get(ImmoSearchUser.customer == cid)
-        except DoesNotExist:
-            raise NotAnInteger(str(cid))
-        else:
-            return user
 
     def _auth(self, value):
         """Extract authentication data"""
