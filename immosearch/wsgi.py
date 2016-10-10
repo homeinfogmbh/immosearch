@@ -6,7 +6,7 @@ from urllib.parse import unquote
 from filedb.http import FileError
 from homeinfo.crm import Customer
 from homeinfo.lib.misc import Enumeration
-from homeinfo.lib.wsgi import JSON, XML, OK, InternalServerError, \
+from homeinfo.lib.wsgi import JSON, XML, OK, Binary, InternalServerError, \
     RequestHandler, WsgiApp
 from openimmo import factories
 from openimmodb3.orm import Attachment, Immobilie
@@ -241,12 +241,10 @@ class ImmoSearchRequestHandler(RequestHandler):
                         return OK(sha256sum)
                 else:
                     try:
-                        mimetype, data = a.data
+                        return Binary(a.data)
                     except FileError:
                         return InternalServerError(
                             'Could not find file for attachment')
-                    else:
-                        return OK(data, content_type=mimetype, charset=None)
 
     def _data(self, customer, filters, sort, paging, includes):
         """Perform sieving, sorting and rendering"""
