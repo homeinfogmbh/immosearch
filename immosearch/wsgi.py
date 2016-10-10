@@ -6,7 +6,7 @@ from urllib.parse import unquote
 from filedb.http import FileError
 from homeinfo.crm import Customer
 from homeinfo.lib.misc import Enumeration
-from homeinfo.lib.wsgi import JSON, XML, OK, InternalServerError, handler, \
+from homeinfo.lib.wsgi import JSON, XML, OK, InternalServerError, \
     RequestHandler, WsgiApp
 from openimmo import factories
 from openimmodb3.orm import Attachment, Immobilie
@@ -295,7 +295,6 @@ class ImmoSearchRequestHandler(RequestHandler):
                 raise InvalidPathNode(mode)
 
 
-@handler(ImmoSearchRequestHandler)
 class ImmoSearch(WsgiApp):
     """ImmoSearch web application"""
 
@@ -303,4 +302,4 @@ class ImmoSearch(WsgiApp):
 
     def __init__(self):
         """Initializes the WSGI application for CORS"""
-        super().__init__(cors=True)
+        super().__init__(ImmoSearchRequestHandler, cors=True)
