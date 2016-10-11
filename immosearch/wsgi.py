@@ -156,17 +156,15 @@ class ImmoSearchRequestHandler(RequestHandler):
     @property
     def _options(self):
         """Parses the query dictionary for options"""
-        qd = self.query_dict
-
         filters = None
         sort = None
         paging = None
         includes = None
         json = False
 
-        for key in qd:
+        for key in self.params:
             try:
-                value = unquote(qd[key])
+                value = unquote(self.params[key])
             except (TypeError):
                 value = None
 
@@ -231,7 +229,7 @@ class ImmoSearchRequestHandler(RequestHandler):
             except DoesNotExist:
                 raise AttachmentNotFound()
             else:
-                if self.query_dict.get('sha256sum', False):
+                if self.params.get('sha256sum', False):
                     try:
                         sha256sum = a.sha256sum
                     except FileError:
