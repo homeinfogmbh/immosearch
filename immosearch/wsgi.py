@@ -7,7 +7,7 @@ from filedb.http import FileError
 from homeinfo.crm import Customer
 from homeinfo.lib.misc import Enumeration
 from homeinfo.lib.wsgi import JSON, XML, OK, Binary, InternalServerError, \
-    RequestHandler, WsgiApp
+    RequestHandler
 from openimmo import factories
 from openimmodb3.orm import Attachment, Immobilie
 
@@ -22,7 +22,7 @@ from immosearch.pager import Pager
 from immosearch.selector import RealEstateDataSelector
 from immosearch.sort import RealEstateSorter
 
-__all__ = ['ImmoSearch']
+__all__ = ['ImmoSearchHandler']
 
 
 class Separators(Enumeration):
@@ -52,7 +52,7 @@ class PathNodes(Enumeration):
     CUSTOMER = 'customer'
 
 
-class ImmoSearchRequestHandler(RequestHandler):
+class ImmoSearchHandler(RequestHandler):
     """HAndles requests for ImmoSearch"""
 
     def __init__(self, *args, **kwargs):
@@ -289,13 +289,3 @@ class ImmoSearchRequestHandler(RequestHandler):
                 return self._realestates
             else:
                 raise InvalidPathNode(mode)
-
-
-class ImmoSearch(WsgiApp):
-    """ImmoSearch web application"""
-
-    DEBUG = True
-
-    def __init__(self):
-        """Initializes the WSGI application for CORS"""
-        super().__init__(ImmoSearchRequestHandler, cors=True)
