@@ -162,9 +162,9 @@ class ImmoSearchHandler(RequestHandler):
         includes = None
         json = False
 
-        for key in self.params:
+        for key in self.query:
             try:
-                value = unquote(self.params[key])
+                value = unquote(self.query[key])
             except (TypeError):
                 value = None
 
@@ -229,7 +229,7 @@ class ImmoSearchHandler(RequestHandler):
             except DoesNotExist:
                 raise AttachmentNotFound()
             else:
-                if self.params.get('sha256sum', False):
+                if self.query.get('sha256sum', False):
                     try:
                         sha256sum = a.sha256sum
                     except FileError:
