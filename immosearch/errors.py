@@ -1,6 +1,6 @@
 """Errors of immosearch"""
 
-from homeinfo.lib.wsgi import JSON
+from wsgilib import JSON
 
 __all__ = [
     # <nn>    WSGI top-level errors

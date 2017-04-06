@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from homeinfo.lib.misc import Enumeration
+from homeinfo.misc import Enumeration
 
 __all__ = ['boolean', 'debug', 'pdate', 'tags', 'cast',
            'Sorting', 'Delims', 'Operators', 'RealEstate']

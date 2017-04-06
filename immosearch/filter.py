@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from homeinfo.lib.boolparse import SecurityError, BooleanEvaluator
+from boolparse import SecurityError, BooleanEvaluator
 
 from .lib import cast, Operators
 from .errors import SecurityBreach,  InvalidFilterOption,\

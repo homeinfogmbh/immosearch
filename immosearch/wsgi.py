@@ -5,9 +5,8 @@ from urllib.parse import unquote
 
 from filedb.http import FileError
 from homeinfo.crm import Customer
-from homeinfo.lib.misc import Enumeration
-from homeinfo.lib.wsgi import JSON, XML, OK, Binary, InternalServerError, \
-    RequestHandler
+from homeinfo.misc import Enumeration
+from wsgilib import JSON, XML, OK, Binary, InternalServerError, RequestHandler
 from openimmo import factories
 from openimmodb3.orm import Attachment, Immobilie
 

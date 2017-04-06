@@ -2,7 +2,7 @@
 
 from peewee import Model, ForeignKeyField
 
-from homeinfo.peewee import MySQLDatabase
+from peeweeplus import MySQLDatabase
 from homeinfo.crm import Customer
 
 from .config import db

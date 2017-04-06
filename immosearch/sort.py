@@ -2,7 +2,7 @@
 
 from operator import itemgetter
 
-from homeinfo.lib.misc import Enumeration
+from homeinfo.misc import Enumeration
 
 from .filter import FilterableRealEstate
 from .errors import InvalidSortingOption
