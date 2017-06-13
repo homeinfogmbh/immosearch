@@ -8,7 +8,7 @@ from homeinfo.crm import Customer
 from homeinfo.misc import Enumeration
 from wsgilib import JSON, XML, OK, Binary, InternalServerError, RequestHandler
 from openimmo import factories
-from openimmodb3.orm import Attachment, Immobilie
+from openimmodb3 import Attachment, Immobilie
 
 # from immosearch.cache import CacheManager
 from immosearch.errors import NoSuchCustomer, InvalidPathLength, \

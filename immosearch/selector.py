@@ -4,7 +4,7 @@ from peewee import DoesNotExist
 
 from homeinfo.misc import Enumeration
 from openimmo import openimmo
-from openimmodb3.orm import Attachment
+from openimmodb3 import Attachment
 
 from .errors import InvalidAttachmentLimit
 
