@@ -8,7 +8,7 @@ from homeinfo.crm import Customer
 from homeinfo.misc import Enumeration
 from wsgilib import JSON, XML, OK, Binary, InternalServerError, RequestHandler
 from openimmo import factories
-from openimmodb3 import Attachment, Immobilie
+from openimmodb import Attachment, Immobilie
 
 # from immosearch.cache import CacheManager
 from immosearch.errors import NoSuchCustomer, InvalidPathLength, \
@@ -245,7 +245,7 @@ class ImmoSearchHandler(RequestHandler):
 
     def _data(self, customer, filters, sort, paging, includes):
         """Perform sieving, sorting and rendering"""
-        re_gen = (RealEstate(i) for i in Immobilie.by_cid(customer.id))
+        re_gen = (RealEstate(i) for i in Immobilie.of(customer))
 
         # Filter real estates
         if filters is not None:

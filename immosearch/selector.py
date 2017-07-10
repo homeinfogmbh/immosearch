@@ -4,7 +4,7 @@ from peewee import DoesNotExist
 
 from homeinfo.misc import Enumeration
 from openimmo import openimmo
-from openimmodb3 import Attachment
+from openimmodb import Attachment
 
 from .errors import InvalidAttachmentLimit
 
@@ -22,6 +22,8 @@ class Selections(Enumeration):
 
 class RealEstateDataSelector():
     """Class that filters real estates of a user"""
+
+    BASE_URL = 'https://backend.homeinfo.de/immosearch/attachment/{}'
 
     def __init__(self, real_estates, selections=None):
         """Initializes with a real estate,
@@ -56,12 +58,20 @@ class RealEstateDataSelector():
                 if real_estate.dom.anhaenge is None:
                     real_estate.dom.anhaenge = openimmo.anhaenge()
 
-                for attachment in Attachment.select().where(
-                        Attachment.immobilie == real_estate.orm):
-                    real_estate.dom.anhaenge.anhang.append(attachment.dom)
+                for attachment in Attachment.by_immobilie(real_estate.orm):
+                    real_estate.dom.anhaenge.anhang.append(
+                        attachment.remote(self.BASE_URL))
             elif attachments is not None:
-                real_estate_dom = real_estate.orm.todom(attachments)
-                real_estate.dom.anhaenge = real_estate_dom.anhaenge
+                if real_estate.dom.anhaenge is None:
+                    real_estate.dom.anhaenge = openimmo.anhaenge()
+
+                for n, attachment in enumerate(Attachment.by_immobilie(
+                        real_estate.orm)):
+                    if n >= attachments:
+                        break
+                    else:
+                        real_estate.dom.anhaenge.anhang.append(
+                            attachment.remote(self.BASE_URL))
             elif titlepic:
                 try:
                     title_picture = Attachment.get(

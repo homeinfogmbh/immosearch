@@ -1,6 +1,6 @@
 """Real estate data caching"""
 
-from openimmodb3 import Immobilie
+from openimmodb import Immobilie
 from datetime import datetime, timedelta
 
 __all__ = ['CacheManager']
@@ -23,7 +23,7 @@ class CacheManager():
         try:
             cached_data = self.cache[cid]
         except KeyError:
-            real_estates = [i.dom() for i in Immobilie.by_cid(cid)]
+            real_estates = [i.to_dom() for i in Immobilie.of(cid)]
             self.cache[cid] = (real_estates, now)
 
             yield from real_estates
@@ -31,7 +31,7 @@ class CacheManager():
             real_estates, cache_time = cached_data
 
             if now - cache_time >= timedelta(seconds=self.refresh):
-                real_estates = [i.dom() for i in Immobilie.by_cid(cid)]
+                real_estates = [i.to_dom() for i in Immobilie.of(cid)]
                 self.cache[cid] = (real_estates, now)
 
             yield from real_estates
