@@ -96,7 +96,7 @@ class RealEstateDataSelector():
 
                 if title_picture is not None:
                     anhaenge = openimmo.anhaenge()
-                    anhaenge.anhang.append(title_picture.dom)
+                    anhaenge.anhang.append(title_picture.remote(self.BASE_URL))
                     real_estate.dom.anhaenge = anhaenge
 
             # Iff object description is missing,
