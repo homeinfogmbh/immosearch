@@ -4,4 +4,4 @@
 from wsgilib import WsgiApp
 from immosearch.wsgi import ImmoSearchHandler
 
-application = WsgiApp(ImmoSearchHandler, cors=True)
+application = WsgiApp(ImmoSearchHandler, cors=True, debug=True)
