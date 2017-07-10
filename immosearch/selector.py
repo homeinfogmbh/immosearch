@@ -76,17 +76,17 @@ class RealEstateDataSelector():
                 try:
                     title_picture = Anhang.get(
                         (Anhang.immobilie == real_estate.orm) &
-                        (Anhang.group == 'TITELBILD'))
+                        (Anhang.gruppe == 'TITELBILD'))
                 except DoesNotExist:
                     try:
                         title_picture = Anhang.get(
                             (Anhang.immobilie == real_estate.orm) &
-                            (Anhang.group == 'AUSSENANSICHTEN'))
+                            (Anhang.gruppe == 'AUSSENANSICHTEN'))
                     except DoesNotExist:
                         try:
                             title_picture = Anhang.get(
                                 (Anhang.immobilie == real_estate.orm) &
-                                (Anhang.group == 'INNENANSICHTEN'))
+                                (Anhang.gruppe == 'INNENANSICHTEN'))
                         except DoesNotExist:
                             try:
                                 title_picture = Anhang.get(
