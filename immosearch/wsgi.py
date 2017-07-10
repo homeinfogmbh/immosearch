@@ -8,7 +8,7 @@ from homeinfo.crm import Customer
 from homeinfo.misc import Enumeration
 from wsgilib import JSON, XML, OK, Binary, InternalServerError, RequestHandler
 from openimmo import factories
-from openimmodb import Attachment, Immobilie
+from openimmodb import Anhang, Immobilie
 
 # from immosearch.cache import CacheManager
 from immosearch.errors import NoSuchCustomer, InvalidPathLength, \
@@ -224,7 +224,7 @@ class ImmoSearchHandler(RequestHandler):
             raise NotAnInteger()
         else:
             try:
-                a = Attachment.get(Attachment.id == ident)
+                a = Anhang.get(Anhang.id == ident)
             except DoesNotExist:
                 raise AttachmentNotFound()
             else:

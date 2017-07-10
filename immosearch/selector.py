@@ -4,7 +4,7 @@ from peewee import DoesNotExist
 
 from homeinfo.misc import Enumeration
 from openimmo import openimmo
-from openimmodb import Attachment
+from openimmodb import Anhang
 
 from .errors import InvalidAttachmentLimit
 
@@ -58,14 +58,14 @@ class RealEstateDataSelector():
                 if real_estate.dom.anhaenge is None:
                     real_estate.dom.anhaenge = openimmo.anhaenge()
 
-                for attachment in Attachment.by_immobilie(real_estate.orm):
+                for attachment in Anhang.by_immobilie(real_estate.orm):
                     real_estate.dom.anhaenge.anhang.append(
                         attachment.remote(self.BASE_URL))
             elif attachments is not None:
                 if real_estate.dom.anhaenge is None:
                     real_estate.dom.anhaenge = openimmo.anhaenge()
 
-                for n, attachment in enumerate(Attachment.by_immobilie(
+                for n, attachment in enumerate(Anhang.by_immobilie(
                         real_estate.orm)):
                     if n >= attachments:
                         break
@@ -74,23 +74,23 @@ class RealEstateDataSelector():
                             attachment.remote(self.BASE_URL))
             elif titlepic:
                 try:
-                    title_picture = Attachment.get(
-                        (Attachment.immobilie == real_estate.orm) &
-                        (Attachment.group == 'TITELBILD'))
+                    title_picture = Anhang.get(
+                        (Anhang.immobilie == real_estate.orm) &
+                        (Anhang.group == 'TITELBILD'))
                 except DoesNotExist:
                     try:
-                        title_picture = Attachment.get(
-                            (Attachment.immobilie == real_estate.orm) &
-                            (Attachment.group == 'AUSSENANSICHTEN'))
+                        title_picture = Anhang.get(
+                            (Anhang.immobilie == real_estate.orm) &
+                            (Anhang.group == 'AUSSENANSICHTEN'))
                     except DoesNotExist:
                         try:
-                            title_picture = Attachment.get(
-                                (Attachment.immobilie == real_estate.orm) &
-                                (Attachment.group == 'INNENANSICHTEN'))
+                            title_picture = Anhang.get(
+                                (Anhang.immobilie == real_estate.orm) &
+                                (Anhang.group == 'INNENANSICHTEN'))
                         except DoesNotExist:
                             try:
-                                title_picture = Attachment.get(
-                                    Attachment.immobilie == real_estate.orm)
+                                title_picture = Anhang.get(
+                                    Anhang.immobilie == real_estate.orm)
                             except DoesNotExist:
                                 title_picture = None
 
