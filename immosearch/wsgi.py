@@ -1,5 +1,6 @@
 """WSGI app"""
 
+from hashlib import sha256
 from peewee import DoesNotExist
 from urllib.parse import unquote
 
@@ -224,24 +225,25 @@ class ImmoSearchHandler(RequestHandler):
             raise NotAnInteger()
         else:
             try:
-                a = Anhang.get(Anhang.id == ident)
+                anhang = Anhang.get(Anhang.id == ident)
             except DoesNotExist:
                 raise AttachmentNotFound()
             else:
-                if self.query.get('sha256sum', False):
-                    try:
-                        sha256sum = a.sha256sum
-                    except FileError:
-                        return InternalServerError(
-                            'Could not find file for attachment')
-                    else:
-                        return OK(sha256sum)
+                try:
+                    data = anhang.data
+                except FileError:
+                    return InternalServerError(
+                        'Could not find file for attachment')
                 else:
-                    try:
-                        return Binary(a.data)
-                    except FileError:
-                        return InternalServerError(
-                            'Could not find file for attachment')
+                    if self.query.get('sha256sum', False):
+                        sha256sum = sha256(data).hexdigest()
+                        return OK(sha256sum)
+                    else:
+                        try:
+                            return Binary(data)
+                        except FileError:
+                            return InternalServerError(
+                                'Could not find file for attachment')
 
     def _data(self, customer, filters, sort, paging, includes):
         """Perform sieving, sorting and rendering"""
