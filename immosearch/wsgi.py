@@ -72,13 +72,13 @@ class ImmoSearchHandler(RequestHandler):
                     try:
                         cid = int(cid)
                     except ValueError:
-                        raise NotAnInteger(cid)
+                        raise NotAnInteger(cid) from None
                     else:
                         return cid
                 else:
-                    raise InvalidPathLength(len(path))
+                    raise InvalidPathLength(len(path)) from None
             else:
-                raise InvalidPathNode(path[1])
+                raise InvalidPathNode(path[1]) from None
 
     @property
     def _aid(self):
@@ -88,17 +88,17 @@ class ImmoSearchHandler(RequestHandler):
         try:
             mode = path[1]
         except IndexError:
-            raise InvalidPathLength(len(path))
+            raise InvalidPathLength(len(path)) from None
         else:
             if mode == 'attachment':
                 try:
                     attachment_id = path[2]
                 except IndexError:
-                    raise InvalidPathLength(len(path))
+                    raise InvalidPathLength(len(path)) from None
                 else:
                     return attachment_id
             else:
-                raise InvalidPathNode(mode)
+                raise InvalidPathNode(mode) from None
 
     def _include(self, value):
         """Select options"""
@@ -127,7 +127,7 @@ class ImmoSearchHandler(RequestHandler):
         """Generate scaling data"""
         paging_opts = value.split(Separators.OPTION)
         if len(paging_opts) != 2:
-            raise InvalidOptionsCount()
+            raise InvalidOptionsCount() from None
         else:
             limit = None
             page = None
@@ -141,14 +141,14 @@ class ImmoSearchHandler(RequestHandler):
                     try:
                         limit = int(value)
                     except (ValueError, TypeError):
-                        raise NotAnInteger(value)
+                        raise NotAnInteger(value) from None
                 elif option == 'page':
                     try:
                         page = int(value)
                     except (ValueError, TypeError):
-                        raise NotAnInteger(value)
+                        raise NotAnInteger(value) from None
                 else:
-                    raise InvalidParameterError(option)
+                    raise InvalidParameterError(option) from None
 
             if limit is not None and page is not None:
                 return (limit, page)
@@ -217,33 +217,28 @@ class ImmoSearchHandler(RequestHandler):
     @property
     def _attachments(self):
         """Returns the queried attachment"""
-        ident = self._aid
-
         try:
-            ident = int(ident)
+            ident = int(self._aid)
         except (TypeError, ValueError):
-            raise NotAnInteger()
+            raise NotAnInteger() from None
         else:
             try:
                 anhang = Anhang.get(Anhang.id == ident)
             except DoesNotExist:
-                raise AttachmentNotFound()
+                raise AttachmentNotFound() from None
             else:
-                try:
-                    data = anhang.data
-                except FileError:
-                    return InternalServerError(
-                        'Could not find file for attachment')
+                if self.query.get('sha256sum', False):
+                    try:
+                        return OK(anhang.sha256sum)
+                    except FileError:
+                        return InternalServerError(
+                            'Could not get file checksum')
                 else:
-                    if self.query.get('sha256sum', False):
-                        sha256sum = sha256(data).hexdigest()
-                        return OK(sha256sum)
-                    else:
-                        try:
-                            return Binary(data)
-                        except FileError:
-                            return InternalServerError(
-                                'Could not find file for attachment')
+                    try:
+                        return Binary(anhang.data)
+                    except FileError:
+                        return InternalServerError(
+                            'Could not find file for attachment')
 
     def _data(self, customer, filters, sort, paging, includes):
         """Perform sieving, sorting and rendering"""
@@ -282,11 +277,11 @@ class ImmoSearchHandler(RequestHandler):
         try:
             mode = path[1]
         except IndexError:
-            raise InvalidPathLength(len(path))
+            raise InvalidPathLength(len(path)) from None
         else:
             if mode == 'attachment':
                 return self._attachments
             elif mode in ['customer', 'realestates']:
                 return self._realestates
             else:
-                raise InvalidPathNode(mode)
+                raise InvalidPathNode(mode) from None
