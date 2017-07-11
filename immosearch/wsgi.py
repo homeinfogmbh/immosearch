@@ -1,6 +1,5 @@
 """WSGI app"""
 
-from hashlib import sha256
 from peewee import DoesNotExist
 from urllib.parse import unquote
 
