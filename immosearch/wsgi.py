@@ -260,23 +260,12 @@ class ImmoSearchHandler(RequestHandler):
             re_gen = Pager(re_gen, limit=page_size, page=pageno)
 
         # Generate real estate list from real estate generator
-        immobilien = []
-
-        for real_estate in re_gen:
-            immobilie = real_estate.dom
-
-            if immobilie.kontaktperson is None:
-                self.logger.warning('Fixing missing contact for "{}".'.format(
-                    immobilie.objektnr_extern))
-                immobilie.kontaktperson = factories.kontaktperson(
-                    source=immobilie.verwaltung_techn.kennung_ursprung)
-
-            immobilien.append(immobilie)
+        immobilie = [re.dom for re in re_gen]
 
         # Generate realtor
         return factories.anbieter(
             str(customer.id), customer.name, str(customer.id),
-            immobilie=immobilien)
+            immobilie=immobilie)
 
     def get(self):
         """Main method to call"""
