@@ -1,13 +1,14 @@
 """WSGI app"""
 
 from peewee import DoesNotExist
+from pyxb import PyXBException
 from urllib.parse import unquote
 
 from filedb.http import FileError
 from homeinfo.crm import Customer
 from homeinfo.misc import Enumeration
 from wsgilib import JSON, XML, OK, Binary, InternalServerError, RequestHandler
-from openimmo import factories
+from openimmo import factories, openimmo
 from openimmodb import Anhang, Immobilie
 
 # from immosearch.cache import CacheManager
@@ -260,12 +261,28 @@ class ImmoSearchHandler(RequestHandler):
             re_gen = Pager(re_gen, limit=page_size, page=pageno)
 
         # Generate real estate list from real estate generator
-        immobilie = [i.dom for i in re_gen]
+        immobilien = []
+        broken_real_estates = []
+
+        for real_estate in re_gen:
+            immobilie = real_estate.dom
+
+            try:
+                immobilie.toxml()
+            except PyXBException:
+                broken_real_estates.append(immobilie.objektnr_extern)
+            else:
+                immobilien.append(immobilie)
 
         # Generate realtor
         anbieter = factories.anbieter(
             str(customer.id), customer.name, str(customer.id),
             immobilie=immobilie)
+
+        for broken_real_estate in broken_real_estates:
+            user_defined_simplefield = openimmo.user_defined_simplefield(
+                broken_real_estate, feldname='broken real estate')
+            anbieter.user_defined_simplefield.append(user_defined_simplefield)
 
         return anbieter
 
