@@ -1,14 +1,13 @@
 """WSGI app"""
 
 from peewee import DoesNotExist
-from pyxb import PyXBException
 from urllib.parse import unquote
 
 from filedb.http import FileError
 from homeinfo.crm import Customer
 from homeinfo.misc import Enumeration
 from wsgilib import JSON, XML, OK, Binary, InternalServerError, RequestHandler
-from openimmo import factories, openimmo
+from openimmo import factories
 from openimmodb import Anhang, Immobilie
 
 # from immosearch.cache import CacheManager
@@ -262,33 +261,22 @@ class ImmoSearchHandler(RequestHandler):
 
         # Generate real estate list from real estate generator
         immobilien = []
-        broken_real_estates = []
 
         for real_estate in re_gen:
             immobilie = real_estate.dom
 
-            try:
-                immobilie.toxml()
-            except PyXBException:
-                broken_real_estates.append(immobilie.objektnr_extern)
-                self.logger.error('Real estate "{}" is broken.'.format(
+            if immobilie.kontaktperson is None:
+                self.logger.warning('Fixing missing contact for "{}".'.format(
                     immobilie.objektnr_extern))
-            else:
-                immobilien.append(immobilie)
-                self.logger.success('Real estate "{}" is clean.'.format(
-                    immobilie.objektnr_extern))
+                immobilie.kontaktperson = factories.kontaktperson(
+                    source=immobilie.verwaltung_techn.kennung_ursprung)
+
+            immobilien.append(immobilie)
 
         # Generate realtor
-        anbieter = factories.anbieter(
+        return factories.anbieter(
             str(customer.id), customer.name, str(customer.id),
             immobilie=immobilien)
-
-        for broken_real_estate in broken_real_estates:
-            user_defined_simplefield = openimmo.user_defined_simplefield(
-                broken_real_estate, feldname='broken real estate')
-            anbieter.user_defined_simplefield.append(user_defined_simplefield)
-
-        return anbieter
 
     def get(self):
         """Main method to call"""
