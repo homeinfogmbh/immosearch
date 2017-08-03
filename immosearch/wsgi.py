@@ -275,11 +275,13 @@ class ImmoSearchHandler(RequestHandler):
                     immobilie.objektnr_extern))
             else:
                 immobilien.append(immobilie)
+                self.logger.success('Real estate "{}" is clean.'.format(
+                    immobilie.objektnr_extern))
 
         # Generate realtor
         anbieter = factories.anbieter(
             str(customer.id), customer.name, str(customer.id),
-            immobilie=immobilie)
+            immobilie=immobilien)
 
         for broken_real_estate in broken_real_estates:
             user_defined_simplefield = openimmo.user_defined_simplefield(
