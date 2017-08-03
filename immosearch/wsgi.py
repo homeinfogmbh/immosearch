@@ -271,6 +271,8 @@ class ImmoSearchHandler(RequestHandler):
                 immobilie.toxml()
             except PyXBException:
                 broken_real_estates.append(immobilie.objektnr_extern)
+                self.logger.error('Real estate "{}" is broken.'.format(
+                    immobilie.objektnr_extern))
             else:
                 immobilien.append(immobilie)
 
