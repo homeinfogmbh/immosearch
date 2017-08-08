@@ -272,10 +272,10 @@ class ImmoSearchHandler(RequestHandler):
             except PyXBException as e:
                 self.logger.error('Failed to serialize "{}".'.format(
                     dom.objektnr_extern))
-                flawed.feld.append(openimmo.feld(
-                    name='Flawed real estate',
-                    wert=dom.objektnr_extern,
-                    typ=str(e)))
+                feld = openimmo.feld(
+                    name='Flawed real estate', wert=dom.objektnr_extern)
+                feld.typ.append(str(e))
+                flawed.feld.append(feld)
             else:
                 immobilie.append(dom)
 
