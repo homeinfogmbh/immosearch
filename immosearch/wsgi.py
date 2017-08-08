@@ -1,7 +1,7 @@
 """WSGI app"""
 
 from peewee import DoesNotExist
-from pydb import PyXBException
+from pyxb import PyXBException
 from urllib.parse import unquote
 
 from filedb.http import FileError
