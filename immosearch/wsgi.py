@@ -1,13 +1,14 @@
 """WSGI app"""
 
 from peewee import DoesNotExist
+from pydb import PyXBException
 from urllib.parse import unquote
 
 from filedb.http import FileError
 from homeinfo.crm import Customer
 from homeinfo.misc import Enumeration
 from wsgilib import JSON, XML, OK, Binary, InternalServerError, RequestHandler
-from openimmo import factories
+from openimmo import factories, openimmo
 from openimmodb import Anhang, Immobilie
 
 # from immosearch.cache import CacheManager
@@ -260,12 +261,34 @@ class ImmoSearchHandler(RequestHandler):
             re_gen = Pager(re_gen, limit=page_size, page=pageno)
 
         # Generate real estate list from real estate generator
-        immobilie = [re.dom for re in re_gen]
+        immobilie = []
+        flawed = openimmo.user_defined_extend()
+
+        for real_estate in re_gen:
+            dom = real_estate.dom
+
+            try:
+                dom.toxml()
+            except PyXBException as e:
+                self.logger.error('Failed to serialize "{}".'.format(
+                    dom.objektnr_extern))
+                flawed.feld.append(openimmo.feld(
+                    name='Flawed real estate',
+                    wert=dom.objektnr_extern,
+                    typ=str(e)))
+            else:
+                immobilie.append(dom)
 
         # Generate realtor
-        return factories.anbieter(
+        anbieter = factories.anbieter(
             str(customer.id), customer.name, str(customer.id),
             immobilie=immobilie)
+
+        # Append flawed data
+        if flawed.feld:
+            anbieter.user_defined_extend.append(flawed)
+
+        return anbieter
 
     def get(self):
         """Main method to call"""
