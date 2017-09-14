@@ -242,7 +242,7 @@ class ImmoSearchHandler(RequestHandler):
 
     def _data(self, customer, filters, sort, paging, includes):
         """Perform sieving, sorting and rendering"""
-        re_gen = (RealEstate(i) for i in Immobilie.of(customer))
+        re_gen = (RealEstate(i) for i in Immobilie.by_customer(customer))
 
         # Filter real estates
         if filters is not None:
