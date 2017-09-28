@@ -116,4 +116,6 @@ class RealEstateDataSelector:
                     real_estate.freitexte.objektbeschreibung = \
                         real_estate.freitexte.dreizeiler
 
+            print('Processed real estate: {}.'.format(
+                real_estate.objektnr_extern), flush=True)
             yield real_estate

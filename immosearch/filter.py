@@ -763,6 +763,9 @@ class RealEstateSieve:
                 try:
                     if applicable:
                         yield real_estate
+                    else:
+                        print('Filtered real estate: {}.'.format(
+                            real_estate.objektnr_extern), flush=True)
                 except SecurityError as sec_err:
                     raise SecurityBreach(str(sec_err)) from None
         else:
