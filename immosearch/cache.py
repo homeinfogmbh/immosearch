@@ -46,9 +46,9 @@ class RealEstateCache:
         customer iff it is out of date or uninitialized.
         """
         if self.timestamp is None or self.real_estates is None:
-            self.update()
+            self._update()
         elif datetime.now() - self.timestamp >= self.interval:
-            self.update()
+            self._update()
 
     def __iter__(self):
         """Iterates over the user's real estates."""
