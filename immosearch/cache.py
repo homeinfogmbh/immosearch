@@ -31,8 +31,7 @@ class RealEstateCache:
         """Sets the refresh interval inseconds."""
         self._interval = interval
 
-    @property
-    def real_estates(self):
+    def _load_real_estates(self):
         """Yields real estates for the respective customer."""
         for real_estate in Immobilie.by_customer(self.customer.id):
             yield real_estate.to_dom()
@@ -40,7 +39,7 @@ class RealEstateCache:
     def _update(self):
         """Updates the cache for the respective customer."""
         self.timestamp = datetime.now()
-        self.real_estates = tuple(self.real_estates)
+        self.real_estates = tuple(self._load_real_estates())
 
     def update(self):
         """Conditionally updates the cache for the respective
