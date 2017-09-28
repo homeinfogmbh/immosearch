@@ -1,13 +1,7 @@
 """Immosearch's main configuration"""
 
-from configparser import ConfigParser
+from configlib import INIParser
 
-__all__ = ['core', 'db']
+__all__ = ['CONFIG']
 
-CONFIG_FILE = '/etc/immosearch.conf'
-
-config = ConfigParser()
-config.read(CONFIG_FILE)
-
-core = config['core']
-db = config['db']
+CONFIG = INIParser('/etc/immosearch.conf')

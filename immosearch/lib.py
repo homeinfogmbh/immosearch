@@ -1,49 +1,45 @@
 """General API library"""
 
+from enum import Enum
+
 from datetime import datetime
 
-from homeinfo.misc import Enumeration
+__all__ = [
+    'BOOLEAN',
+    'pdate',
+    'tags',
+    'cast',
+    'Delims',
+    'Operators']
 
-__all__ = ['boolean', 'debug', 'pdate', 'tags', 'cast',
-           'Sorting', 'Delims', 'Operators', 'RealEstate']
 
-
-boolean = {
+BOOLEAN = {
     'true': True,
     'false': False}
 
 
-def debug(s, d=None):
-    """Write debug data"""
-    msg = ''.join([str(datetime.now()), '\t',
-                   str(s) if d is None else '\t'.join([d, str(s)]), '\n'])
-
-    with open('/tmp/auth.txt', 'a') as f:
-        f.write(msg)
-
-
 def pdate(date_str):
-    """Parse a datetime string"""
+    """Parse a datetime string."""
     return datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S')
 
 
 def tags(template, tag_open='<%', tag_close='%>'):
-    """Yields tags found in a template"""
+    """Yields tags found in a template."""
     record = False
     window = ''
     token = tag_open
     tag = ''
 
-    for c in template:
+    for char in template:
         # Records tag content iff in record mode
         if record:
-            tag += c
+            tag += char
 
         # Increase window size
         if len(window) < len(token):
-            window += c
+            window += char
         else:   # Move window
-            window = window[1:len(token)] + c
+            window = window[1:len(token)] + char
 
         # Check for opening tag
         if not record and window == tag_open:
@@ -66,54 +62,36 @@ def tags(template, tag_open='<%', tag_close='%>'):
             yield tag_content
 
 
-def cast(val, typ=None):
+def cast(value, typ=None):
     """Type cast a raw string value for a certain type
-    XXX: Nested lists are not supported, yet
+    XXX: Nested lists are not supported, yet.
     """
-    if typ is None:  # Cast intelligent
-        # Check for list
-        if val.startswith(Delims.SL) and val.endswith(Delims.EL):
-            return [cast(elem.strip()) for elem in val[1:-1].split(Delims.IS)]
-        else:
-            # Check for integer
+    if typ is None:
+        if value.startswith(Delims.SL.value):
+            if value.endswith(Delims.EL.value):
+                return [
+                    cast(elem.strip()) for elem in
+                    value[1:-1].split(Delims.IS.value)]
+
+        try:
+            return int(value)
+        except ValueError:
             try:
-                i = int(val)
+                return float(value)
             except ValueError:
-                # Check for float
                 try:
-                    f = float(val)
-                except ValueError:
-                    # Check for boolean
-                    b = boolean.get(val.lower())
+                    return BOOLEAN[value.lower()]
+                except KeyError:
+                    try:
+                        return pdate(value)
+                    except ValueError:
+                        return value
 
-                    if b is not None:
-                        return b
-                    else:
-                        # Try to parse a date string
-                        try:
-                            d = pdate(val)
-                        # Return raw string if nothing else fits
-                        except ValueError:
-                            return val
-                        else:
-                            return d
-                else:
-                    return f
-            else:
-                return i
-    else:
-        return typ(val)  # Cast with specified constructor method
+    return typ(value)
 
 
-class Sorting(Enumeration):
-    """Sorting types"""
-
-    ASC = 'ASC'
-    DESC = 'DESC'
-
-
-class Delims(Enumeration):
-    """Delimiters"""
+class Delims(Enum):
+    """Delimiters."""
 
     SL = '['    # Start list
     EL = ']'    # End list
@@ -122,8 +100,8 @@ class Delims(Enumeration):
     END_INDEX = ']'
 
 
-class Operators(Enumeration):
-    """Filtering operators"""
+class Operators(Enum):
+    """Filtering operators."""
 
     EQ = '=='   # Equals
     EG = '~='   # Equals glob
@@ -139,20 +117,3 @@ class Operators(Enumeration):
     NI = '∉'    # Element not in iterable
     CO = '∋'    # List contains element
     CN = '∌'    # List does not contain element
-
-
-class RealEstate():
-    """Real estate ORM / DOM wrapper"""
-
-    def __init__(self, immobilie_orm):
-        """Creates the real estate from a database record"""
-        self.orm = immobilie_orm
-        self._dom = None
-
-    @property
-    def dom(self):
-        """Returns a minimalistic DOM wothout attachments"""
-        if self._dom is None:
-            self._dom = self.orm.to_dom()
-
-        return self._dom

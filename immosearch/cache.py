@@ -1,37 +1,59 @@
-"""Real estate data caching"""
+"""Real estate data caching."""
 
-from openimmodb import Immobilie
 from datetime import datetime, timedelta
 
-__all__ = ['CacheManager']
+from openimmodb import Immobilie
+
+__all__ = ['RealEstateCache']
 
 
-class CacheManager():
-    """Caches real estates"""
+class RealEstateCache:
+    """Caches real estates."""
 
-    def __init__(self, user, cache, refresh=3600):
-        """Sets the user and cache"""
-        self.user = user
-        self.cache = cache
-        self.refresh = refresh
+    def __init__(self, customer, interval=3600):
+        """Sets the user and cache."""
+        self.customer = customer
+        self.timestamp = None
+        self.real_estates = None
+        self._interval = interval
+
+    def __hash__(self):
+        """Returns a unique hash."""
+        return hash((self.__class__, self.customer))
+
+    @property
+    def interval(self):
+        """Returns the refresh interval."""
+        return timedelta(seconds=self._interval)
+
+    @interval.setter
+    def interval(self, interval):
+        """Sets the refresh interval inseconds."""
+        self._interval = interval
+
+    @property
+    def real_estates(self):
+        """Yields real estates for the respective customer."""
+        for real_estate in Immobilie.by_customer(self.customer.id):
+            yield real_estate.to_dom()
+
+    def _update(self):
+        """Updates the cache for the respective customer."""
+        self.timestamp = datetime.now()
+        self.real_estates = tuple(self.real_estates)
+
+    def update(self):
+        """Conditionally updates the cache for the respective
+        customer iff it is out of date or uninitialized.
+        """
+        if self.timestamp is None or self.real_estates is None:
+            self.update()
+        elif datetime.now() - self.timestamp >= self.interval:
+            self.update()
 
     def __iter__(self):
-        """Iterates over the user's real estates"""
-        cid = self.user.cid
-        now = datetime.now()
+        """Iterates over the user's real estates."""
+        self.update()
 
-        try:
-            cached_data = self.cache[cid]
-        except KeyError:
-            real_estates = [i.to_dom() for i in Immobilie.by_customer(cid)]
-            self.cache[cid] = (real_estates, now)
-
-            yield from real_estates
-        else:
-            real_estates, cache_time = cached_data
-
-            if now - cache_time >= timedelta(seconds=self.refresh):
-                real_estates = [i.to_dom() for i in Immobilie.by_customer(cid)]
-                self.cache[cid] = (real_estates, now)
-
-            yield from real_estates
+        for real_estate in self.real_estates:
+            yield real_estate

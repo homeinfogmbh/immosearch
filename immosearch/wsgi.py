@@ -1,22 +1,22 @@
-"""WSGI app"""
+"""WSGI app."""
+
+from enum import Enum
+from urllib.parse import unquote
 
 from peewee import DoesNotExist
 from pyxb import PyXBException
-from urllib.parse import unquote
 
 from filedb.http import FileError
 from homeinfo.crm import Customer
-from homeinfo.misc import Enumeration
 from wsgilib import JSON, XML, OK, Binary, InternalServerError, RequestHandler
 from openimmo import factories, openimmo
-from openimmodb import Anhang, Immobilie
+from openimmodb import Anhang
 
-# from immosearch.cache import CacheManager
+from immosearch.cache import RealEstateCache
 from immosearch.errors import NoSuchCustomer, InvalidPathLength, \
     InvalidPathNode, InvalidOptionsCount, NotAnInteger, \
     InvalidParameterError, UserNotAllowed, AttachmentNotFound
 from immosearch.filter import RealEstateSieve
-from immosearch.lib import RealEstate
 from immosearch.orm import Blacklist
 from immosearch.pager import Pager
 from immosearch.selector import RealEstateDataSelector
@@ -25,8 +25,77 @@ from immosearch.sort import RealEstateSorter
 __all__ = ['ImmoSearchHandler']
 
 
-class Separators(Enumeration):
-    """Special separation characters"""
+CACHE = {}
+
+
+def get_real_estates(customer):
+    """Returns real estates for the respective customer."""
+
+    try:
+        return CACHE[customer]
+    except KeyError:
+        cache = RealEstateCache(customer)
+        CACHE[customer] = cache
+        return cache
+
+
+def get_includes(value):
+    """Select options."""
+
+    for include in value.split(Separators.OPTION.value):
+        yield include
+
+
+def get_sorting(value):
+    """Generate sorting data."""
+
+    for sort_option in value.split(Separators.OPTION.value):
+        try:
+            key, mode = sort_option.split(Separators.ATTR.value)
+        except ValueError:
+            key = sort_option
+            desc = False
+        else:
+            desc = mode == 'desc'
+
+        yield (key, desc)
+
+
+def get_paging(value):
+    """Generate scaling data."""
+
+    paging_opts = value.split(Separators.OPTION.value)
+
+    if len(paging_opts) != 2:
+        raise InvalidOptionsCount() from None
+    else:
+        limit = None
+        page = None
+
+        for paging_opt in paging_opts:
+            split_option = paging_opt.split(Separators.ATTR.value)
+            option = split_option[0]
+            value = Separators.ATTR.value.join(split_option[1:])
+
+            if option == 'limit':
+                try:
+                    limit = int(value)
+                except (ValueError, TypeError):
+                    raise NotAnInteger(value) from None
+            elif option == 'page':
+                try:
+                    page = int(value)
+                except (ValueError, TypeError):
+                    raise NotAnInteger(value) from None
+            else:
+                raise InvalidParameterError(option) from None
+
+        if limit is not None and page is not None:
+            return (limit, page)
+
+
+class Separators(Enum):
+    """Special separation characters."""
 
     QUERY = '&'
     ASS = '='
@@ -35,8 +104,8 @@ class Separators(Enumeration):
     PATH = '/'
 
 
-class Operations(Enumeration):
-    """Valid query operations"""
+class Operations(Enum):
+    """Valid query operations."""
 
     FILTER = 'filter'
     INCLUDE = 'include'
@@ -45,15 +114,15 @@ class Operations(Enumeration):
     NOCACHE = 'nocache'
 
 
-class PathNodes(Enumeration):
-    """Valid path nodes"""
+class PathNodes(Enum):
+    """Valid path nodes."""
 
     OPENIMMO = 'openimmo'
     CUSTOMER = 'customer'
 
 
 class ImmoSearchHandler(RequestHandler):
-    """HAndles requests for ImmoSearch"""
+    """HAndles requests for ImmoSearch."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -61,11 +130,11 @@ class ImmoSearchHandler(RequestHandler):
 
     @property
     def _cid(self):
-        """Extracts the customer ID from the query path"""
+        """Extracts the customer ID from the query path."""
         path = self.path
 
         if len(path) > 1:
-            if path[1] == PathNodes.CUSTOMER:
+            if path[1] == PathNodes.CUSTOMER.value:
                 if len(path) == 3:
                     cid = path[2]
 
@@ -75,14 +144,14 @@ class ImmoSearchHandler(RequestHandler):
                         raise NotAnInteger(cid) from None
                     else:
                         return cid
-                else:
-                    raise InvalidPathLength(len(path)) from None
-            else:
-                raise InvalidPathNode(path[1]) from None
+
+                raise InvalidPathLength(len(path)) from None
+
+            raise InvalidPathNode(path[1]) from None
 
     @property
     def _aid(self):
-        """Extracts an attachment identifier from the path"""
+        """Extracts an attachment identifier from the path."""
         path = self.path
 
         try:
@@ -97,65 +166,12 @@ class ImmoSearchHandler(RequestHandler):
                     raise InvalidPathLength(len(path)) from None
                 else:
                     return attachment_id
-            else:
-                raise InvalidPathNode(mode) from None
 
-    def _include(self, value):
-        """Select options"""
-        includes = value.split(Separators.OPTION)
-
-        for include in includes:
-            yield include
-
-    def _sort(self, value):
-        """Generate filtering data"""
-        for sort_option in value.split(Separators.OPTION):
-            try:
-                key, mode = sort_option.split(Separators.ATTR)
-            except ValueError:
-                key = sort_option
-                desc = False
-            else:
-                if mode == 'desc':
-                    desc = True
-                else:
-                    desc = False
-
-            yield (key, desc)
-
-    def _paging(self, value):
-        """Generate scaling data"""
-        paging_opts = value.split(Separators.OPTION)
-        if len(paging_opts) != 2:
-            raise InvalidOptionsCount() from None
-        else:
-            limit = None
-            page = None
-
-            for paging_opt in paging_opts:
-                split_option = paging_opt.split(Separators.ATTR)
-                option = split_option[0]
-                value = Separators.ATTR.join(split_option[1:])
-
-                if option == 'limit':
-                    try:
-                        limit = int(value)
-                    except (ValueError, TypeError):
-                        raise NotAnInteger(value) from None
-                elif option == 'page':
-                    try:
-                        page = int(value)
-                    except (ValueError, TypeError):
-                        raise NotAnInteger(value) from None
-                else:
-                    raise InvalidParameterError(option) from None
-
-            if limit is not None and page is not None:
-                return (limit, page)
+            raise InvalidPathNode(mode) from None
 
     @property
     def _options(self):
-        """Parses the query dictionary for options"""
+        """Parses the query dictionary for options."""
         filters = None
         sort = None
         paging = None
@@ -165,17 +181,17 @@ class ImmoSearchHandler(RequestHandler):
         for key in self.query:
             try:
                 value = unquote(self.query[key])
-            except (TypeError):
+            except TypeError:
                 value = None
 
-            if key == Operations.INCLUDE:
-                includes = [i for i in self._include(value)]
-            elif key == Operations.FILTER:
+            if key == Operations.INCLUDE.value:
+                includes = [i for i in get_includes(value)]
+            elif key == Operations.FILTER.value:
                 filters = value
-            elif key == Operations.SORT:
-                sort = [i for i in self._sort(value)]
-            elif key == Operations.PAGING:
-                paging = self._paging(value)
+            elif key == Operations.SORT.value:
+                sort = [i for i in get_sorting(value)]
+            elif key == Operations.PAGING.value:
+                paging = get_paging(value)
             elif key == 'json':
                 try:
                     json = int(value)
@@ -194,7 +210,7 @@ class ImmoSearchHandler(RequestHandler):
 
     @property
     def _realestates(self):
-        """Gets real estates (XML) data"""
+        """Gets real estates (XML) data."""
         filters, sort, paging, includes, json = self._options
 
         try:
@@ -209,18 +225,18 @@ class ImmoSearchHandler(RequestHandler):
 
             if json is False:
                 return XML(anbieter)
-            else:
-                return JSON(anbieter.todict(), indent=json)
+
+            return JSON(anbieter.todict(), indent=json)
         else:
             return UserNotAllowed(self._cid)
 
     @property
     def _attachments(self):
-        """Returns the queried attachment"""
+        """Returns the queried attachment."""
         try:
             ident = int(self._aid)
         except (TypeError, ValueError):
-            raise NotAnInteger() from None
+            raise NotAnInteger(self._aid) from None
         else:
             try:
                 anhang = Anhang.get(Anhang.id == ident)
@@ -233,51 +249,51 @@ class ImmoSearchHandler(RequestHandler):
                     except FileError:
                         return InternalServerError(
                             'Could not get file checksum')
-                else:
-                    try:
-                        return Binary(anhang.data)
-                    except FileError:
-                        return InternalServerError(
-                            'Could not find file for attachment')
+
+                try:
+                    return Binary(anhang.data)
+                except FileError:
+                    return InternalServerError(
+                        'Could not find file for attachment')
 
     def _data(self, customer, filters, sort, paging, includes):
-        """Perform sieving, sorting and rendering"""
-        re_gen = (RealEstate(i) for i in Immobilie.by_customer(customer))
+        """Perform sieving, sorting and rendering."""
+        real_estates = get_real_estates(customer)
 
         # Filter real estates
         if filters is not None:
-            re_gen = RealEstateSieve(re_gen, filters)
+            real_estates = RealEstateSieve(real_estates, filters)
 
         # Select appropriate data
-        re_gen = RealEstateDataSelector(re_gen, selections=includes)
+        real_estates = RealEstateDataSelector(
+            customer, real_estates, selections=includes)
 
         # Sort real estates
         if sort is not None:
-            re_gen = RealEstateSorter(re_gen, sort)
+            real_estates = RealEstateSorter(real_estates, sort)
 
         # Page result
         if paging is not None:
             page_size, pageno = paging
-            re_gen = Pager(re_gen, limit=page_size, page=pageno)
+            real_estates = Pager(real_estates, limit=page_size, page=pageno)
 
         # Generate real estate list from real estate generator
         immobilie = []
         flawed = openimmo.user_defined_extend()
 
-        for real_estate in re_gen:
-            dom = real_estate.dom
-
+        for real_estate in real_estates:
             try:
-                dom.toxml()
-            except PyXBException as e:
+                real_estate.toxml()
+            except PyXBException as error:
                 self.logger.error('Failed to serialize "{}".'.format(
-                    dom.objektnr_extern))
+                    real_estate.objektnr_extern))
                 feld = openimmo.feld(
-                    name='Flawed real estate', wert=dom.objektnr_extern)
-                feld.typ.append(str(e))
+                    name='Flawed real estate',
+                    wert=real_estate.objektnr_extern)
+                feld.typ.append(str(error))
                 flawed.feld.append(feld)
             else:
-                immobilie.append(dom)
+                immobilie.append(real_estate)
 
         # Generate realtor
         anbieter = factories.anbieter(
@@ -291,7 +307,7 @@ class ImmoSearchHandler(RequestHandler):
         return anbieter
 
     def get(self):
-        """Main method to call"""
+        """Main method to call."""
         path = self.path
 
         try:
@@ -303,5 +319,5 @@ class ImmoSearchHandler(RequestHandler):
                 return self._attachments
             elif mode in ['customer', 'realestates']:
                 return self._realestates
-            else:
-                raise InvalidPathNode(mode) from None
+
+            raise InvalidPathNode(mode) from None

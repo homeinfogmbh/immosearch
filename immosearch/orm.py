@@ -1,32 +1,32 @@
-"""Realtor and real estate filtering"""
+"""Realtor and real estate filtering."""
 
 from peewee import Model, ForeignKeyField
 
 from peeweeplus import MySQLDatabase
 from homeinfo.crm import Customer
 
-from .config import db
+from .config import CONFIG
 
 __all__ = ['Blacklist']
 
-database = MySQLDatabase(
-    db['DB'],
-    host=db['HOST'],
-    user=db['USER'],
-    passwd=db['PASSWD'],
+DATABASE = MySQLDatabase(
+    CONFIG['db']['DB'],
+    host=CONFIG['db']['HOST'],
+    user=CONFIG['db']['USER'],
+    passwd=CONFIG['db']['PASSWD'],
     closing=True)
 
 
 class ImmoSearchModel(Model):
-    """Basic database model for immosearch"""
+    """Basic database model for immosearch."""
 
     class Meta:
-        database = database
-        schema = database.database
+        database = DATABASE
+        schema = DATABASE.database
 
 
 class Blacklist(ImmoSearchModel):
-    """List of users to apprehend ImmoSearch serving data for"""
+    """List of users to apprehend ImmoSearch serving data for."""
 
     customer = ForeignKeyField(
         Customer, db_column='customer', related_name='immosearch')
