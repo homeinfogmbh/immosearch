@@ -185,7 +185,6 @@ class ImmoSearchHandler(RequestHandler):
 
             if key == Operations.INCLUDE.value:
                 includes = tuple(get_includes(value))
-                print('Includes:', includes, flush=True)
             elif key == Operations.FILTER.value:
                 filters = value
             elif key == Operations.SORT.value:
