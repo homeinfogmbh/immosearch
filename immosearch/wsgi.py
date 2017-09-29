@@ -280,7 +280,6 @@ class ImmoSearchHandler(RequestHandler):
         # Generate real estate list from real estate generator
         immobilie = []
         flawed = openimmo.user_defined_extend()
-        count = 0
 
         for count, real_estate in enumerate(real_estates):
             try:
@@ -304,6 +303,11 @@ class ImmoSearchHandler(RequestHandler):
         # Append flawed data
         if flawed.feld:
             anbieter.user_defined_extend.append(flawed)
+
+        try:
+            count += 1
+        except UnboundLocalError:
+            count = 0
 
         anbieter.user_defined_simplefield.append(
             openimmo.user_defined_simplefield(count, feldname='count'))
