@@ -293,8 +293,8 @@ class ImmoSearchHandler(RequestHandler):
             openimmo.user_defined_simplefield(count, feldname='count'))
 
         try:
-            fortune = check_output('/usr/games/fortune')
-        except FileNotFoundError:
+            fortune = check_output('/usr/games/fortune').decode()
+        except (FileNotFoundError, ValueError):
             pass
         else:
             anbieter.user_defined_simplefield.append(
