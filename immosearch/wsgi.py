@@ -280,8 +280,9 @@ class ImmoSearchHandler(RequestHandler):
         # Generate real estate list from real estate generator
         immobilie = []
         flawed = openimmo.user_defined_extend()
+        count = 0
 
-        for real_estate in real_estates:
+        for count, real_estate in enumerate(real_estates):
             try:
                 real_estate.toxml()
             except PyXBException as error:
@@ -303,6 +304,9 @@ class ImmoSearchHandler(RequestHandler):
         # Append flawed data
         if flawed.feld:
             anbieter.user_defined_extend.append(flawed)
+
+        anbieter.user_defined_simplefield.append(
+            openimmo.user_defined_simplefield(count, feldname='count'))
 
         return anbieter
 
