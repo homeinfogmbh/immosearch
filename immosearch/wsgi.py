@@ -1,6 +1,7 @@
 """WSGI app."""
 
 from enum import Enum
+from subprocess import check_output
 from urllib.parse import unquote
 
 from peewee import DoesNotExist
