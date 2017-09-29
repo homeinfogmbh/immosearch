@@ -258,27 +258,30 @@ class ImmoSearchHandler(RequestHandler):
 
     def _data(self, customer, filters, sort, paging, includes):
         """Perform sieving, sorting and rendering."""
+        anbieter = factories.anbieter(
+            str(customer.id), customer.name, str(customer.id))
         real_estates = get_real_estates(customer)
 
-        # Filter real estates
         if filters is not None:
             real_estates = RealEstateSieve(real_estates, filters)
 
-        # Select appropriate data
         real_estates = RealEstateDataSelector(
             customer, real_estates, selections=includes)
 
-        # Sort real estates
         if sort is not None:
             real_estates = RealEstateSorter(real_estates, sort)
 
-        # Page result
         if paging is not None:
-            page_size, pageno = paging
-            real_estates = Pager(real_estates, limit=page_size, page=pageno)
+            page_size, page_num = paging
+            real_estates = Pager(real_estates, limit=page_size, page=page_num)
+            anbieter.user_defined_simplefield.append(
+                openimmo.user_defined_simplefield(
+                    page_size, feldname='page_size'))
+            anbieter.user_defined_simplefield.append(
+                openimmo.user_defined_simplefield(
+                    page_num, feldname='page_num'))
 
         # Generate real estate list from real estate generator
-        immobilie = []
         flawed = openimmo.user_defined_extend()
 
         for count, real_estate in enumerate(real_estates):
@@ -293,14 +296,8 @@ class ImmoSearchHandler(RequestHandler):
                 feld.typ.append(str(error))
                 flawed.feld.append(feld)
             else:
-                immobilie.append(real_estate)
+                anbieter.immobilie.append(real_estate)
 
-        # Generate realtor
-        anbieter = factories.anbieter(
-            str(customer.id), customer.name, str(customer.id),
-            immobilie=immobilie)
-
-        # Append flawed data
         if flawed.feld:
             anbieter.user_defined_extend.append(flawed)
 
