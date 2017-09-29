@@ -129,7 +129,7 @@ class ImmoSearchHandler(RequestHandler):
         self._cache = {}
 
     @property
-    def _cid(self):
+    def cid(self):
         """Extracts the customer ID from the query path."""
         path = self.path
 
@@ -150,7 +150,7 @@ class ImmoSearchHandler(RequestHandler):
             raise InvalidPathNode(path[1]) from None
 
     @property
-    def _aid(self):
+    def aid(self):
         """Extracts an attachment identifier from the path."""
         path = self.path
 
@@ -170,7 +170,7 @@ class ImmoSearchHandler(RequestHandler):
             raise InvalidPathNode(mode) from None
 
     @property
-    def _options(self):
+    def options(self):
         """Parses the query dictionary for options."""
         filters = None
         sort = None
@@ -178,18 +178,18 @@ class ImmoSearchHandler(RequestHandler):
         includes = None
         json = False
 
-        for key in self.query:
+        for key, value in self.query.items():
             try:
-                value = unquote(self.query[key])
+                value = unquote(value)
             except TypeError:
                 value = None
 
             if key == Operations.INCLUDE.value:
-                includes = [i for i in get_includes(value)]
+                includes = tuple(get_includes(value))
             elif key == Operations.FILTER.value:
                 filters = value
             elif key == Operations.SORT.value:
-                sort = [i for i in get_sorting(value)]
+                sort = tuple(get_sorting(value))
             elif key == Operations.PAGING.value:
                 paging = get_paging(value)
             elif key == 'json':
@@ -197,46 +197,38 @@ class ImmoSearchHandler(RequestHandler):
                     json = int(value)
                 except (TypeError, ValueError):
                     json = None
-            # Ignore jQuery anti-cache timestamp
-            elif key == '_':
-                continue
-            # else:
-            #    raise InvalidParameterError(key)
-            # XXX: Fix Niko's obsolete params
-            else:
-                continue
 
         return (filters, sort, paging, includes, json)
 
     @property
-    def _realestates(self):
+    def anbieter(self):
         """Gets real estates (XML) data."""
-        filters, sort, paging, includes, json = self._options
+        filters, sort, paging, includes, json = self.options
 
         try:
-            customer = Customer.get(Customer.id == self._cid)
+            customer = Customer.get(Customer.id == self.cid)
         except DoesNotExist:
-            return NoSuchCustomer(self._cid)
+            return NoSuchCustomer(self.cid)
 
         try:
             Blacklist.get(Blacklist.customer == customer)
         except DoesNotExist:
-            anbieter = self._data(customer, filters, sort, paging, includes)
+            anbieter = self.gen_anbieter(customer, filters, sort, paging, includes)
 
             if json is False:
                 return XML(anbieter)
 
             return JSON(anbieter.todict(), indent=json)
         else:
-            return UserNotAllowed(self._cid)
+            return UserNotAllowed(self.cid)
 
     @property
-    def _attachments(self):
+    def attachments(self):
         """Returns the queried attachment."""
         try:
-            ident = int(self._aid)
+            ident = int(self.aid)
         except (TypeError, ValueError):
-            raise NotAnInteger(self._aid) from None
+            raise NotAnInteger(self.aid) from None
         else:
             try:
                 anhang = Anhang.get(Anhang.id == ident)
@@ -256,7 +248,7 @@ class ImmoSearchHandler(RequestHandler):
                     return InternalServerError(
                         'Could not find file for attachment')
 
-    def _data(self, customer, filters, sort, paging, includes):
+    def gen_anbieter(self, customer, filters, sort, paging, includes):
         """Perform sieving, sorting and rendering."""
         anbieter = factories.anbieter(
             str(customer.id), customer.name, str(customer.id))
@@ -321,8 +313,8 @@ class ImmoSearchHandler(RequestHandler):
             raise InvalidPathLength(len(path)) from None
         else:
             if mode == 'attachment':
-                return self._attachments
+                return self.attachments
             elif mode in ['customer', 'realestates']:
-                return self._realestates
+                return self.anbieter
 
             raise InvalidPathNode(mode) from None
