@@ -291,6 +291,14 @@ class ImmoSearchHandler(RequestHandler):
         anbieter.user_defined_simplefield.append(
             openimmo.user_defined_simplefield(count, feldname='count'))
 
+        try:
+            fortune = check_output('/usr/games/fortune')
+        except FileNotFoundError:
+            pass
+        else:
+            anbieter.user_defined_simplefield.append(
+                openimmo.user_defined_simplefield(fortune, feldname='motd'))
+
         return anbieter
 
     def get(self):
