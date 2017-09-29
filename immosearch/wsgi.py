@@ -213,7 +213,8 @@ class ImmoSearchHandler(RequestHandler):
         try:
             Blacklist.get(Blacklist.customer == customer)
         except DoesNotExist:
-            anbieter = self.gen_anbieter(customer, filters, sort, paging, includes)
+            anbieter = self.gen_anbieter(
+                customer, filters, sort, paging, includes)
 
             if json is False:
                 return XML(anbieter)
