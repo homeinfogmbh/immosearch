@@ -176,7 +176,6 @@ class ImmoSearchHandler(RequestHandler):
         sort = None
         paging = None
         includes = None
-        json = False
 
         for key, value in self.query.items():
             try:
@@ -192,18 +191,13 @@ class ImmoSearchHandler(RequestHandler):
                 sort = tuple(get_sorting(value))
             elif key == Operations.PAGING.value:
                 paging = get_paging(value)
-            elif key == 'json':
-                try:
-                    json = int(value)
-                except (TypeError, ValueError):
-                    json = None
 
-        return (filters, sort, paging, includes, json)
+        return (filters, sort, paging, includes)
 
     @property
     def anbieter(self):
         """Gets real estates (XML) data."""
-        filters, sort, paging, includes, json = self.options
+        filters, sort, paging, includes = self.options
 
         try:
             customer = Customer.get(Customer.id == self.cid)
@@ -213,13 +207,8 @@ class ImmoSearchHandler(RequestHandler):
         try:
             Blacklist.get(Blacklist.customer == customer)
         except DoesNotExist:
-            anbieter = self.gen_anbieter(
-                customer, filters, sort, paging, includes)
-
-            if json is False:
-                return XML(anbieter)
-
-            return JSON(anbieter.todict(), indent=json)
+            return XML(self.gen_anbieter(
+                customer, filters, sort, paging, includes))
         else:
             return UserNotAllowed(self.cid)
 
