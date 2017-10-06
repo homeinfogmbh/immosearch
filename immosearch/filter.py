@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from boolparse import SecurityError, BooleanEvaluator
+from boolparse import SecurityError, evaluate
 
 from .lib import cast, Operators
 from .errors import SecurityBreach, InvalidFilterOption,\
@@ -757,7 +757,7 @@ class RealEstateSieve:
         if self.filters:
             for real_estate in self.real_estates:
                 filterable_real_estate = FilterableRealEstate(real_estate)
-                applicable = BooleanEvaluator(
+                applicable = evaluate(
                     self.filters, callback=filterable_real_estate.evaluate)
 
                 try:
