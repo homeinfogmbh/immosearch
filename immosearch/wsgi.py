@@ -9,7 +9,7 @@ from pyxb import PyXBException
 
 from filedb.http import FileError
 from homeinfo.crm import Customer
-from wsgilib import JSON, XML, OK, Binary, InternalServerError, RequestHandler
+from wsgilib import XML, OK, Binary, InternalServerError, RequestHandler
 from openimmo import factories, openimmo
 from openimmodb import Anhang
 
@@ -266,8 +266,9 @@ class ImmoSearchHandler(RequestHandler):
 
         # Generate real estate list from real estate generator
         flawed = openimmo.user_defined_extend()
+        count = 0
 
-        for count, real_estate in enumerate(real_estates):
+        for count, real_estate in enumerate(real_estates, start=1):
             try:
                 real_estate.toxml()
             except PyXBException as error:
@@ -283,11 +284,6 @@ class ImmoSearchHandler(RequestHandler):
 
         if flawed.feld:
             anbieter.user_defined_extend.append(flawed)
-
-        try:
-            count += 1
-        except UnboundLocalError:
-            count = 0
 
         anbieter.user_defined_simplefield.append(
             openimmo.user_defined_simplefield(count, feldname='count'))
