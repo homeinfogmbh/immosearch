@@ -101,8 +101,8 @@ class RealEstateDataSelector:
         titlepic = self.titlepic
 
         for orm, dom in self.real_estates:
-            if dom.anhaenge is None:
-                dom.anhaenge = openimmo.anhaenge()
+            # Discard previouly cached attachments.
+            dom.anhaenge = openimmo.anhaenge()
 
             if allatts:
                 set_all_attachments(orm.id, dom)
