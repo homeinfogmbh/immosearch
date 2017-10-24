@@ -1,5 +1,6 @@
 """Real estate data selecting."""
 from enum import Enum
+from re import compile as compile_
 
 from peewee import DoesNotExist
 
@@ -98,7 +99,8 @@ class RealEstateDataSelector:
         """
         self.customer = customer
         self.real_estates = real_estates
-        self.selections = selections or []
+        self.selections = selections or tuple()
+        self.natts = compile_('(\\d)atts')
 
     def __iter__(self):
         """Returns real estates limited to the selections."""
@@ -140,13 +142,10 @@ class RealEstateDataSelector:
     def attachments(self):
         """Returns the amount of wanted attachments."""
         for selection in self.selections:
-            if selection.endswith(Selections.N_ATTS.value):
+            match = self.natts.fullmatch(selection)
+
+            if match is not None:
                 try:
-                    number, _ = selection.split(Selections.N_ATTS.value)
+                    return int(match.group(1))
                 except ValueError:
-                    raise InvalidAttachmentLimit(number)
-                else:
-                    try:
-                        return int(number)
-                    except ValueError:
-                        raise InvalidAttachmentLimit(number)
+                    raise InvalidAttachmentLimit(selection)
