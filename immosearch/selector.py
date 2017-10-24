@@ -104,18 +104,23 @@ class RealEstateDataSelector:
 
     def __iter__(self):
         """Returns real estates limited to the selections."""
+        allatts = self.allatts
+        attachments = self.attachments
+        titlepic = self.titlepic
+
+        print(allatts, attachments, titlepic)
+
         for real_estate in self.real_estates:
             if real_estate.anhaenge is None:
                 real_estate.anhaenge = openimmo.anhaenge()
 
             orm_id = to_orm(real_estate, self.customer)
-            attachments = self.attachments
 
-            if self.allatts:
+            if allatts:
                 set_all_attachments(orm_id, real_estate)
             elif attachments is not None:
                 set_attachments(orm_id, real_estate, attachments)
-            elif self.titlepic:
+            elif titlepic:
                 set_titlepic(orm_id, real_estate)
 
             set_free_texts(real_estate, self.freitexte)
