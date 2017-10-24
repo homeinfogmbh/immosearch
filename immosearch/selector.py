@@ -100,7 +100,7 @@ class RealEstateDataSelector:
         self.customer = customer
         self.real_estates = real_estates
         self.selections = selections or tuple()
-        self.natts = compile_('(\\d)atts')
+        self.natts = compile_('(\\d)' + Selections.N_ATTS.value)
 
     def __iter__(self):
         """Returns real estates limited to the selections."""
