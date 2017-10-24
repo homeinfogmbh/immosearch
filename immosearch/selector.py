@@ -5,7 +5,7 @@ from re import compile as compile_
 from peewee import DoesNotExist
 
 from openimmo import openimmo
-from openimmodb import Immobilie, Anhang
+from openimmodb import Anhang
 
 from .errors import InvalidAttachmentLimit
 
@@ -13,14 +13,6 @@ __all__ = ['Selections', 'RealEstateDataSelector']
 
 
 BASE_URL = 'https://backend.homeinfo.de/immosearch/attachment/{}'
-
-
-def to_orm(real_estate_dom, customer):
-    """Gets the ORM model for the respective real estate."""
-
-    return Immobilie.get(
-        (Immobilie.customer == customer) &
-        (Immobilie.objektnr_extern == real_estate_dom.objektnr_extern))
 
 
 def set_all_attachments(orm_id, real_estate):
