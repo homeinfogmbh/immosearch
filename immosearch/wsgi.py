@@ -1,7 +1,7 @@
 """WSGI app."""
 
 from enum import Enum
-from subprocess import check_output
+from subprocess import CalledProcessError, check_output
 from urllib.parse import unquote
 
 from peewee import DoesNotExist
@@ -32,12 +32,8 @@ CACHE = {}
 def get_real_estates(customer):
     """Returns real estates for the respective customer."""
 
-    try:
-        return CACHE[customer]
-    except KeyError:
-        cache = RealEstateCache(customer)
-        CACHE[customer] = cache
-        return cache
+    for real_estate in Immobilie.by_customer(self.customer.id):
+        yield (real_estate, real_estate.to_dom())
 
 
 def get_includes(value):
@@ -268,19 +264,19 @@ class ImmoSearchHandler(RequestHandler):
         flawed = openimmo.user_defined_extend()
         count = 0
 
-        for count, real_estate in enumerate(real_estates, start=1):
+        for count, (orm, dom) in enumerate(real_estates, start=1):
             try:
-                real_estate.toxml()
+                dom.toxml()
             except PyXBException as error:
                 self.logger.error('Failed to serialize "{}".'.format(
-                    real_estate.objektnr_extern))
+                    dom.objektnr_extern))
                 feld = openimmo.feld(
                     name='Flawed real estate',
-                    wert=real_estate.objektnr_extern)
+                    wert=dom.objektnr_extern)
                 feld.typ.append(str(error))
                 flawed.feld.append(feld)
             else:
-                anbieter.immobilie.append(real_estate)
+                anbieter.immobilie.append(dom)
 
         if flawed.feld:
             anbieter.user_defined_extend.append(flawed)
@@ -290,7 +286,7 @@ class ImmoSearchHandler(RequestHandler):
 
         try:
             fortune = check_output('/usr/games/fortune').decode().strip()
-        except (FileNotFoundError, ValueError):
+        except (FileNotFoundError, CalledProcessError, ValueError):
             pass
         else:
             anbieter.user_defined_simplefield.append(

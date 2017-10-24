@@ -136,8 +136,8 @@ class RealEstateSorter():
     @property
     def keyed(self):
         """Generates (<keys>, <real_estate>) tuples."""
-        for real_estate in self.real_estates:
-            f_re = FilterableRealEstate(real_estate)
+        for orm, dom in self.real_estates:
+            f_re = FilterableRealEstate(dom)
             keys = []
 
             for sort_option in self.sort_options:
@@ -149,4 +149,4 @@ class RealEstateSorter():
 
                 keys.append(Key(option_func(f_re), desc=desc))
 
-            yield (keys, real_estate)
+            yield (keys, (orm, dom))

@@ -110,23 +110,21 @@ class RealEstateDataSelector:
 
         print(allatts, attachments, titlepic)
 
-        for real_estate in self.real_estates:
-            if real_estate.anhaenge is None:
-                real_estate.anhaenge = openimmo.anhaenge()
-
-            orm_id = to_orm(real_estate, self.customer)
+        for orm, dom in self.real_estates:
+            if orm.anhaenge is None:
+                orm.anhaenge = openimmo.anhaenge()
 
             if allatts:
-                set_all_attachments(orm_id, real_estate)
+                set_all_attachments(orm.id, orm)
             elif attachments is not None:
-                set_attachments(orm_id, real_estate, attachments)
+                set_attachments(orm.id, orm, attachments)
             elif titlepic:
-                set_titlepic(orm_id, real_estate)
+                set_titlepic(orm.id, orm)
 
-            set_free_texts(real_estate, self.freitexte)
-            print('Processed real estate: {}.'.format(
-                real_estate.objektnr_extern), flush=True)
-            yield real_estate
+            set_free_texts(orm, self.freitexte)
+            print('Processed real estate: {}.'.format(orm.objektnr_extern),
+                  flush=True)
+            yield (orm, dom)
 
     @property
     def freitexte(self):

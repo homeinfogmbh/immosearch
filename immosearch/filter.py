@@ -755,17 +755,17 @@ class RealEstateSieve:
     def __iter__(self):
         """Sieve real estates by the given filters."""
         if self.filters:
-            for real_estate in self.real_estates:
-                filterable_real_estate = FilterableRealEstate(real_estate)
+            for orm, dom in self.real_estates:
+                filterable_real_estate = FilterableRealEstate(dom)
                 applicable = evaluate(
                     self.filters, callback=filterable_real_estate.evaluate)
 
                 try:
                     if applicable:
-                        yield real_estate
+                        yield (orm, dom)
                     else:
                         print('Filtered real estate: {}.'.format(
-                            real_estate.objektnr_extern), flush=True)
+                            dom.objektnr_extern), flush=True)
                 except SecurityError as sec_err:
                     raise SecurityBreach(str(sec_err)) from None
         else:
