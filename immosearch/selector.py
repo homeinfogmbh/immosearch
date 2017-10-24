@@ -45,7 +45,7 @@ def set_attachments(orm_id, real_estate, attachments):
         real_estate.anhaenge.anhang.append(attachment.remote(BASE_URL))
 
     print('Attachments:', len(real_estate.anhaenge.anhang))
-    for anhangtitel in real_estate.anhaenge.anhang:
+    for anhang in real_estate.anhaenge.anhang:
         print('Attachment:', anhang.anhangtitel, anhang.daten.pfad)
 
 
