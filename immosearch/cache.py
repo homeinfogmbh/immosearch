@@ -34,7 +34,7 @@ class RealEstateCache:
     def _load_real_estates(self):
         """Yields real estates for the respective customer."""
         for real_estate in Immobilie.by_customer(self.customer.id):
-            yield real_estate.to_dom()
+            yield (real_estate, real_estate.to_dom())
 
     def _update(self):
         """Updates the cache for the respective customer."""
