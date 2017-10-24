@@ -25,18 +25,12 @@ def to_orm(real_estate_dom, customer):
 def set_all_attachments(orm_id, real_estate):
     """Sets all attachments to the real estate."""
 
-    if real_estate.anhaenge is None:
-        real_estate.anhaenge = openimmo.anhaenge()
-
     for attachment in Anhang.by_immobilie(orm_id):
         real_estate.anhaenge.anhang.append(attachment.remote(BASE_URL))
 
 
 def set_attachments(orm_id, real_estate, attachments):
     """Sets desired amount of attachments."""
-
-    if real_estate.anhaenge is None:
-        real_estate.anhaenge = openimmo.anhaenge()
 
     for number, attachment in enumerate(Anhang.by_immobilie(orm_id)):
         if number >= attachments:
@@ -47,9 +41,6 @@ def set_attachments(orm_id, real_estate, attachments):
 
 def set_titlepic(orm_id, real_estate):
     """Sets the title picture."""
-
-    if real_estate.anhaenge is None:
-        real_estate.anhaenge = openimmo.anhaenge()
 
     try:
         title_picture = Anhang.get(
@@ -112,6 +103,9 @@ class RealEstateDataSelector:
     def __iter__(self):
         """Returns real estates limited to the selections."""
         for real_estate in self.real_estates:
+            if real_estate.anhaenge is None:
+                real_estate.anhaenge = openimmo.anhaenge()
+
             orm_id = to_orm(real_estate, self.customer)
             attachments = self.attachments
 
