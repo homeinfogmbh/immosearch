@@ -100,8 +100,6 @@ class RealEstateDataSelector:
         attachments = self.attachments
         titlepic = self.titlepic
 
-        print(allatts, attachments, titlepic)
-
         for orm, dom in self.real_estates:
             if orm.anhaenge is None:
                 orm.anhaenge = openimmo.anhaenge()
