@@ -32,8 +32,12 @@ CACHE = {}
 def get_real_estates(customer):
     """Returns real estates for the respective customer."""
 
-    for real_estate in Immobilie.by_customer(self.customer.id):
-        yield (real_estate, real_estate.to_dom())
+    try:
+        return CACHE[customer]
+    except KeyError:
+        cache = RealEstateCache(customer)
+        CACHE[customer] = cache
+        return cache
 
 
 def get_includes(value):
