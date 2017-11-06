@@ -11,9 +11,8 @@ from filedb import FileError
 from homeinfo.crm import Customer
 from wsgilib import XML, OK, Binary, InternalServerError, RequestHandler
 from openimmo import factories, openimmo
-from openimmodb import Anhang
+from openimmodb import Immobilie, Anhang
 
-from immosearch.cache import RealEstateCache
 from immosearch.errors import NoSuchCustomer, InvalidPathLength, \
     InvalidPathNode, InvalidOptionsCount, NotAnInteger, \
     InvalidParameterError, UserNotAllowed, AttachmentNotFound
