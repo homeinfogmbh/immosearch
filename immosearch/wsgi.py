@@ -7,7 +7,7 @@ from urllib.parse import unquote
 from peewee import DoesNotExist
 from pyxb import PyXBException
 
-from filedb.http import FileError
+from filedb import FileError
 from homeinfo.crm import Customer
 from wsgilib import XML, OK, Binary, InternalServerError, RequestHandler
 from openimmo import factories, openimmo
