@@ -26,18 +26,11 @@ from immosearch.sort import RealEstateSorter
 __all__ = ['ImmoSearchHandler']
 
 
-CACHE = {}
-
-
 def get_real_estates(customer):
     """Returns real estates for the respective customer."""
 
-    try:
-        return CACHE[customer]
-    except KeyError:
-        cache = RealEstateCache(customer)
-        CACHE[customer] = cache
-        return cache
+    for real_estate in Immobilie.by_customer(customer):
+        yield (real_estate, real_estate.to_dom())
 
 
 def get_includes(value):
