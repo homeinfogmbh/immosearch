@@ -739,8 +739,6 @@ class FilterableRealEstate:
                 try:
                     val = option_func(self)
                     result = operation_func(val, value)
-                    print('val: "{}", value: "{}", result: "{}"'.format(
-                        val, value, result))
                 except (TypeError, ValueError):
                     # Exclude for None values and wrong types
                     return False
