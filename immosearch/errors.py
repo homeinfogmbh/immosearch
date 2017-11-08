@@ -15,7 +15,6 @@ __all__ = [
     # 1<nn>   Filtering errors
     'NoValidFilterOperation',
     'InvalidFilterOption',
-    'FilterOperationNotImplemented',
     'SievingError',
     'SecurityBreach',
     # 2<nn>   Sorting errors
@@ -140,17 +139,6 @@ class InvalidFilterOption(RenderableError):
     def __init__(self, option):
         """Initializes with the faulty option."""
         super().__init__(102, 'Invalid filtering option: {}.'.format(option))
-
-
-class FilterOperationNotImplemented(RenderableError):
-    """Indicates that an unimplemented filtering
-    operation has been provided.
-    """
-
-    def __init__(self, operation):
-        """Initializes with the faulty option."""
-        super().__init__(
-            103, 'Invalid filtering operation: {}.'.format(operation))
 
 
 class SievingError(RenderableError):

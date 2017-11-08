@@ -5,8 +5,7 @@ from datetime import datetime
 from boolparse import SecurityError, evaluate
 
 from .lib import cast, Operators
-from .errors import SecurityBreach, InvalidFilterOption,\
-    FilterOperationNotImplemented, SievingError
+from .errors import SecurityBreach, InvalidFilterOption, SievingError
 
 __all__ = ['RealEstateSieve']
 
@@ -103,7 +102,7 @@ class DontCare(Exception):
 def parse_operation(operation):
     """Parses option, operator and value."""
 
-    for operator in OPERATIONS:
+    for operator, operation in OPERATIONS.items():
         try:
             option, value = operation.split(operator)
         except ValueError:
@@ -122,16 +121,7 @@ def parse_operation(operation):
         elif value.startswith(option):
             value = value[1:]
 
-    return (option, operator, value)
-
-
-def get_operation(operator):
-    """Returns the appropriate operation function."""
-
-    try:
-        return OPERATIONS[operator]
-    except KeyError:
-        raise FilterOperationNotImplemented(operator) from None
+    return (option, operator, operation, value)
 
 
 def get_option(option):
@@ -741,8 +731,8 @@ class FilterableRealEstate:
 
     def evaluate(self, operation):
         """Real estate evaluation callback."""
-        option, operator, raw_value = parse_operation(operation)
-        operation_func = get_operation(operator)
+        option, operator, operation_func, raw_value = parse_operation(
+            operation)
         option_func, option_format = get_option(option)
 
         try:
@@ -751,15 +741,12 @@ class FilterableRealEstate:
             return bool(dont_care)
 
         try:
-            val = option_func(self)
-            result = operation_func(val, value)
+            return bool(operation_func(option_func(self), value))
         except (TypeError, ValueError):
             # Exclude for None values and wrong types.
             return False
         except AttributeError:
-            raise SievingError(option, operator, raw_value)
-        else:
-            return bool(result)
+            raise SievingError(option, operator, raw_value) from None
 
 
 class RealEstateSieve:
