@@ -687,7 +687,7 @@ class FilterableRealEstate:
     @property
     def active(self):
         """Determines whether the real estate is active."""
-        return 'true' if self.immobilie.active else 'false'
+        return self.immobilie.active
 
     def evaluate(self, operation):
         """Real estate evaluation callback."""
@@ -738,10 +738,9 @@ class FilterableRealEstate:
             else:
                 try:
                     val = option_func(self)
-                    print('val: "{}"'.format(val))
-                    print('value: "{}"'.format(value))
                     result = operation_func(val, value)
-                    print('result:', result)
+                    print('val: "{}", value: "{}", result: "{}"'.format(
+                        val, value, result))
                 except (TypeError, ValueError):
                     # Exclude for None values and wrong types
                     return False
