@@ -102,7 +102,7 @@ class DontCare(Exception):
 def parse_operation(operation):
     """Parses option, operator and value."""
 
-    for operator, operation in OPERATIONS.items():
+    for operator, operation_func in OPERATIONS.items():
         try:
             option, value = operation.split(operator)
         except ValueError:
@@ -121,7 +121,7 @@ def parse_operation(operation):
         elif value.startswith(option):
             value = value[1:]
 
-    return (option, operator, operation, value)
+    return (option, operator, operation_func, value)
 
 
 def get_option(option):
