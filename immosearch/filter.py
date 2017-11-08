@@ -687,7 +687,7 @@ class FilterableRealEstate:
     @property
     def active(self):
         """Determines whether the real estate is active."""
-        return self.immobilie.active
+        return 'true' if self.immobilie.active else 'false'
 
     def evaluate(self, operation):
         """Real estate evaluation callback."""
