@@ -738,7 +738,8 @@ class FilterableRealEstate:
             else:
                 try:
                     val = option_func(self)
-                    print('val:', val)
+                    print('val: "{}"'.format(val))
+                    print('value: "{}"'.format(value))
                     result = operation_func(val, value)
                     print('result:', result)
                 except (TypeError, ValueError):
