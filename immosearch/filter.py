@@ -100,6 +100,56 @@ class DontCare(Exception):
         return self._val
 
 
+def parse_operation(operation):
+    """Parses option, operator and value."""
+
+    for operator in OPERATIONS:
+        try:
+            option, value = operation.split(operator)
+        except ValueError:
+            continue
+        else:
+            break
+    else:
+        raise InvalidFilterOption(operation)
+
+    # Compensate for ">", "<", "=>" and "<="
+    if option in ('>', '<'):
+        if value.startswith('='):
+            option += '='
+            value = value[1:]
+        # Compensate for legacy ">>" → ">" and "<<" → "<"
+        elif value.startswith(option):
+            value = value[1:]
+
+    return (option, operator, value)
+
+
+def get_operation(operator):
+    """Returns the appropriate operation function."""
+
+    try:
+        return OPERATIONS[operator]
+    except KeyError:
+        raise FilterOperationNotImplemented(operator) from None
+
+
+def get_option(option):
+    """Returns the respective option and format."""
+
+    try:
+        option_setting = OPTIONS[option]
+    except KeyError:
+        raise InvalidFilterOption(option) from None
+
+    try:
+        option_format, option_func = option_setting
+    except TypeError:
+        return (option_setting, None)
+    else:
+        return (option_func, option_format)
+
+
 class FilterableRealEstate:
     """Wrapper class for an OpenImmo™-immobilie
     that can be filtered by certain attributes.
@@ -691,61 +741,25 @@ class FilterableRealEstate:
 
     def evaluate(self, operation):
         """Real estate evaluation callback."""
-        option = None
-        operator = None
-        raw_value = None
-
-        for operator in OPERATIONS:
-            try:
-                option, raw_value = operation.split(operator)
-            except ValueError:
-                continue
-            else:
-                # Compensate for ">", "<", "=>" and "<="
-                if option in ('>', '<'):
-                    if raw_value.startswith('='):
-                        option += '='
-                        raw_value = raw_value[1:]
-                    # Compensate for legacy ">>" → ">" and "<<" → "<"
-                    elif raw_value.startswith(option):
-                        raw_value = raw_value[1:]
-
-                break
-
-        if option is None or raw_value is None:
-            raise InvalidFilterOption(operation)
-
-        operation_func = OPERATIONS.get(operator)
-
-        if operation_func is None:
-            raise FilterOperationNotImplemented(operator)
+        option, operator, raw_value = parse_operation(operation)
+        operation_func = get_operation(operator)
+        option_func, option_format = get_option(option)
 
         try:
-            option_ = OPTIONS[option]
-        except KeyError:
-            raise InvalidFilterOption(option)
-        else:
-            try:
-                option_format, option_func = option_
-            except TypeError:
-                option_format = None
-                option_func = option_
+            value = cast(raw_value, typ=option_format)
+        except DontCare as dont_care:
+            return bool(dont_care)
 
-            try:
-                value = cast(raw_value, typ=option_format)
-            except DontCare as dont_care:
-                return bool(dont_care)
-            else:
-                try:
-                    val = option_func(self)
-                    result = operation_func(val, value)
-                except (TypeError, ValueError):
-                    # Exclude for None values and wrong types
-                    return False
-                except AttributeError:
-                    raise SievingError(option, operator, raw_value)
-                else:
-                    return bool(result)
+        try:
+            val = option_func(self)
+            result = operation_func(val, value)
+        except (TypeError, ValueError):
+            # Exclude for None values and wrong types.
+            return False
+        except AttributeError:
+            raise SievingError(option, operator, raw_value)
+        else:
+            return bool(result)
 
 
 class RealEstateSieve:
