@@ -85,11 +85,10 @@ class Selections(Enum):
 class RealEstateDataSelector:
     """Class that filters real estates of a user."""
 
-    def __init__(self, customer, real_estates, selections=None):
+    def __init__(self, real_estates, selections=None):
         """Initializes with a real estate,
         selection options and a picture limit.
         """
-        self.customer = customer
         self.real_estates = real_estates
         self.selections = selections or tuple()
         self.natts = compile_('(\\d)' + Selections.N_ATTS.value)

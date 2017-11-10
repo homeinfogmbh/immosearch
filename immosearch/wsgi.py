@@ -1,6 +1,7 @@
 """WSGI app."""
 
 from enum import Enum
+from functools import lru_cache
 from subprocess import CalledProcessError, check_output
 from urllib.parse import unquote
 
@@ -23,13 +24,6 @@ from immosearch.selector import RealEstateDataSelector
 from immosearch.sort import RealEstateSorter
 
 __all__ = ['ImmoSearchHandler']
-
-
-def get_real_estates(customer):
-    """Returns real estates for the respective customer."""
-
-    for real_estate in Immobilie.by_customer(customer):
-        yield (real_estate, real_estate.to_dom())
 
 
 def get_includes(value):
@@ -61,30 +55,89 @@ def get_paging(value):
 
     if len(paging_opts) != 2:
         raise InvalidOptionsCount() from None
+
+    limit = None
+    page = None
+
+    for paging_opt in paging_opts:
+        option, *values = paging_opt.split(Separators.ATTR.value)
+        value = Separators.ATTR.value.join(values)
+
+        if option == 'limit':
+            try:
+                limit = int(value)
+            except (ValueError, TypeError):
+                raise NotAnInteger(value) from None
+        elif option == 'page':
+            try:
+                page = int(value)
+            except (ValueError, TypeError):
+                raise NotAnInteger(value) from None
+        else:
+            raise InvalidParameterError(option) from None
+
+    if limit is None or page is None:
+        return None
+
+    return (limit, page)
+
+
+def get_real_estates(customer):
+    """Returns real estates for the respective customer."""
+
+    for real_estate in Immobilie.by_customer(customer):
+        yield (real_estate, real_estate.to_dom())
+
+
+def filter_real_estates(real_estates, filters, sort, paging, includes):
+    """Perform sieving, sorting and rendering."""
+
+    if filters is not None:
+        real_estates = RealEstateSieve(real_estates, filters)
+
+    real_estates = RealEstateDataSelector(real_estates, selections=includes)
+
+    if sort is not None:
+        real_estates = RealEstateSorter(real_estates, sort)
+
+    if paging is not None:
+        page_size, page_num = paging
+        real_estates = Pager(real_estates, limit=page_size, page=page_num)
+
+    return real_estates
+
+
+def set_paging(anbieter, paging):
+    """Sets paging information."""
+
+    if paging is not None:
+        page_size, page_num = paging
+        anbieter.user_defined_simplefield.append(
+            openimmo.user_defined_simplefield(page_size, feldname='page_size'))
+        anbieter.user_defined_simplefield.append(
+            openimmo.user_defined_simplefield(page_num, feldname='page_num'))
+
+
+def set_fortune(anbieter):
+    """Sets a random message of the day (easter egg)."""
+
+    try:
+        fortune = check_output('/usr/games/fortune').decode().strip()
+    except (FileNotFoundError, CalledProcessError, ValueError):
+        pass
     else:
-        limit = None
-        page = None
+        anbieter.user_defined_simplefield.append(
+            openimmo.user_defined_simplefield(fortune, feldname='motd'))
 
-        for paging_opt in paging_opts:
-            split_option = paging_opt.split(Separators.ATTR.value)
-            option = split_option[0]
-            value = Separators.ATTR.value.join(split_option[1:])
 
-            if option == 'limit':
-                try:
-                    limit = int(value)
-                except (ValueError, TypeError):
-                    raise NotAnInteger(value) from None
-            elif option == 'page':
-                try:
-                    page = int(value)
-                except (ValueError, TypeError):
-                    raise NotAnInteger(value) from None
-            else:
-                raise InvalidParameterError(option) from None
+def gen_anbieter(customer, paging):
+    """Generates an openimmo.anbieter DOM."""
 
-        if limit is not None and page is not None:
-            return (limit, page)
+    anbieter = factories.anbieter(
+        str(customer.id), customer.name, str(customer.id))
+    set_paging(anbieter, paging)
+    set_fortune(anbieter)
+    return anbieter
 
 
 class Separators(Enum):
@@ -122,6 +175,7 @@ class ImmoSearchHandler(RequestHandler):
         self._cache = {}
 
     @property
+    @lru_cache(maxsize=1)
     def cid(self):
         """Extracts the customer ID from the query path."""
         path = self.path
@@ -132,17 +186,25 @@ class ImmoSearchHandler(RequestHandler):
                     cid = path[2]
 
                     try:
-                        cid = int(cid)
+                        return int(cid)
                     except ValueError:
                         raise NotAnInteger(cid) from None
-                    else:
-                        return cid
 
                 raise InvalidPathLength(len(path)) from None
 
             raise InvalidPathNode(path[1]) from None
 
     @property
+    @lru_cache(maxsize=1)
+    def customer(self):
+        """Returns the respective customer."""
+        try:
+            return Customer.get(Customer.id == self.cid)
+        except DoesNotExist:
+            return NoSuchCustomer(self.cid)
+
+    @property
+    @lru_cache(maxsize=1)
     def aid(self):
         """Extracts an attachment identifier from the path."""
         path = self.path
@@ -151,18 +213,31 @@ class ImmoSearchHandler(RequestHandler):
             mode = path[1]
         except IndexError:
             raise InvalidPathLength(len(path)) from None
-        else:
-            if mode == 'attachment':
-                try:
-                    attachment_id = path[2]
-                except IndexError:
-                    raise InvalidPathLength(len(path)) from None
-                else:
-                    return attachment_id
 
-            raise InvalidPathNode(mode) from None
+        if mode == 'attachment':
+            try:
+                attachment_id = path[2]
+            except IndexError:
+                raise InvalidPathLength(len(path)) from None
+
+            try:
+                return int(attachment_id)
+            except (TypeError, ValueError):
+                raise NotAnInteger(attachment_id) from None
+
+        raise InvalidPathNode(mode) from None
 
     @property
+    @lru_cache(maxsize=1)
+    def attachment(self):
+        """REturns the respective attachment."""
+        try:
+            return Anhang.get(Anhang.id == self.aid)
+        except DoesNotExist:
+            raise AttachmentNotFound() from None
+
+    @property
+    @lru_cache(maxsize=1)
     def options(self):
         """Parses the query dictionary for options."""
         filters = None
@@ -191,84 +266,47 @@ class ImmoSearchHandler(RequestHandler):
     def anbieter(self):
         """Gets real estates (XML) data."""
         filters, sort, paging, includes = self.options
-
-        try:
-            customer = Customer.get(Customer.id == self.cid)
-        except DoesNotExist:
-            return NoSuchCustomer(self.cid)
+        customer = self.customer
 
         try:
             Blacklist.get(Blacklist.customer == customer)
         except DoesNotExist:
-            return XML(self.gen_anbieter(
-                customer, filters, sort, paging, includes))
+            real_estates = filter_real_estates(
+                get_real_estates(customer), filters, sort, paging, includes)
+            anbieter = gen_anbieter(customer, paging)
+            self.set_validated_real_estates(anbieter, real_estates)
+            return XML(anbieter)
         else:
             return UserNotAllowed(self.cid)
 
     @property
     def attachments(self):
         """Returns the queried attachment."""
-        try:
-            ident = int(self.aid)
-        except (TypeError, ValueError):
-            raise NotAnInteger(self.aid) from None
-        else:
+        if self.query.get('sha256sum', False):
             try:
-                anhang = Anhang.get(Anhang.id == ident)
-            except DoesNotExist:
-                raise AttachmentNotFound() from None
-            else:
-                if self.query.get('sha256sum', False):
-                    try:
-                        return OK(anhang.sha256sum)
-                    except FileError:
-                        return InternalServerError(
-                            'Could not get file checksum')
+                return OK(self.attachment.sha256sum)
+            except FileError:
+                return InternalServerError('Could not get file checksum.')
 
-                try:
-                    return Binary(anhang.data)
-                except FileError:
-                    return InternalServerError(
-                        'Could not find file for attachment')
+        try:
+            return Binary(self.attachment.data)
+        except FileError:
+            return InternalServerError('Could not find file for attachment.')
 
-    def gen_anbieter(self, customer, filters, sort, paging, includes):
-        """Perform sieving, sorting and rendering."""
-        anbieter = factories.anbieter(
-            str(customer.id), customer.name, str(customer.id))
-        real_estates = get_real_estates(customer)
 
-        if filters is not None:
-            real_estates = RealEstateSieve(real_estates, filters)
-
-        real_estates = RealEstateDataSelector(
-            customer, real_estates, selections=includes)
-
-        if sort is not None:
-            real_estates = RealEstateSorter(real_estates, sort)
-
-        if paging is not None:
-            page_size, page_num = paging
-            real_estates = Pager(real_estates, limit=page_size, page=page_num)
-            anbieter.user_defined_simplefield.append(
-                openimmo.user_defined_simplefield(
-                    page_size, feldname='page_size'))
-            anbieter.user_defined_simplefield.append(
-                openimmo.user_defined_simplefield(
-                    page_num, feldname='page_num'))
-
-        # Generate real estate list from real estate generator
+    def set_validated_real_estates(self, anbieter, real_estates):
+        """Sets validated real estates."""
         flawed = openimmo.user_defined_extend()
         count = 0
 
-        for count, (orm, dom) in enumerate(real_estates, start=1):
+        for count, (_, dom) in enumerate(real_estates, start=1):
             try:
                 dom.toxml()
             except PyXBException as error:
                 self.logger.error('Failed to serialize "{}".'.format(
                     dom.objektnr_extern))
                 feld = openimmo.feld(
-                    name='Flawed real estate',
-                    wert=dom.objektnr_extern)
+                    name='Flawed real estate', wert=dom.objektnr_extern)
                 feld.typ.append(str(error))
                 flawed.feld.append(feld)
             else:
@@ -280,28 +318,16 @@ class ImmoSearchHandler(RequestHandler):
         anbieter.user_defined_simplefield.append(
             openimmo.user_defined_simplefield(count, feldname='count'))
 
-        try:
-            fortune = check_output('/usr/games/fortune').decode().strip()
-        except (FileNotFoundError, CalledProcessError, ValueError):
-            pass
-        else:
-            anbieter.user_defined_simplefield.append(
-                openimmo.user_defined_simplefield(fortune, feldname='motd'))
-
-        return anbieter
-
     def get(self):
         """Main method to call."""
-        path = self.path
-
         try:
-            mode = path[1]
+            mode = self.path[1]
         except IndexError:
-            raise InvalidPathLength(len(path)) from None
-        else:
-            if mode == 'attachment':
-                return self.attachments
-            elif mode in ['customer', 'realestates']:
-                return self.anbieter
+            raise InvalidPathLength(len(self.path)) from None
 
-            raise InvalidPathNode(mode) from None
+        if mode == 'attachment':
+            return self.attachments
+        elif mode in ('customer', 'realestates'):
+            return self.anbieter
+
+        raise InvalidPathNode(mode) from None
