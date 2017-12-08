@@ -237,7 +237,7 @@ def _set_validated_real_estates(anbieter, real_estates):
     return anbieter
 
 
-@APPLICATION.route('/attachment/<int:aid>')
+@APPLICATION.route('/attachment/<int:aid>', strict_slashes=False)
 def get_attachment(aid):
     """Returns the respective attachment."""
 
@@ -254,7 +254,7 @@ def get_attachment(aid):
 
 
 
-@APPLICATION.route('/customer/<int:cid>')
+@APPLICATION.route('/customer/<int:cid>', strict_slashes=False)
 def get_customer(cid):
     """Returns the respective customer's real estates."""
 
