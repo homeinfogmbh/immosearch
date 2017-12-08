@@ -25,7 +25,7 @@ from immosearch.sort import RealEstateSorter
 __all__ = ['APPLICATION']
 
 
-APPLICATION = Application('ImmoSearch')
+APPLICATION = Application('ImmoSearch', cors=True, debug=True)
 
 
 class Separators(Enum):
