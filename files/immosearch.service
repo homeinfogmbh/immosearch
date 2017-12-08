@@ -1,0 +1,12 @@
+[Unit]
+Description=ImmoSearch
+After=network.target mysql.service
+Requires=mysql.service
+
+[Service]
+User=immosearch
+Group=immosearch
+ExecStart=/usr/local/bin/immosearchd
+
+[Install]
+WantedBy=multi-user.target

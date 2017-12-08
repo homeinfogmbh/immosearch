@@ -7,9 +7,7 @@ setup(
     version='latest',
     author='Richard Neumann',
     packages=['immosearch'],
-    data_files=[
-        ('/etc', ['files/immosearch.conf']),
-        ('/usr/share', ['files/immosearch.wsgi']),
-        ('/etc/uwsgi/apps-available', ['files/immosearch.ini'])],
+    scripts=['files/immosearchd'],
+    data_files=[('/usr/lib/systemd/system', ['files/immosearch.service'])],
     license=open('LICENSE.txt').read(),
-    description='Real estate search engine')
+    description='Real estate search engine.')

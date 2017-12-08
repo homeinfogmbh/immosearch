@@ -10,7 +10,7 @@ from pyxb import PyXBException
 
 from filedb import FileError
 from homeinfo.crm import Customer
-from wsgilib import XML, OK, Binary, InternalServerError, RequestHandler
+from wsgilib import OK, Error, XML, Binary, Application
 from openimmo import factories, openimmo
 from openimmodb import Immobilie, Anhang
 
@@ -23,7 +23,10 @@ from immosearch.pager import Pager
 from immosearch.selector import RealEstateDataSelector
 from immosearch.sort import RealEstateSorter
 
-__all__ = ['ImmoSearchHandler']
+__all__ = ['APPLICATION']
+
+
+APPLICATION = Application('ImmoSearch')
 
 
 def get_includes(value):
@@ -167,167 +170,104 @@ class PathNodes(Enum):
     CUSTOMER = 'customer'
 
 
-class ImmoSearchHandler(RequestHandler):
-    """HAndles requests for ImmoSearch."""
+def get_attachment(aid):
+    """REturns the respective attachment."""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._cache = {}
+    try:
+        return Anhang.get(Anhang.id == aid)
+    except DoesNotExist:
+        raise AttachmentNotFound()
 
-    @property
-    @lru_cache(maxsize=1)
-    def cid(self):
-        """Extracts the customer ID from the query path."""
-        path = self.path
 
-        if len(path) > 1:
-            if path[1] == PathNodes.CUSTOMER.value:
-                if len(path) == 3:
-                    cid = path[2]
+def get_options():
+    """Parses the query dictionary for options."""
 
-                    try:
-                        return int(cid)
-                    except ValueError:
-                        raise NotAnInteger(cid) from None
+    filters = None
+    sort = None
+    paging = None
+    includes = None
 
-                raise InvalidPathLength(len(path)) from None
-
-            raise InvalidPathNode(path[1]) from None
-
-    @property
-    @lru_cache(maxsize=1)
-    def customer(self):
-        """Returns the respective customer."""
+    for key, value in request.args.items():
         try:
-            return Customer.get(Customer.id == self.cid)
-        except DoesNotExist:
-            return NoSuchCustomer(self.cid)
+            value = unquote(value)
+        except TypeError:
+            value = None
 
-    @property
-    @lru_cache(maxsize=1)
-    def aid(self):
-        """Extracts an attachment identifier from the path."""
-        path = self.path
+        if key == Operations.INCLUDE.value:
+            includes = tuple(get_includes(value))
+        elif key == Operations.FILTER.value:
+            filters = value
+        elif key == Operations.SORT.value:
+            sort = tuple(get_sorting(value))
+        elif key == Operations.PAGING.value:
+            paging = get_paging(value)
 
+    return (filters, sort, paging, includes)
+
+
+def get_customer(cid):
+    """Returns the respective customer."""
+
+    try:
+        return Customer.get(Customer.id == cid)
+    except DoesNotExist:
+        raise NoSuchCustomer(cid)
+
+
+def set_validated_real_estates(anbieter, real_estates):
+    """Sets validated real estates."""
+    flawed = openimmo.user_defined_extend()
+    count = 0
+
+    for count, (_, dom) in enumerate(real_estates, start=1):
         try:
-            mode = path[1]
-        except IndexError:
-            raise InvalidPathLength(len(path)) from None
-
-        if mode == 'attachment':
-            try:
-                attachment_id = path[2]
-            except IndexError:
-                raise InvalidPathLength(len(path)) from None
-
-            try:
-                return int(attachment_id)
-            except (TypeError, ValueError):
-                raise NotAnInteger(attachment_id) from None
-
-        raise InvalidPathNode(mode) from None
-
-    @property
-    @lru_cache(maxsize=1)
-    def attachment(self):
-        """REturns the respective attachment."""
-        try:
-            return Anhang.get(Anhang.id == self.aid)
-        except DoesNotExist:
-            raise AttachmentNotFound() from None
-
-    @property
-    @lru_cache(maxsize=1)
-    def options(self):
-        """Parses the query dictionary for options."""
-        filters = None
-        sort = None
-        paging = None
-        includes = None
-
-        for key, value in self.query.items():
-            try:
-                value = unquote(value)
-            except TypeError:
-                value = None
-
-            if key == Operations.INCLUDE.value:
-                includes = tuple(get_includes(value))
-            elif key == Operations.FILTER.value:
-                filters = value
-            elif key == Operations.SORT.value:
-                sort = tuple(get_sorting(value))
-            elif key == Operations.PAGING.value:
-                paging = get_paging(value)
-
-        return (filters, sort, paging, includes)
-
-    @property
-    def anbieter(self):
-        """Gets real estates (XML) data."""
-        filters, sort, paging, includes = self.options
-        customer = self.customer
-
-        try:
-            Blacklist.get(Blacklist.customer == customer)
-        except DoesNotExist:
-            real_estates = filter_real_estates(
-                get_real_estates(customer), filters, sort, paging, includes)
-            anbieter = gen_anbieter(customer, paging)
-            self.set_validated_real_estates(anbieter, real_estates)
-            return XML(anbieter)
+            dom.toxml()
+        except PyXBException as error:
+            feld = openimmo.feld(
+                name='Flawed real estate', wert=dom.objektnr_extern)
+            feld.typ.append(str(error))
+            flawed.feld.append(feld)
         else:
-            return UserNotAllowed(self.cid)
+            anbieter.immobilie.append(dom)
 
-    @property
-    def attachments(self):
-        """Returns the queried attachment."""
-        if self.query.get('sha256sum', False):
-            try:
-                return OK(self.attachment.sha256sum)
-            except FileError:
-                return InternalServerError('Could not get file checksum.')
+    if flawed.feld:
+        anbieter.user_defined_extend.append(flawed)
 
+    anbieter.user_defined_simplefield.append(
+        openimmo.user_defined_simplefield(count, feldname='count'))
+    return anbieter
+
+
+@APPLICATION.route('/attachment/<int:aid>')
+def get_attachment(aid):
+    """Returns the respective attachment."""
+
+    if request.args.get('sha256sum', False):
         try:
-            return Binary(self.attachment.data)
+            return OK(get_attachment().sha256sum)
         except FileError:
-            return InternalServerError('Could not find file for attachment.')
+            raise Error('Could not get file checksum.', status=500)
+
+    try:
+        return Binary(get_attachment().data)
+    except FileError:
+        raise Error('Could not find file for attachment.', status=500)
 
 
-    def set_validated_real_estates(self, anbieter, real_estates):
-        """Sets validated real estates."""
-        flawed = openimmo.user_defined_extend()
-        count = 0
 
-        for count, (_, dom) in enumerate(real_estates, start=1):
-            try:
-                dom.toxml()
-            except PyXBException as error:
-                self.logger.error('Failed to serialize "{}".'.format(
-                    dom.objektnr_extern))
-                feld = openimmo.feld(
-                    name='Flawed real estate', wert=dom.objektnr_extern)
-                feld.typ.append(str(error))
-                flawed.feld.append(feld)
-            else:
-                anbieter.immobilie.append(dom)
+@APPLICATION.route('/customer/<int:cid>')
+def get_customer(cid):
+    """Returns the respective customer's real estates."""
 
-        if flawed.feld:
-            anbieter.user_defined_extend.append(flawed)
+    filters, sort, paging, includes = self.options
+    customer = get_customer(cid)
 
-        anbieter.user_defined_simplefield.append(
-            openimmo.user_defined_simplefield(count, feldname='count'))
+    try:
+        Blacklist.get(Blacklist.customer == customer)
+    except DoesNotExist:
+        real_estates = filter_real_estates(
+            get_real_estates(customer), filters, sort, paging, includes)
+        anbieter = gen_anbieter(customer, paging)
+        return XML(set_validated_real_estates(anbieter, real_estates))
 
-    def get(self):
-        """Main method to call."""
-        try:
-            mode = self.path[1]
-        except IndexError:
-            raise InvalidPathLength(len(self.path)) from None
-
-        if mode == 'attachment':
-            return self.attachments
-        elif mode in ('customer', 'realestates'):
-            return self.anbieter
-
-        raise InvalidPathNode(mode) from None
+    return UserNotAllowed(cid)
