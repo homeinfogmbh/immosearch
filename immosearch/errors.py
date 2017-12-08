@@ -5,8 +5,6 @@ from wsgilib import JSON
 __all__ = [
     # <nn>    WSGI top-level errors
     'NoSuchCustomer',
-    'InvalidPathLength',
-    'InvalidPathNode',
     'InvalidParameterError',
     'UserNotAllowed',
     'OptionAlreadySet',
@@ -51,26 +49,6 @@ class NoSuchCustomer(RenderableError):
     def __init__(self, cid_str):
         """Initializes error code an message"""
         super().__init__(11, 'No such customer: {}.'.format(cid_str))
-
-
-class InvalidPathLength(RenderableError):
-    """Indicates that a query_path with
-    an invalid length was provided.
-    """
-
-    def __init__(self, length):
-        """Initializes error code an message."""
-        super().__init__(12, 'Invalid path length: {}.'.format(length))
-
-
-class InvalidPathNode(RenderableError):
-    """Indicates that a query_path with
-    an invalid node was provided.
-    """
-
-    def __init__(self, node):
-        """Initializes error code an message."""
-        super().__init__(13, 'Invalid path node: {}.'.format(node))
 
 
 class InvalidParameterError(RenderableError):

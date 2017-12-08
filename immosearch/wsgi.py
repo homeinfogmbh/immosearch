@@ -1,10 +1,10 @@
 """WSGI app."""
 
 from enum import Enum
-from functools import lru_cache
 from subprocess import CalledProcessError, check_output
 from urllib.parse import unquote
 
+from flask import request
 from peewee import DoesNotExist
 from pyxb import PyXBException
 
@@ -14,9 +14,8 @@ from wsgilib import OK, Error, XML, Binary, Application
 from openimmo import factories, openimmo
 from openimmodb import Immobilie, Anhang
 
-from immosearch.errors import NoSuchCustomer, InvalidPathLength, \
-    InvalidPathNode, InvalidOptionsCount, NotAnInteger, \
-    InvalidParameterError, UserNotAllowed, AttachmentNotFound
+from immosearch.errors import NoSuchCustomer, InvalidOptionsCount, \
+    NotAnInteger, InvalidParameterError, UserNotAllowed, AttachmentNotFound
 from immosearch.filter import RealEstateSieve
 from immosearch.orm import Blacklist
 from immosearch.pager import Pager
@@ -170,7 +169,7 @@ class PathNodes(Enum):
     CUSTOMER = 'customer'
 
 
-def get_attachment(aid):
+def _get_attachment(aid):
     """REturns the respective attachment."""
 
     try:
@@ -179,7 +178,7 @@ def get_attachment(aid):
         raise AttachmentNotFound()
 
 
-def get_options():
+def _get_options():
     """Parses the query dictionary for options."""
 
     filters = None
@@ -205,7 +204,7 @@ def get_options():
     return (filters, sort, paging, includes)
 
 
-def get_customer(cid):
+def _get_customer(cid):
     """Returns the respective customer."""
 
     try:
@@ -214,7 +213,7 @@ def get_customer(cid):
         raise NoSuchCustomer(cid)
 
 
-def set_validated_real_estates(anbieter, real_estates):
+def _set_validated_real_estates(anbieter, real_estates):
     """Sets validated real estates."""
     flawed = openimmo.user_defined_extend()
     count = 0
@@ -244,12 +243,12 @@ def get_attachment(aid):
 
     if request.args.get('sha256sum', False):
         try:
-            return OK(get_attachment().sha256sum)
+            return OK(_get_attachment(aid).sha256sum)
         except FileError:
             raise Error('Could not get file checksum.', status=500)
 
     try:
-        return Binary(get_attachment().data)
+        return Binary(_get_attachment(aid).data)
     except FileError:
         raise Error('Could not find file for attachment.', status=500)
 
@@ -259,8 +258,8 @@ def get_attachment(aid):
 def get_customer(cid):
     """Returns the respective customer's real estates."""
 
-    filters, sort, paging, includes = self.options
-    customer = get_customer(cid)
+    filters, sort, paging, includes = _get_options()
+    customer = _get_customer(cid)
 
     try:
         Blacklist.get(Blacklist.customer == customer)
@@ -268,6 +267,6 @@ def get_customer(cid):
         real_estates = filter_real_estates(
             get_real_estates(customer), filters, sort, paging, includes)
         anbieter = gen_anbieter(customer, paging)
-        return XML(set_validated_real_estates(anbieter, real_estates))
+        return XML(_set_validated_real_estates(anbieter, real_estates))
 
     return UserNotAllowed(cid)
