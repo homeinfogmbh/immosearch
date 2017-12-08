@@ -28,14 +28,41 @@ __all__ = ['APPLICATION']
 APPLICATION = Application('ImmoSearch')
 
 
-def get_includes(value):
+class Separators(Enum):
+    """Special separation characters."""
+
+    QUERY = '&'
+    ASS = '='
+    OPTION = ','
+    ATTR = ':'
+    PATH = '/'
+
+
+class Operations(Enum):
+    """Valid query operations."""
+
+    FILTER = 'filter'
+    INCLUDE = 'include'
+    SORT = 'sort'
+    PAGING = 'paging'
+    NOCACHE = 'nocache'
+
+
+class PathNodes(Enum):
+    """Valid path nodes."""
+
+    OPENIMMO = 'openimmo'
+    CUSTOMER = 'customer'
+
+
+def _get_includes(value):
     """Select options."""
 
     for include in value.split(Separators.OPTION.value):
         yield include
 
 
-def get_sorting(value):
+def _get_sorting(value):
     """Generate sorting data."""
 
     for sort_option in value.split(Separators.OPTION.value):
@@ -50,7 +77,7 @@ def get_sorting(value):
         yield (key, desc)
 
 
-def get_paging(value):
+def _get_paging(value):
     """Generate scaling data."""
 
     paging_opts = value.split(Separators.OPTION.value)
@@ -84,14 +111,14 @@ def get_paging(value):
     return (limit, page)
 
 
-def get_real_estates(customer):
+def _get_real_estates(customer):
     """Returns real estates for the respective customer."""
 
     for real_estate in Immobilie.by_customer(customer):
         yield (real_estate, real_estate.to_dom())
 
 
-def filter_real_estates(real_estates, filters, sort, paging, includes):
+def _filter_real_estates(real_estates, filters, sort, paging, includes):
     """Perform sieving, sorting and rendering."""
 
     if filters is not None:
@@ -109,7 +136,7 @@ def filter_real_estates(real_estates, filters, sort, paging, includes):
     return real_estates
 
 
-def set_paging(anbieter, paging):
+def _set_paging(anbieter, paging):
     """Sets paging information."""
 
     if paging is not None:
@@ -120,7 +147,7 @@ def set_paging(anbieter, paging):
             openimmo.user_defined_simplefield(page_num, feldname='page_num'))
 
 
-def set_fortune(anbieter):
+def _set_fortune(anbieter):
     """Sets a random message of the day (easter egg)."""
 
     try:
@@ -132,41 +159,14 @@ def set_fortune(anbieter):
             openimmo.user_defined_simplefield(fortune, feldname='motd'))
 
 
-def gen_anbieter(customer, paging):
+def _gen_anbieter(customer, paging):
     """Generates an openimmo.anbieter DOM."""
 
     anbieter = factories.anbieter(
         str(customer.id), customer.name, str(customer.id))
-    set_paging(anbieter, paging)
-    set_fortune(anbieter)
+    _set_paging(anbieter, paging)
+    _set_fortune(anbieter)
     return anbieter
-
-
-class Separators(Enum):
-    """Special separation characters."""
-
-    QUERY = '&'
-    ASS = '='
-    OPTION = ','
-    ATTR = ':'
-    PATH = '/'
-
-
-class Operations(Enum):
-    """Valid query operations."""
-
-    FILTER = 'filter'
-    INCLUDE = 'include'
-    SORT = 'sort'
-    PAGING = 'paging'
-    NOCACHE = 'nocache'
-
-
-class PathNodes(Enum):
-    """Valid path nodes."""
-
-    OPENIMMO = 'openimmo'
-    CUSTOMER = 'customer'
 
 
 def _get_attachment(aid):
@@ -193,13 +193,13 @@ def _get_options():
             value = None
 
         if key == Operations.INCLUDE.value:
-            includes = tuple(get_includes(value))
+            includes = tuple(_get_includes(value))
         elif key == Operations.FILTER.value:
             filters = value
         elif key == Operations.SORT.value:
-            sort = tuple(get_sorting(value))
+            sort = tuple(_get_sorting(value))
         elif key == Operations.PAGING.value:
-            paging = get_paging(value)
+            paging = _get_paging(value)
 
     return (filters, sort, paging, includes)
 
@@ -264,9 +264,9 @@ def get_customer(cid):
     try:
         Blacklist.get(Blacklist.customer == customer)
     except DoesNotExist:
-        real_estates = filter_real_estates(
-            get_real_estates(customer), filters, sort, paging, includes)
-        anbieter = gen_anbieter(customer, paging)
+        real_estates = _filter_real_estates(
+            _get_real_estates(customer), filters, sort, paging, includes)
+        anbieter = _gen_anbieter(customer, paging)
         return XML(_set_validated_real_estates(anbieter, real_estates))
 
     return UserNotAllowed(cid)
