@@ -241,6 +241,8 @@ def _set_validated_real_estates(anbieter, real_estates):
 def get_attachment(aid):
     """Returns the respective attachment."""
 
+    print('SHA256:', request.args.get('sha256sum'), flush=True)
+
     if request.args.get('sha256sum', False):
         try:
             return OK(_get_attachment(aid).sha256sum)
