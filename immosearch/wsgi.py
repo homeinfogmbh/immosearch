@@ -255,8 +255,6 @@ def get_attachment(aid):
         raise Error('Could not get file checksum.', status=500)
 
 
-
-
 @APPLICATION.route('/customer/<int:cid>', strict_slashes=False)
 def get_customer(cid):
     """Returns the respective customer's real estates."""
