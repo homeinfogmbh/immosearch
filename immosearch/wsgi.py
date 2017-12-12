@@ -241,18 +241,19 @@ def _set_validated_real_estates(anbieter, real_estates):
 def get_attachment(aid):
     """Returns the respective attachment."""
 
-    print('SHA256:', request.args.get('sha256sum'), flush=True)
-
-    if request.args.get('sha256sum', False):
+    try:
+        request.args['sha256sum']
+    except KeyError:
         try:
-            return OK(_get_attachment(aid).sha256sum)
+            return Binary(_get_attachment(aid).data)
         except FileError:
-            raise Error('Could not get file checksum.', status=500)
+            raise Error('Could not find file for attachment.', status=500)
 
     try:
-        return Binary(_get_attachment(aid).data)
+        return OK(_get_attachment(aid).sha256sum)
     except FileError:
-        raise Error('Could not find file for attachment.', status=500)
+        raise Error('Could not get file checksum.', status=500)
+
 
 
 
