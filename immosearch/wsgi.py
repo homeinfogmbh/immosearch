@@ -169,11 +169,11 @@ def _gen_anbieter(customer, paging):
     return anbieter
 
 
-def _get_attachment(aid):
+def _get_attachment(ident):
     """REturns the respective attachment."""
 
     try:
-        return Anhang.get(Anhang.id == aid)
+        return Anhang.get(Anhang.id == ident)
     except DoesNotExist:
         raise AttachmentNotFound()
 
@@ -237,20 +237,20 @@ def _set_validated_real_estates(anbieter, real_estates):
     return anbieter
 
 
-@APPLICATION.route('/attachment/<int:aid>', strict_slashes=False)
-def get_attachment(aid):
+@APPLICATION.route('/attachment/<int:ident>', strict_slashes=False)
+def get_attachment(ident):
     """Returns the respective attachment."""
 
     try:
         request.args['sha256sum']
     except KeyError:
         try:
-            return Binary(_get_attachment(aid).data)
+            return Binary(_get_attachment(ident).data)
         except FileError:
             raise Error('Could not find file for attachment.', status=500)
 
     try:
-        return OK(_get_attachment(aid).sha256sum)
+        return OK(_get_attachment(ident).sha256sum)
     except FileError:
         raise Error('Could not get file checksum.', status=500)
 
