@@ -1,7 +1,5 @@
 [Unit]
 Description=ImmoSearch
-After=network.target mysql.service
-Wants=mysql.service
 
 [Service]
 User=immosearch
@@ -9,4 +7,4 @@ Group=immosearch
 ExecStart=/usr/local/bin/immosearchd
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=wsgi-services.target
