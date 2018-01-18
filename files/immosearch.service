@@ -1,5 +1,6 @@
 [Unit]
 Description=ImmoSearch
+PartOf=wsgi-services.target
 
 [Service]
 User=immosearch
