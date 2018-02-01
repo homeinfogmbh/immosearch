@@ -41,13 +41,15 @@ def set_titlepic(orm_id, real_estate):
         if group is None:
             group_selector = True
         else:
-            group_selector = Anhang.gruppe == gruppe
+            group_selector = Anhang.gruppe == group
 
         try:
             title_picture = Anhang.get(
                 (Anhang.immobilie == orm_id) & group_selector)
         except Anhang.DoesNotExist:
             continue
+        else:
+            break
 
     if title_picture is not None:
         real_estate.anhaenge.anhang.append(title_picture.remote(BASE_URL))
