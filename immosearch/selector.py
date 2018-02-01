@@ -35,8 +35,6 @@ def set_attachments(orm_id, real_estate, attachments):
 def set_titlepic(orm_id, real_estate):
     """Sets the title picture."""
 
-    title_picture = None
-
     for group in TITLEPIC_SEARCH_GROUPS:
         if group is None:
             group_selector = True
@@ -44,15 +42,12 @@ def set_titlepic(orm_id, real_estate):
             group_selector = Anhang.gruppe == group
 
         try:
-            title_picture = Anhang.get(
-                (Anhang.immobilie == orm_id) & group_selector)
+            anhang = Anhang.get((Anhang.immobilie == orm_id) & group_selector)
         except Anhang.DoesNotExist:
             continue
-        else:
-            break
 
-    if title_picture is not None:
-        real_estate.anhaenge.anhang.append(title_picture.remote(BASE_URL))
+        real_estate.anhaenge.anhang.append(anhang.remote(BASE_URL))
+        break
 
 
 def set_free_texts(real_estate, freitexte):
