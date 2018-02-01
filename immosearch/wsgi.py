@@ -5,7 +5,6 @@ from subprocess import CalledProcessError, check_output
 from urllib.parse import unquote
 
 from flask import request
-from peewee import DoesNotExist
 from pyxb import PyXBException
 
 from filedb import FileError
@@ -174,7 +173,7 @@ def _get_attachment(ident):
 
     try:
         return Anhang.get(Anhang.id == ident)
-    except DoesNotExist:
+    except Anhang.DoesNotExist:
         raise AttachmentNotFound()
 
 
@@ -209,7 +208,7 @@ def _get_customer(cid):
 
     try:
         return Customer.get(Customer.id == cid)
-    except DoesNotExist:
+    except Customer.DoesNotExist:
         raise NoSuchCustomer(cid)
 
 
@@ -264,7 +263,7 @@ def get_customer(cid):
 
     try:
         Blacklist.get(Blacklist.customer == customer)
-    except DoesNotExist:
+    except Blacklist.DoesNotExist:
         real_estates = _filter_real_estates(
             _get_real_estates(customer), filters, sort, paging, includes)
         anbieter = _gen_anbieter(customer, paging)

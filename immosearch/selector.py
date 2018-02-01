@@ -2,8 +2,6 @@
 from enum import Enum
 from re import compile as compile_
 
-from peewee import DoesNotExist
-
 from openimmo import openimmo
 from openimmodb import Anhang
 
@@ -13,6 +11,8 @@ __all__ = ['Selections', 'RealEstateDataSelector']
 
 
 BASE_URL = 'https://backend.homeinfo.de/immosearch/attachment/{}'
+TITLEPIC_SEARCH_GROUPS = (
+    'TITELBILD', 'AUSSENANSICHTEN', 'INNENANSICHTEN', None)
 
 
 def set_all_attachments(orm_id, real_estate):
@@ -35,25 +35,19 @@ def set_attachments(orm_id, real_estate, attachments):
 def set_titlepic(orm_id, real_estate):
     """Sets the title picture."""
 
-    try:
-        title_picture = Anhang.get(
-            (Anhang.immobilie == orm_id)
-            & (Anhang.gruppe == 'TITELBILD'))
-    except DoesNotExist:
+    title_picture = None
+
+    for group in TITLEPIC_SEARCH_GROUPS:
+        if group is None:
+            group_selector = True
+        else:
+            group_selector = Anhang.gruppe == gruppe
+
         try:
             title_picture = Anhang.get(
-                (Anhang.immobilie == orm_id)
-                & (Anhang.gruppe == 'AUSSENANSICHTEN'))
-        except DoesNotExist:
-            try:
-                title_picture = Anhang.get(
-                    (Anhang.immobilie == orm_id)
-                    & (Anhang.gruppe == 'INNENANSICHTEN'))
-            except DoesNotExist:
-                try:
-                    title_picture = Anhang.get(Anhang.immobilie == orm_id)
-                except DoesNotExist:
-                    title_picture = None
+                (Anhang.immobilie == orm_id) & group_selector)
+        except Anhang.DoesNotExist:
+            continue
 
     if title_picture is not None:
         real_estate.anhaenge.anhang.append(title_picture.remote(BASE_URL))
