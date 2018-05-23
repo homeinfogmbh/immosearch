@@ -9,12 +9,8 @@ from .config import CONFIG
 
 __all__ = ['Blacklist']
 
-DATABASE = MySQLDatabase(
-    CONFIG['db']['DB'],
-    host=CONFIG['db']['HOST'],
-    user=CONFIG['db']['USER'],
-    passwd=CONFIG['db']['PASSWD'],
-    closing=True)
+
+DATABASE = MySQLDatabase.from_config(CONFIG['db'])
 
 
 class ImmoSearchModel(Model):
