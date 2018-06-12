@@ -25,4 +25,4 @@ class Blacklist(ImmoSearchModel):
     """List of users to apprehend ImmoSearch serving data for."""
 
     customer = ForeignKeyField(
-        Customer, db_column='customer', related_name='immosearch')
+        Customer, column_name='customer', related_name='immosearch')
