@@ -8,10 +8,10 @@ from flask import request
 from pyxb import PyXBException
 
 from filedb import FileError
-from homeinfo.crm import Customer
-from wsgilib import OK, Error, XML, Binary, Application
+from mdb import Customer
 from openimmo import factories, openimmo
 from openimmodb import Immobilie, Anhang
+from wsgilib import OK, Error, XML, Binary, Application
 
 from immosearch.errors import NoSuchCustomer, InvalidOptionsCount, \
     NotAnInteger, InvalidParameterError, UserNotAllowed, AttachmentNotFound

@@ -2,8 +2,8 @@
 
 from peewee import Model, ForeignKeyField
 
+from mdb import Customer
 from peeweeplus import MySQLDatabase
-from homeinfo.crm import Customer
 
 from .config import CONFIG
 
