@@ -1,7 +1,9 @@
 """Immosearch's main configuration"""
 
-from configlib import INIParser
+from configlib import loadcfg
+
 
 __all__ = ['CONFIG']
 
-CONFIG = INIParser('/etc/immosearch.conf')
+
+CONFIG = loadcfg('immosearch.conf')
