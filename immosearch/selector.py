@@ -1,11 +1,14 @@
 """Real estate data selecting."""
+
 from enum import Enum
 from re import compile as compile_
 
+from filedb import FileError
 from openimmo import openimmo
 from openimmodb import Anhang
 
 from .errors import InvalidAttachmentLimit
+
 
 __all__ = ['Selections', 'RealEstateDataSelector']
 
@@ -29,7 +32,11 @@ def set_attachments(orm_id, real_estate, attachments):
         if number >= attachments:
             break
 
-        real_estate.anhaenge.anhang.append(attachment.remote(BASE_URL))
+        try:
+            real_estate.anhaenge.anhang.append(attachment.remote(BASE_URL))
+        except FileError as file_error:
+            print('Skipping attachment #%i %s due to error: %s',
+                  number, attachment, file_error)
 
 
 def set_titlepic(orm_id, real_estate):
@@ -132,3 +139,5 @@ class RealEstateDataSelector:
                     return int(match.group(1))
                 except ValueError:
                     raise InvalidAttachmentLimit(selection)
+
+        return None
