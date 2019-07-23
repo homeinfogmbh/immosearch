@@ -9,12 +9,19 @@ from pyxb import PyXBException
 
 from filedb import FileError
 from mdb import Customer
-from openimmo import factories, openimmo
+from openimmo import anbieter
+from openimmo import feld
+from openimmo import user_defined_extend
+from openimmo import user_defined_simplefield
 from openimmodb import Immobilie, Anhang
 from wsgilib import OK, Error, XML, Binary, Application
 
-from immosearch.errors import NoSuchCustomer, InvalidOptionsCount, \
-    NotAnInteger, InvalidParameterError, UserNotAllowed, AttachmentNotFound
+from immosearch.errors import NoSuchCustomer
+from immosearch.errors import InvalidOptionsCount
+from immosearch.errors import NotAnInteger
+from immosearch.errors import InvalidParameterError
+from immosearch.errors import UserNotAllowed
+from immosearch.errors import AttachmentNotFound
 from immosearch.filter import RealEstateSieve
 from immosearch.orm import Blacklist
 from immosearch.pager import Pager
@@ -135,18 +142,18 @@ def _filter_real_estates(real_estates, filters, sort, paging, includes):
     return real_estates
 
 
-def _set_paging(anbieter, paging):
+def _set_paging(anbieter, paging):  # pylint: disable=W0621
     """Sets paging information."""
 
     if paging is not None:
         page_size, page_num = paging
         anbieter.user_defined_simplefield.append(
-            openimmo.user_defined_simplefield(page_size, feldname='page_size'))
+            user_defined_simplefield(page_size, feldname='page_size'))
         anbieter.user_defined_simplefield.append(
-            openimmo.user_defined_simplefield(page_num, feldname='page_num'))
+            user_defined_simplefield(page_num, feldname='page_num'))
 
 
-def _set_fortune(anbieter):
+def _set_fortune(anbieter):     # pylint: disable=W0621
     """Sets a random message of the day (easter egg)."""
 
     try:
@@ -155,17 +162,18 @@ def _set_fortune(anbieter):
         pass
     else:
         anbieter.user_defined_simplefield.append(
-            openimmo.user_defined_simplefield(fortune, feldname='motd'))
+            user_defined_simplefield(fortune, feldname='motd'))
 
 
 def _gen_anbieter(customer, paging):
     """Generates an openimmo.anbieter DOM."""
 
-    anbieter = factories.anbieter(
-        str(customer.id), customer.name, str(customer.id))
-    _set_paging(anbieter, paging)
-    _set_fortune(anbieter)
-    return anbieter
+    result = anbieter(
+        anbieternr=repr(customer), firma=str(customer),
+        openimmo_anid=repr(customer))
+    _set_paging(result, paging)
+    _set_fortune(result)
+    return result
 
 
 def _get_attachment(ident):
@@ -212,19 +220,19 @@ def _get_customer(cid):
         raise NoSuchCustomer(cid)
 
 
-def _set_validated_real_estates(anbieter, real_estates):
+def _set_validated_real_estates(
+        anbieter, real_estates):    # pylint: disable=W0621
     """Sets validated real estates."""
-    flawed = openimmo.user_defined_extend()
+    flawed = user_defined_extend()
     count = 0
 
     for count, (_, dom) in enumerate(real_estates, start=1):
         try:
             dom.toxml()
         except PyXBException as error:
-            feld = openimmo.feld(
-                name='Flawed real estate', wert=dom.objektnr_extern)
-            feld.typ.append(str(error))
-            flawed.feld.append(feld)
+            feld_ = feld(name='Flawed real estate', wert=dom.objektnr_extern)
+            feld_.typ.append(str(error))
+            flawed.feld.append(feld_)
         else:
             anbieter.immobilie.append(dom)
 
@@ -232,7 +240,7 @@ def _set_validated_real_estates(anbieter, real_estates):
         anbieter.user_defined_extend.append(flawed)
 
     anbieter.user_defined_simplefield.append(
-        openimmo.user_defined_simplefield(count, feldname='count'))
+        user_defined_simplefield(count, feldname='count'))
     return anbieter
 
 
@@ -266,7 +274,7 @@ def get_customer(cid):
     except Blacklist.DoesNotExist:
         real_estates = _filter_real_estates(
             _get_real_estates(customer), filters, sort, paging, includes)
-        anbieter = _gen_anbieter(customer, paging)
+        anbieter = _gen_anbieter(customer, paging)  # pylint: disable=W0621
         return XML(_set_validated_real_estates(anbieter, real_estates))
 
     return UserNotAllowed(cid)

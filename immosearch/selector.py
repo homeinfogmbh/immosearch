@@ -4,7 +4,7 @@ from enum import Enum
 from re import compile as compile_
 
 from filedb import FileError
-from openimmo import openimmo
+from openimmo import anhaenge
 from openimmodb import Anhang
 
 from .errors import InvalidAttachmentLimit
@@ -99,7 +99,7 @@ class RealEstateDataSelector:
 
         for orm, dom in self.real_estates:
             # Discard previouly cached attachments.
-            dom.anhaenge = openimmo.anhaenge()
+            dom.anhaenge = anhaenge()
 
             if allatts:
                 set_all_attachments(orm.id, dom)
