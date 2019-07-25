@@ -7,6 +7,7 @@ from boolparse import SecurityError, evaluate
 from .lib import cast, Operators
 from .errors import SecurityBreach, InvalidFilterOption, SievingError
 
+
 __all__ = ['RealEstateSieve']
 
 
@@ -169,30 +170,44 @@ class FilterableRealEstate:
 
         if objektart.zimmer:
             return 'zimmer'
-        elif objektart.wohnung:
+
+        if objektart.wohnung:
             return 'wohnung'
-        elif objektart.haus:
+
+        if objektart.haus:
             return 'haus'
-        elif objektart.grundstueck:
+
+        if objektart.grundstueck:
             return 'grundstueck'
-        elif objektart.buero_praxen:
+
+        if objektart.buero_praxen:
             return 'buero_praxen'
-        elif objektart.einzelhandel:
+
+        if objektart.einzelhandel:
             return 'einzelhandel'
-        elif objektart.gastgewerbe:
+
+        if objektart.gastgewerbe:
             return 'gastgewerbe'
-        elif objektart.hallen_lager_prod:
+
+        if objektart.hallen_lager_prod:
             return 'hallen_lager_prod'
-        elif objektart.land_und_forstwirtschaft:
+
+        if objektart.land_und_forstwirtschaft:
             return 'land_und_forstwirtschaft'
-        elif objektart.parken:
+
+        if objektart.parken:
             return 'parken'
-        elif objektart.sonstige:
+
+        if objektart.sonstige:
             return 'sonstige'
-        elif objektart.freizeitimmobilie_gewerblich:
+
+        if objektart.freizeitimmobilie_gewerblich:
             return 'freizeitimmobilie_gewerblich'
-        elif objektart.zinshaus_renditeobjekt:
+
+        if objektart.zinshaus_renditeobjekt:
             return 'zinshaus_renditeobjekt'
+
+        return None
 
     @property
     def objekttypen(self):
@@ -247,9 +262,11 @@ class FilterableRealEstate:
             iso_land = self.immobilie.geo.land.iso_land
         except AttributeError:
             return None
-        else:
-            if iso_land is not None:
-                return str(iso_land)
+
+        if iso_land is not None:
+            return str(iso_land)
+
+        return None
 
     @property
     def ort(self):
@@ -257,11 +274,15 @@ class FilterableRealEstate:
         if self.immobilie.geo.ort is not None:
             return str(self.immobilie.geo.ort)
 
+        return None
+
     @property
     def ortsteil(self):
         """Returns the city's district."""
         if self.immobilie.geo.regionaler_zusatz is not None:
             return str(self.immobilie.geo.regionaler_zusatz)
+
+        return None
 
     @property
     def plz(self):
@@ -269,11 +290,15 @@ class FilterableRealEstate:
         if self.immobilie.geo.plz is not None:
             return str(self.immobilie.geo.plz)
 
+        return None
+
     @property
     def strasse(self):
         """Returns the ZIP code."""
         if self.immobilie.geo.strasse is not None:
             return str(self.immobilie.geo.strasse)
+
+        return None
 
     @property
     def hausnummer(self):
@@ -281,11 +306,15 @@ class FilterableRealEstate:
         if self.immobilie.geo.hausnummer is not None:
             return str(self.immobilie.geo.hausnummer)
 
+        return None
+
     @property
     def zimmer(self):
         """Returns the number of rooms."""
         if self.immobilie.flaechen.anzahl_zimmer is not None:
             return float(self.immobilie.flaechen.anzahl_zimmer)
+
+        return None
 
     @property
     def etage(self):
@@ -293,11 +322,15 @@ class FilterableRealEstate:
         if self.immobilie.geo.etage is not None:
             return int(self.immobilie.geo.etage)
 
+        return None
+
     @property
     def etagen(self):
         """Returns the number of floors of the building."""
         if self.immobilie.geo.anzahl_etagen is not None:
             return int(self.immobilie.geo.anzahl_etagen)
+
+        return None
 
     @property
     def wohnflaeche(self):
@@ -306,9 +339,8 @@ class FilterableRealEstate:
             wohnflaeche = self.immobilie.flaechen.wohnflaeche
         except AttributeError:
             return None
-        else:
-            if wohnflaeche is not None:
-                return float(wohnflaeche)
+
+        return None if wohnflaeche is None else float(wohnflaeche)
 
     @property
     def grundstuecksflaeche(self):
@@ -317,9 +349,11 @@ class FilterableRealEstate:
             grundstuecksflaeche = self.immobilie.flaechen.grundstuecksflaeche
         except AttributeError:
             return None
-        else:
-            if grundstuecksflaeche is not None:
-                return float(grundstuecksflaeche)
+
+        if grundstuecksflaeche is not None:
+            return float(grundstuecksflaeche)
+
+        return None
 
     @property
     def balkone(self):
@@ -328,9 +362,8 @@ class FilterableRealEstate:
             anzahl_balkone = self.immobilie.flaechen.anzahl_balkone
         except AttributeError:
             return None
-        else:
-            if anzahl_balkone is not None:
-                return float(anzahl_balkone)
+
+        return None if anzahl_balkone is None else float(anzahl_balkone)
 
     @property
     def terrassen(self):
@@ -339,9 +372,8 @@ class FilterableRealEstate:
             anzahl_terrassen = self.immobilie.flaechen.anzahl_terrassen
         except AttributeError:
             return None
-        else:
-            if anzahl_terrassen is not None:
-                return float(anzahl_terrassen)
+
+        return None if anzahl_terrassen is None else float(anzahl_terrassen)
 
     @property
     def kaltmiete(self):
@@ -350,8 +382,8 @@ class FilterableRealEstate:
             kaltmiete = self.immobilie.preise.kaltmiete
         except AttributeError:
             return None
-        else:
-            return float(kaltmiete) if kaltmiete else None
+
+        return float(kaltmiete) if kaltmiete else None
 
     @property
     def nettokaltmiete(self):
@@ -360,8 +392,8 @@ class FilterableRealEstate:
             nettokaltmiete = self.immobilie.preise.nettokaltmiete
         except AttributeError:
             return None
-        else:
-            return float(nettokaltmiete) if nettokaltmiete else None
+
+        return float(nettokaltmiete) if nettokaltmiete else None
 
     @property
     def warmmiete(self):
@@ -370,8 +402,8 @@ class FilterableRealEstate:
             warmmiete = self.immobilie.preise.warmmiete
         except AttributeError:
             return None
-        else:
-            return float(warmmiete) if warmmiete else None
+
+        return float(warmmiete) if warmmiete else None
 
     @property
     def gesamtmiete(self):
@@ -400,8 +432,8 @@ class FilterableRealEstate:
             nebenkosten = self.immobilie.preise.nebenkosten
         except AttributeError:
             return None
-        else:
-            return float(nebenkosten) if nebenkosten else None
+
+        return float(nebenkosten) if nebenkosten else None
 
     @property
     def heizkosten(self):
@@ -410,8 +442,8 @@ class FilterableRealEstate:
             heizkosten = self.immobilie.preise.heizkosten
         except AttributeError:
             return None
-        else:
-            return float(heizkosten) if heizkosten else None
+
+        return float(heizkosten) if heizkosten else None
 
     @property
     def kaufpreis(self):
@@ -420,8 +452,8 @@ class FilterableRealEstate:
             kaufpreis = self.immobilie.preise.kaufpreis
         except AttributeError:
             return None
-        else:
-            return float(kaufpreis) if kaufpreis else None
+
+        return float(kaufpreis) if kaufpreis else None
 
     @property
     def pacht(self):
@@ -430,8 +462,8 @@ class FilterableRealEstate:
             pacht = self.immobilie.preise.pacht
         except AttributeError:
             return None
-        else:
-            return float(pacht) if pacht else None
+
+        return float(pacht) if pacht else None
 
     @property
     def erbpacht(self):
@@ -440,8 +472,8 @@ class FilterableRealEstate:
             erbpacht = self.immobilie.preise.erbpacht
         except AttributeError:
             return None
-        else:
-            return float(erbpacht) if erbpacht else None
+
+        return float(erbpacht) if erbpacht else None
 
     @property
     def aussen_courtage(self):
@@ -450,8 +482,8 @@ class FilterableRealEstate:
             aussen_courtage = self.immobilie.preise.aussen_courtage
         except AttributeError:
             return None
-        else:
-            return str(aussen_courtage) if aussen_courtage else None
+
+        return str(aussen_courtage) if aussen_courtage else None
 
     @property
     def innen_courtage(self):
@@ -460,8 +492,8 @@ class FilterableRealEstate:
             innen_courtage = self.immobilie.preise.innen_courtage
         except AttributeError:
             return None
-        else:
-            return str(innen_courtage) if innen_courtage else None
+
+        return str(innen_courtage) if innen_courtage else None
 
     @property
     def openimmo_obid(self):
@@ -473,6 +505,8 @@ class FilterableRealEstate:
         """Returns the internal identifier of the real estate."""
         if self.immobilie.verwaltung_techn.objektnr_intern:
             return str(self.immobilie.verwaltung_techn.objektnr_intern)
+
+        return None
 
     @property
     def objektnr_extern(self):
@@ -539,11 +573,15 @@ class FilterableRealEstate:
         if self.immobilie.verwaltung_objekt.verfuegbar_ab:
             return str(self.immobilie.verwaltung_objekt.verfuegbar_ab)
 
+        return None
+
     @property
     def abdatum(self):
         """Returns a date from when on the real estate is obtainable."""
         if self.immobilie.verwaltung_objekt.abdatum:
             return datetime(self.immobilie.verwaltung_objekt.abdatum)
+
+        return None
 
     @property
     def moebliert(self):
@@ -571,8 +609,8 @@ class FilterableRealEstate:
             baujahr = self.immobilie.zustand_angaben.baujahr
         except AttributeError:
             return None
-        else:
-            return str(baujahr) if baujahr else None
+
+        return str(baujahr) if baujahr else None
 
     @property
     def zustand(self):
@@ -581,8 +619,8 @@ class FilterableRealEstate:
             zustand = self.immobilie.zustand_angaben.zustand.zustand_art
         except AttributeError:
             return None
-        else:
-            return str(zustand) if zustand else None
+
+        return str(zustand) if zustand else None
 
     @property
     def epart(self):
@@ -591,8 +629,8 @@ class FilterableRealEstate:
             epart = self.immobilie.zustand_angaben.energiepass.epart
         except AttributeError:
             return None
-        else:
-            return str(epart) if epart else None
+
+        return str(epart) if epart else None
 
     @property
     def energieverbrauchkennwert(self):
@@ -603,9 +641,11 @@ class FilterableRealEstate:
                 .energieverbrauchkennwert)
         except AttributeError:
             return None
-        else:
-            if energieverbrauchkennwert:
-                return str(energieverbrauchkennwert)
+
+        if energieverbrauchkennwert:
+            return str(energieverbrauchkennwert)
+
+        return None
 
     @property
     def endenergiebedarf(self):
@@ -615,8 +655,8 @@ class FilterableRealEstate:
                 self.immobilie.zustand_angaben.energiepass.endenergiebedarf)
         except AttributeError:
             return None
-        else:
-            return str(endenergiebedarf) if endenergiebedarf else None
+
+        return str(endenergiebedarf) if endenergiebedarf else None
 
     @property
     def primaerenergietraeger(self):
@@ -627,9 +667,11 @@ class FilterableRealEstate:
                 .primaerenergietraeger)
         except AttributeError:
             return None
-        else:
-            if primaerenergietraeger:
-                return str(primaerenergietraeger)
+
+        if primaerenergietraeger:
+            return str(primaerenergietraeger)
+
+        return None
 
     @property
     def stromwert(self):
@@ -638,8 +680,8 @@ class FilterableRealEstate:
             stromwert = self.immobilie.zustand_angaben.energiepass.stromwert
         except AttributeError:
             return None
-        else:
-            return str(stromwert) if stromwert else None
+
+        return str(stromwert) if stromwert else None
 
     @property
     def waermewert(self):
@@ -648,8 +690,8 @@ class FilterableRealEstate:
             waermewert = self.immobilie.zustand_angaben.energiepass.waermewert
         except AttributeError:
             return None
-        else:
-            return str(waermewert) if waermewert else None
+
+        return str(waermewert) if waermewert else None
 
     @property
     def wertklasse(self):
@@ -658,8 +700,8 @@ class FilterableRealEstate:
             wertklasse = self.immobilie.zustand_angaben.energiepass.wertklasse
         except AttributeError:
             return None
-        else:
-            return str(wertklasse) if wertklasse else None
+
+        return str(wertklasse) if wertklasse else None
 
     @property
     def min_mietdauer(self):
@@ -668,12 +710,14 @@ class FilterableRealEstate:
             min_mietdauer = self.immobilie.verwaltung_objekt.min_mietdauer
         except AttributeError:
             return None
-        else:
-            if min_mietdauer:
-                if min_mietdauer.min_dauer:
-                    return '{0} {0.min_dauer}'.format(min_mietdauer)
 
-                return str(min_mietdauer)
+        if min_mietdauer:
+            if min_mietdauer.min_dauer:
+                return f'{min_mietdauer} {min_mietdauer.min_dauer}'
+
+            return str(min_mietdauer)
+
+        return None
 
     @property
     def max_mietdauer(self):
@@ -682,12 +726,14 @@ class FilterableRealEstate:
             max_mietdauer = self.immobilie.verwaltung_objekt.max_mietdauer
         except AttributeError:
             return None
-        else:
-            if max_mietdauer:
-                if max_mietdauer.max_dauer:
-                    return '{0} {0.max_dauer}'.format(max_mietdauer)
 
-                return str(max_mietdauer)
+        if max_mietdauer:
+            if max_mietdauer.max_dauer:
+                return f'{max_mietdauer} {max_mietdauer.max_dauer}'
+
+            return str(max_mietdauer)
+
+        return None
 
     @property
     def laufzeit(self):
@@ -696,8 +742,8 @@ class FilterableRealEstate:
             laufzeit = self.immobilie.verwaltung_objekt.laufzeit
         except AttributeError:
             return None
-        else:
-            return float(laufzeit) if laufzeit else None
+
+        return float(laufzeit) if laufzeit else None
 
     @property
     def max_personen(self):
@@ -706,8 +752,8 @@ class FilterableRealEstate:
             max_personen = self.immobilie.verwaltung_objekt.max_personen
         except AttributeError:
             return None
-        else:
-            return int(max_personen) if max_personen else None
+
+        return int(max_personen) if max_personen else None
 
     @property
     def weitergabe_positiv(self):
@@ -770,9 +816,6 @@ class RealEstateSieve:
                 try:
                     if applicable:
                         yield (orm, dom)
-                    else:
-                        print('Filtered real estate: {}.'.format(
-                            dom.objektnr_extern), flush=True)
                 except SecurityError as sec_err:
                     raise SecurityBreach(str(sec_err)) from None
         else:

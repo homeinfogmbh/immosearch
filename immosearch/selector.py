@@ -60,15 +60,15 @@ def set_titlepic(orm_id, real_estate):
 def set_free_texts(real_estate, freitexte):
     """Sets free texts on the real estate."""
 
-    if not freitexte:
-        real_estate.freitexte = None
-    else:
+    if freitexte:
         # Iff object description is missing,
         # replace it with the three-liner.
         if real_estate.freitexte:
             if not real_estate.freitexte.objektbeschreibung:
                 real_estate.freitexte.objektbeschreibung = \
                     real_estate.freitexte.dreizeiler
+    else:
+        real_estate.freitexte = None
 
 
 class Selections(Enum):
@@ -109,8 +109,6 @@ class RealEstateDataSelector:
                 set_titlepic(orm.id, dom)
 
             set_free_texts(dom, self.freitexte)
-            print('Processed real estate: {}.'.format(dom.objektnr_extern),
-                  flush=True)
             yield (orm, dom)
 
     @property

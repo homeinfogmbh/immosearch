@@ -1,9 +1,10 @@
 """Element paging"""
 
+
 __all__ = ['Pager']
 
 
-class Pager():
+class Pager:    # pylint: disable=R0903
     """Browses through pages"""
 
     def __init__(self, items, limit=None, page=None):

@@ -6,6 +6,7 @@ from operator import itemgetter
 from .filter import FilterableRealEstate
 from .errors import InvalidSortingOption
 
+
 __all__ = ['Sorting', 'RealEstateSorter']
 
 
@@ -78,7 +79,8 @@ class Key:
         """Greater-than check."""
         if self.val is None:
             return False
-        elif other.val is None:
+
+        if other.val is None:
             return True
 
         return self.val > other.val
@@ -87,7 +89,8 @@ class Key:
         """Less-than check."""
         if self.val is None:
             return True
-        elif other.val is None:
+
+        if other.val is None:
             return False
 
         return self.val < other.val

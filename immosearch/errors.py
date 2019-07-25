@@ -2,6 +2,7 @@
 
 from wsgilib import JSON
 
+
 __all__ = [
     # <nn>    WSGI top-level errors
     'NoSuchCustomer',
@@ -43,41 +44,40 @@ class RenderableError(JSON):
         super().__init__(error, status=status)
 
 
-class NoSuchCustomer(RenderableError):
+class NoSuchCustomer(RenderableError):  # pylint: disable=R0901
     """Indicates that an invalid customer has been selected."""
 
     def __init__(self, cid_str):
         """Initializes error code an message"""
-        super().__init__(11, 'No such customer: {}.'.format(cid_str))
+        super().__init__(11, f'No such customer: {cid_str}.')
 
 
-class InvalidParameterError(RenderableError):
+class InvalidParameterError(RenderableError):   # pylint: disable=R0901
     """Indicates that an invalid operation was requested."""
 
     def __init__(self, operation):
         """Initializes error code an message."""
-        super().__init__(14, 'Invalid parameter: {}.'.format(operation))
+        super().__init__(14, f'Invalid parameter: {operation}.')
 
 
-class UserNotAllowed(RenderableError):
+class UserNotAllowed(RenderableError):  # pylint: disable=R0901
     """Indicates that a user is not allowed to use immosearch."""
 
     def __init__(self, cid):
         """Initializes error code an message."""
-        super().__init__(15, 'User not allowed: {}.'.format(cid))
+        super().__init__(15, f'User not allowed: {cid}.')
 
 
-class OptionAlreadySet(RenderableError):
+class OptionAlreadySet(RenderableError):    # pylint: disable=R0901
     """Indicates that a user is not allowed to use immosearch."""
 
     def __init__(self, option, value):
         """Initializes error code an message."""
         super().__init__(
-            16, 'Option "{}" has already been set to: {}.'.format(
-                option, value))
+            16, f'Option "{option}" has already been set to: {value}.')
 
 
-class InvalidOptionsCount(RenderableError):
+class InvalidOptionsCount(RenderableError):     # pylint: disable=R0901
     """Indicates that not exactly one
     render option was specified.
     """
@@ -87,17 +87,17 @@ class InvalidOptionsCount(RenderableError):
         super().__init__(17, 'Invalid options count.')
 
 
-class NotAnInteger(RenderableError):
+class NotAnInteger(RenderableError):    # pylint: disable=R0901
     """Indicates that not exactly one
     render option was specified.
     """
 
     def __init__(self, integer):
         """Initializes error code an message."""
-        super().__init__(18, 'Not an integer: {}.'.format(integer))
+        super().__init__(18, f'Not an integer: {integer}.')
 
 
-class NoValidFilterOperation(RenderableError):
+class NoValidFilterOperation(RenderableError):  # pylint: disable=R0901
     """Indicates that no valid operation
     was specified in a filter query.
     """
@@ -105,21 +105,21 @@ class NoValidFilterOperation(RenderableError):
     def __init__(self, option_assignment):
         """Initializes error code an message."""
         super().__init__(
-            101, 'No valid operation was found in filtering query: {}.'.format(
-                option_assignment))
+            101, 'No valid operation was found in filtering query: '
+            f'{option_assignment}.')
 
 
-class InvalidFilterOption(RenderableError):
+class InvalidFilterOption(RenderableError):     # pylint: disable=R0901
     """Indicates that an invalid filtering
     option has been provided.
     """
 
     def __init__(self, option):
         """Initializes with the faulty option."""
-        super().__init__(102, 'Invalid filtering option: {}.'.format(option))
+        super().__init__(102, f'Invalid filtering option: {option}.')
 
 
-class SievingError(RenderableError):
+class SievingError(RenderableError):    # pylint: disable=R0901
     """Indicates an error during sieving."""
 
     def __init__(self, option, operation, value):
@@ -127,40 +127,40 @@ class SievingError(RenderableError):
         value where sieving has gone wrong.
         """
         super().__init__(
-            104, 'Cannot filter real estate by "{}" with operation "{}" '
-            'for value "{}".'.format(option, operation, value))
+            104, f'Cannot filter real estate by "{option}" with operation '
+            f'"{operation}" for value "{value}".')
 
 
-class SecurityBreach(RenderableError):
+class SecurityBreach(RenderableError):  # pylint: disable=R0901
     """Indicates errors during boolean parser's security checks."""
 
     def __init__(self, msg):
         super().__init__(
             105, 'Caught security error while parsing the search filter: '
-            '{}.'.format(msg))
+            f'{msg}.')
 
 
-class InvalidSortingOption(RenderableError):
+class InvalidSortingOption(RenderableError):    # pylint: disable=R0901
     """Indicates that an invalid sorting
     option has been provided.
     """
 
     def __init__(self, option):
         """Initializes with the faulty option."""
-        super().__init__(201, 'Invalid sorting option: {}.'.format(option))
+        super().__init__(201, f'Invalid sorting option: {option}.')
 
 
-class InvalidRenderingResolution(RenderableError):
+class InvalidRenderingResolution(RenderableError):  # pylint: disable=R0901
     """Indicates that an invalid rendering resolution was specified."""
 
     def __init__(self, resolution):
         """Initializes error code an message."""
         super().__init__(
-            302, 'Got invalid rendering resolution: {} - must be like '
-            '<width>x<height>.'.format(resolution))
+            302, f'Got invalid rendering resolution: {resolution} - '
+            'must be like <width>x<height>.')
 
 
-class NoScalingProvided(RenderableError):
+class NoScalingProvided(RenderableError):   # pylint: disable=R0901
     """Indicates that no scaling resolution was provided."""
 
     def __init__(self):
@@ -168,7 +168,7 @@ class NoScalingProvided(RenderableError):
         super().__init__(304, 'No scaling provided.')
 
 
-class HandlersExhausted(RenderableError):
+class HandlersExhausted(RenderableError):   # pylint: disable=R0901
     """Indicates that all available event handlers
     for the customer have been exhausted.
     """
@@ -176,31 +176,30 @@ class HandlersExhausted(RenderableError):
     def __init__(self, number):
         """Creates message with max. handlers count."""
         super().__init__(
-            501, 'Handlers exhausted: {0}/{0}.'.format(number), status=429)
+            501, f'Handlers exhausted: {number}/{number}.', status=429)
 
 
-class MemoryExhausted(RenderableError):
+class MemoryExhausted(RenderableError):     # pylint: disable=R0901
     """Indicates that all available memory
     for the customer have been exhausted.
     """
 
     def __init__(self, number):
         """Creates message with memory limit info."""
-        bytes_str = '{} bytes'.format(number)
         super().__init__(
-            502, 'Memory limit exhausted: {0}/{0}.'.format(bytes_str),
+            502, f'Memory limit exhausted: {number} bytes/{number} bytes.',
             status=413)
 
 
-class InvalidLimiting(RenderableError):
+class InvalidLimiting(RenderableError):     # pylint: disable=R0901
     """Indicates that an invalid limiting has been requested."""
 
     def __init__(self, msg):
         """Creates message with memory limit info."""
-        super().__init__(503, 'Invalid limiting: {}.'.format(msg), status=400)
+        super().__init__(503, f'Invalid limiting: {msg}.', status=400)
 
 
-class AttachmentNotFound(RenderableError):
+class AttachmentNotFound(RenderableError):  # pylint: disable=R0901
     """Indicates that the attachment could not be found."""
 
     def __init__(self):
@@ -208,16 +207,15 @@ class AttachmentNotFound(RenderableError):
         super().__init__(601, 'Attachment not found.', status=400)
 
 
-class InvalidAttachmentLimit(RenderableError):
+class InvalidAttachmentLimit(RenderableError):  # pylint: disable=R0901
     """Indicates that an invalid attachment limit was provided."""
 
     def __init__(self, n):
         """Creates message."""
-        super().__init__(
-            602, 'Invalid attachment limit: {}.'.format(n), status=400)
+        super().__init__(602, f'Invalid attachment limit: {n}.', status=400)
 
 
-class Caching(RenderableError):
+class Caching(RenderableError):     # pylint: disable=R0901
     """Indicates that the server is currently (re-)caching data."""
 
     def __init__(self):
@@ -227,10 +225,9 @@ class Caching(RenderableError):
             status=500)
 
 
-class NoDataCached(RenderableError):
+class NoDataCached(RenderableError):    # pylint: disable=R0901
     """Indicates that no data has been cached for the respective user."""
 
     def __init__(self, cid):
         """Creates message."""
-        super().__init__(
-            702, 'No data cached for user "{}".'.format(cid), status=500)
+        super().__init__(702, f'No data cached for user "{cid}".', status=500)

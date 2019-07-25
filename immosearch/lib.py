@@ -4,6 +4,7 @@ from enum import Enum
 
 from datetime import datetime
 
+
 __all__ = [
     'BOOLEAN',
     'pdate',
@@ -62,7 +63,7 @@ def tags(template, tag_open='<%', tag_close='%>'):
             yield tag_content
 
 
-def cast(value, typ=None):
+def cast(value, typ=None):  # pylint: disable=R0911
     """Type cast a raw string value for a certain type
     XXX: Nested lists are not supported, yet.
     """

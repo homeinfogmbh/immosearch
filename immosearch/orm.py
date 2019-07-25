@@ -7,6 +7,7 @@ from peeweeplus import MySQLDatabase
 
 from .config import CONFIG
 
+
 __all__ = ['Blacklist']
 
 
@@ -16,7 +17,7 @@ DATABASE = MySQLDatabase.from_config(CONFIG['db'])
 class ImmoSearchModel(Model):
     """Basic database model for immosearch."""
 
-    class Meta:
+    class Meta:     # pylint: disable=C0111,R0903
         database = DATABASE
         schema = DATABASE.database
 

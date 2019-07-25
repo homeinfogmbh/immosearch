@@ -28,6 +28,7 @@ from immosearch.pager import Pager
 from immosearch.selector import RealEstateDataSelector
 from immosearch.sort import RealEstateSorter
 
+
 __all__ = ['APPLICATION']
 
 
@@ -230,7 +231,8 @@ def _set_validated_real_estates(
         try:
             dom.toxml()
         except PyXBException as error:
-            feld_ = feld(name='Flawed real estate', wert=dom.objektnr_extern)
+            value = str(dom.verwaltung_techn.objektnr_extern)
+            feld_ = feld(name='Flawed real estate', wert=value)
             feld_.typ.append(str(error))
             flawed.feld.append(feld_)
         else:
