@@ -10,7 +10,7 @@ from pyxb import PyXBException
 from filedb import FileError
 from mdb import Customer
 from openimmo import anbieter
-from openimmo import feld
+from openimmo import CTD_ANON_67 as feld
 from openimmo import user_defined_extend
 from openimmo import user_defined_simplefield
 from openimmodb import Immobilie, Anhang
