@@ -119,7 +119,7 @@ class Sorting(Enum):
     DESC = False
 
 
-class RealEstateSorter():
+class RealEstateSorter:
     """Class that sorts real estates
     of a realtor by certain attributes.
     """
