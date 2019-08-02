@@ -1,6 +1,6 @@
 """Realtor and real estate filtering."""
 
-from datetime import datetime
+from datetime import date, datetime
 
 from boolparse import SecurityError, evaluate
 
@@ -758,22 +758,32 @@ class FilterableRealEstate:
     @property
     def weitergabe_positiv(self):
         """Yields portals to which the real estate may be sent."""
-        return self.immobilie.weitergabe_positiv
+        return self.immobilie.verwaltung_techn.weitergabe_positiv
 
     @property
     def weitergabe_negativ(self):
         """Yields portals to which the real estate may NOT be sent."""
-        return self.immobilie.weitergabe_negativ
+        return self.immobilie.verwaltung_techn.weitergabe_negativ
 
     @property
     def weitergabe_generell(self):
         """Determines general redirection restrictions."""
-        return self.immobilie.weitergabe_generell
+        return self.immobilie.verwaltung_techn.weitergabe_generell
 
     @property
     def active(self):
         """Determines whether the real estate is active."""
-        return self.immobilie.active
+        if self.immobilie.verwaltung_techn.aktiv_von is None:
+            von = True
+        else:
+            von = self.immobilie.verwaltung_techn.aktiv_von <= date.today()
+
+        if self.immobilie.verwaltung_techn.aktiv_bis is None:
+            bis = True
+        else:
+            bis = self.immobilie.verwaltung_techn.aktiv_bis >= date.today()
+
+        return von and bis
 
     def evaluate(self, operation):
         """Real estate evaluation callback."""
