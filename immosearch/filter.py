@@ -1,8 +1,9 @@
 """Realtor and real estate filtering."""
 
-from datetime import date, datetime
+from datetime import datetime
 
 from boolparse import SecurityError, evaluate
+from openimmolib.util import active
 
 from .lib import cast, Operators
 from .errors import SecurityBreach, InvalidFilterOption, SievingError
@@ -773,17 +774,7 @@ class FilterableRealEstate:
     @property
     def active(self):
         """Determines whether the real estate is active."""
-        if self.immobilie.verwaltung_techn.aktiv_von is None:
-            von = True
-        else:
-            von = self.immobilie.verwaltung_techn.aktiv_von <= date.today()
-
-        if self.immobilie.verwaltung_techn.aktiv_bis is None:
-            bis = True
-        else:
-            bis = self.immobilie.verwaltung_techn.aktiv_bis >= date.today()
-
-        return von and bis
+        return active(self.immobilie)
 
     def evaluate(self, operation):
         """Real estate evaluation callback."""
