@@ -7,14 +7,13 @@ from urllib.parse import unquote
 from flask import request
 from pyxb import PyXBException
 
-from filedb import FileError
 from mdb import Customer
 from openimmo import anbieter
 from openimmo import CTD_ANON_67 as feld
 from openimmo import user_defined_extend
 from openimmo import user_defined_simplefield
 from openimmodb import Immobilie, Anhang
-from wsgilib import OK, Error, XML, Binary, Application
+from wsgilib import OK, XML, Binary, Application
 
 from immosearch.errors import NoSuchCustomer
 from immosearch.errors import InvalidOptionsCount
@@ -253,15 +252,9 @@ def get_attachment(ident):
     try:
         request.args['sha256sum']
     except KeyError:
-        try:
-            return Binary(_get_attachment(ident).data)
-        except FileError:
-            raise Error('Could not find file for attachment.', status=500)
+        return Binary(_get_attachment(ident).data)
 
-    try:
-        return OK(_get_attachment(ident).sha256sum)
-    except FileError:
-        raise Error('Could not get file checksum.', status=500)
+    return OK(_get_attachment(ident).sha256sum)
 
 
 @APPLICATION.route('/customer/<int:cid>', strict_slashes=False)

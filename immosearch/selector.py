@@ -3,7 +3,6 @@
 from enum import Enum
 from re import compile as compile_
 
-from filedb import FileError
 from openimmo import anhaenge
 from openimmodb import Anhang
 
@@ -32,11 +31,7 @@ def set_attachments(orm_id, real_estate, attachments):
         if number >= attachments:
             break
 
-        try:
-            real_estate.anhaenge.anhang.append(attachment.remote(BASE_URL))
-        except FileError as file_error:
-            print('Skipping attachment #%i %s due to error: %s',
-                  number, attachment, file_error)
+        real_estate.anhaenge.anhang.append(attachment.remote(BASE_URL))
 
 
 def set_titlepic(orm_id, real_estate):
