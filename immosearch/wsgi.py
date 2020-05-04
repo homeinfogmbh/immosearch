@@ -252,7 +252,7 @@ def get_attachment(ident):
     try:
         request.args['sha256sum']
     except KeyError:
-        return Binary(_get_attachment(ident).data)
+        return Binary(_get_attachment(ident).bytes)
 
     return OK(_get_attachment(ident).sha256sum)
 
