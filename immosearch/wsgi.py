@@ -254,7 +254,7 @@ def get_attachment(ident):
     except KeyError:
         return Binary(_get_attachment(ident).bytes)
 
-    return OK(_get_attachment(ident).sha256sum)
+    return OK(_get_attachment(ident).metadata.sha256sum)
 
 
 @APPLICATION.route('/customer/<int:cid>', strict_slashes=False)
