@@ -215,7 +215,7 @@ def _get_customer(cid):
     """Returns the respective customer."""
 
     try:
-        return Customer.get(Customer.id == cid)
+        return Customer.select(cascade=True).where(Customer.id == cid).get()
     except Customer.DoesNotExist:
         raise NoSuchCustomer(cid)
 
