@@ -26,4 +26,5 @@ class Blacklist(ImmoSearchModel):
     """List of users to apprehend ImmoSearch serving data for."""
 
     customer = ForeignKeyField(
-        Customer, column_name='customer', related_name='immosearch')
+        Customer, column_name='customer', related_name='immosearch',
+        lazy_load=False)
