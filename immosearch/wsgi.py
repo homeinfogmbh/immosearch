@@ -182,7 +182,7 @@ def _get_attachment(ident):
     try:
         return Anhang.get(Anhang.id == ident)
     except Anhang.DoesNotExist:
-        raise AttachmentNotFound()
+        raise AttachmentNotFound() from None
 
 
 def _get_options():
@@ -217,7 +217,7 @@ def _get_customer(cid):
     try:
         return Customer.select(cascade=True).where(Customer.id == cid).get()
     except Customer.DoesNotExist:
-        raise NoSuchCustomer(cid)
+        raise NoSuchCustomer(cid) from None
 
 
 def _set_validated_real_estates(
