@@ -4,7 +4,7 @@
 from setuptools import setup
 
 setup(
-    name='mdb',
+    name='immosearch',
     use_scm_version={
         "local_scheme": "node-and-timestamp"
     },
