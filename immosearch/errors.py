@@ -1,5 +1,7 @@
 """Errors of immosearch."""
 
+from typing import Any
+
 from wsgilib import JSON
 
 
@@ -12,7 +14,6 @@ __all__ = [
     'InvalidOptionsCount',
     'NotAnInteger',
     # 1<nn>   Filtering errors
-    'NoValidFilterOperation',
     'InvalidFilterOption',
     'SievingError',
     'SecurityBreach',
@@ -30,13 +31,14 @@ __all__ = [
     'InvalidAttachmentLimit',
     # 7<nn>   Caching errors
     'Caching',
-    'NoDataCached']
+    'NoDataCached'
+]
 
 
 class RenderableError(JSON):
     """An error, that can be rendered."""
 
-    def __init__(self, ident, msg, status=400):
+    def __init__(self, ident: int, msg: str, status: int = 400):
         """Sets a unique identifier and a message."""
         error = {}
         error['ident'] = ident
@@ -47,7 +49,7 @@ class RenderableError(JSON):
 class NoSuchCustomer(RenderableError):  # pylint: disable=R0901
     """Indicates that an invalid customer has been selected."""
 
-    def __init__(self, cid_str):
+    def __init__(self, cid_str: str):
         """Initializes error code an message"""
         super().__init__(11, f'No such customer: {cid_str}.')
 
@@ -55,7 +57,7 @@ class NoSuchCustomer(RenderableError):  # pylint: disable=R0901
 class InvalidParameterError(RenderableError):   # pylint: disable=R0901
     """Indicates that an invalid operation was requested."""
 
-    def __init__(self, operation):
+    def __init__(self, operation: str):
         """Initializes error code an message."""
         super().__init__(14, f'Invalid parameter: {operation}.')
 
@@ -63,7 +65,7 @@ class InvalidParameterError(RenderableError):   # pylint: disable=R0901
 class UserNotAllowed(RenderableError):  # pylint: disable=R0901
     """Indicates that a user is not allowed to use immosearch."""
 
-    def __init__(self, cid):
+    def __init__(self, cid: int):
         """Initializes error code an message."""
         super().__init__(15, f'User not allowed: {cid}.')
 
@@ -71,7 +73,7 @@ class UserNotAllowed(RenderableError):  # pylint: disable=R0901
 class OptionAlreadySet(RenderableError):    # pylint: disable=R0901
     """Indicates that a user is not allowed to use immosearch."""
 
-    def __init__(self, option, value):
+    def __init__(self, option: str, value: str):
         """Initializes error code an message."""
         super().__init__(
             16, f'Option "{option}" has already been set to: {value}.')
@@ -92,21 +94,9 @@ class NotAnInteger(RenderableError):    # pylint: disable=R0901
     render option was specified.
     """
 
-    def __init__(self, integer):
+    def __init__(self, not_integer: Any):
         """Initializes error code an message."""
-        super().__init__(18, f'Not an integer: {integer}.')
-
-
-class NoValidFilterOperation(RenderableError):  # pylint: disable=R0901
-    """Indicates that no valid operation
-    was specified in a filter query.
-    """
-
-    def __init__(self, option_assignment):
-        """Initializes error code an message."""
-        super().__init__(
-            101, 'No valid operation was found in filtering query: '
-            f'{option_assignment}.')
+        super().__init__(18, f'Not an integer: {not_integer}.')
 
 
 class InvalidFilterOption(RenderableError):     # pylint: disable=R0901

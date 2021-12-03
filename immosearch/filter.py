@@ -1,32 +1,40 @@
 """Realtor and real estate filtering."""
 
 from datetime import datetime
+from typing import Any, Callable, Iterable, Optional
 
 from boolparse import SecurityError, evaluate
+from openimmolib.types import Anbieter, Immobilie, Openimmo
 from openimmolib.util import active
 
-from .lib import cast, Operators
-from .errors import SecurityBreach, InvalidFilterOption, SievingError
+from immosearch.lib import Operator, cast
+from immosearch.errors import InvalidFilterOption
+from immosearch.errors import SecurityBreach
+from immosearch.errors import SievingError
 
 
 __all__ = ['RealEstateSieve']
 
 
+Operation = tuple[str, Operator, Callable[[Any, Any], bool], str]
+
+
 OPERATIONS = {
-    Operators.EQ.value: lambda x, y: x == y,
-    # Operators.EG.value: ,
-    Operators.EC.value: lambda x, y: x.lower() == y.lower(),
-    Operators.NE.value: lambda x, y: x != y,
-    # Operators.NG.value: ,
-    Operators.NC.value: lambda x, y: x.lower() != y.lower(),
-    Operators.LT.value: lambda x, y: x < y,
-    Operators.LE.value: lambda x, y: x <= y,
-    Operators.GT.value: lambda x, y: x > y,
-    Operators.GE.value: lambda x, y: x >= y,
-    Operators.IN.value: lambda x, y: x in y,
-    Operators.NI.value: lambda x, y: x not in y,
-    Operators.CO.value: lambda x, y: y in x,
-    Operators.CN.value: lambda x, y: y not in x}
+    Operator.EQ: lambda x, y: x == y,
+    # Operator.EG: ,
+    Operator.EC: lambda x, y: x.lower() == y.lower(),
+    Operator.NE: lambda x, y: x != y,
+    # Operator.NG: ,
+    Operator.NC: lambda x, y: x.lower() != y.lower(),
+    Operator.LT: lambda x, y: x < y,
+    Operator.LE: lambda x, y: x <= y,
+    Operator.GT: lambda x, y: x > y,
+    Operator.GE: lambda x, y: x >= y,
+    Operator.IN: lambda x, y: x in y,
+    Operator.NI: lambda x, y: x not in y,
+    Operator.CO: lambda x, y: y in x,
+    Operator.CN: lambda x, y: y not in x
+}
 
 OPTIONS = {
     'objektart': lambda fre: fre.objektart,
@@ -83,7 +91,8 @@ OPTIONS = {
     'weitergabe_generell': lambda fre: fre.weitergabe_generell,
     'weitergabe_negativ': lambda fre: fre.weitergabe_negativ,
     'weitergabe_positiv': lambda fre: fre.weitergabe_positiv,
-    'aktiv': lambda fre: fre.active}
+    'aktiv': lambda fre: fre.active
+}
 
 
 class DontCare(Exception):
@@ -91,7 +100,7 @@ class DontCare(Exception):
     does not care for the compared value.
     """
 
-    def __init__(self, val):
+    def __init__(self, val: bool):
         """Sets the avaluated boolean value."""
         super().__init__(val)
         self._val = val
@@ -101,12 +110,12 @@ class DontCare(Exception):
         return self._val
 
 
-def parse_operation(operation):
+def parse_operation(operation: str) -> Operation:
     """Parses option, operator and value."""
 
     for operator, operation_func in OPERATIONS.items():
         try:
-            option, value = operation.split(operator)
+            option, value = operation.split(operator.value)
         except ValueError:
             continue
         else:
@@ -126,7 +135,7 @@ def parse_operation(operation):
     return (option, operator, operation_func, value)
 
 
-def get_option(option):
+def get_option(option: str) -> Option:
     """Returns the respective option and format."""
 
     try:
@@ -147,19 +156,19 @@ class FilterableRealEstate:
     that can be filtered by certain attributes.
     """
 
-    def __init__(self, immobilie):
+    def __init__(self, immobilie: Immobilie):
         """Sets the appropriate OpenImmo™-immobilie"""
         self.immobilie = immobilie
 
     @classmethod
-    def fromopenimmo(cls, openimmo):
+    def fromopenimmo(cls, openimmo: Openimmo):
         """Yields filterable real estates from an OpenImmo document."""
         for anbieter in openimmo.andbieter:
             for filterable_real_estate in cls.fromanbieter(anbieter):
                 yield filterable_real_estate
 
     @classmethod
-    def fromanbieter(cls, anbieter):
+    def fromanbieter(cls, anbieter: Anbieter):
         """Yields filterable real estates from a realtor."""
         for immobilie in anbieter.immobilie:
             yield cls(immobilie)
@@ -776,7 +785,7 @@ class FilterableRealEstate:
         """Determines whether the real estate is active."""
         return active(self.immobilie)
 
-    def evaluate(self, operation):
+    def evaluate(self, operation: str) -> bool:
         """Real estate evaluation callback."""
         option, operator, operation_func, raw_value = parse_operation(
             operation)
@@ -799,7 +808,7 @@ class FilterableRealEstate:
 class RealEstateSieve:
     """Class that sieves real estates by certain filters."""
 
-    def __init__(self, real_estates, filters):
+    def __init__(self, real_estates: Iterable[Immobilie], filters):
         """Sets the respective realtor and filter tuples like:
         (<option>, <operation>, <target_value>).
         """
@@ -822,3 +831,6 @@ class RealEstateSieve:
         else:
             for real_estate in self.real_estates:
                 yield real_estate
+
+
+Option = tuple[Callable[[FilterableRealEstate], Any], Optional[str]]

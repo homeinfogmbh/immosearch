@@ -60,7 +60,8 @@ OPTIONS = {
     'min_mietdauer': lambda f: f.min_mietdauer,
     'max_mietdauer': lambda f: f.max_mietdauer,
     'laufzeit': lambda f: f.laufzeit,
-    'max_personen': lambda f: f.max_personen}
+    'max_personen': lambda f: f.max_personen
+}
 
 
 class Key:
