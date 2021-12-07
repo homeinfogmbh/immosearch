@@ -7,10 +7,10 @@ from boolparse import SecurityError, evaluate
 from openimmolib.types import Anbieter, Immobilie, Openimmo
 from openimmolib.util import active
 
-from immosearch.lib import Operator, cast
 from immosearch.errors import InvalidFilterOption
 from immosearch.errors import SecurityBreach
 from immosearch.errors import SievingError
+from immosearch.lib import Operator, cast
 
 
 __all__ = ['RealEstateSieve']
@@ -108,47 +108,6 @@ class DontCare(Exception):
     def __bool__(self):
         """Returns the value"""
         return self._val
-
-
-def parse_operation(operation: str) -> Operation:
-    """Parses option, operator and value."""
-
-    for operator, operation_func in OPERATIONS.items():
-        try:
-            option, value = operation.split(operator.value)
-        except ValueError:
-            continue
-        else:
-            break
-    else:
-        raise InvalidFilterOption(operation)
-
-    # Compensate for ">", "<", "=>" and "<="
-    if option in ('>', '<'):
-        if value.startswith('='):
-            option += '='
-            value = value[1:]
-        # Compensate for legacy ">>" → ">" and "<<" → "<"
-        elif value.startswith(option):
-            value = value[1:]
-
-    return (option, operator, operation_func, value)
-
-
-def get_option(option: str) -> Option:
-    """Returns the respective option and format."""
-
-    try:
-        option_setting = OPTIONS[option]
-    except KeyError:
-        raise InvalidFilterOption(option) from None
-
-    try:
-        option_format, option_func = option_setting
-    except TypeError:
-        return (option_setting, None)
-    else:
-        return (option_func, option_format)
 
 
 class FilterableRealEstate:
@@ -805,6 +764,9 @@ class FilterableRealEstate:
             raise SievingError(option, operator, raw_value) from None
 
 
+Option = tuple[Callable[[FilterableRealEstate], Any], Optional[str]]
+
+
 class RealEstateSieve:
     """Class that sieves real estates by certain filters."""
 
@@ -833,4 +795,42 @@ class RealEstateSieve:
                 yield real_estate
 
 
-Option = tuple[Callable[[FilterableRealEstate], Any], Optional[str]]
+def parse_operation(operation: str) -> Operation:
+    """Parses option, operator and value."""
+
+    for operator, operation_func in OPERATIONS.items():
+        try:
+            option, value = operation.split(operator.value)
+        except ValueError:
+            continue
+        else:
+            break
+    else:
+        raise InvalidFilterOption(operation)
+
+    # Compensate for ">", "<", "=>" and "<="
+    if option in ('>', '<'):
+        if value.startswith('='):
+            option += '='
+            value = value[1:]
+        # Compensate for legacy ">>" → ">" and "<<" → "<"
+        elif value.startswith(option):
+            value = value[1:]
+
+    return (option, operator, operation_func, value)
+
+
+def get_option(option: str) -> Option:
+    """Returns the respective option and format."""
+
+    try:
+        option_setting = OPTIONS[option]
+    except KeyError:
+        raise InvalidFilterOption(option) from None
+
+    try:
+        option_format, option_func = option_setting
+    except TypeError:
+        return (option_setting, None)
+    else:
+        return (option_func, option_format)
