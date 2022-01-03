@@ -1,7 +1,7 @@
 """Realtor and real estate filtering."""
 
 from datetime import datetime
-from typing import Any, Callable, Iterable, Optional
+from typing import Any, Callable, Iterable, Iterator, Optional
 
 from boolparse import SecurityError, evaluate
 from openimmolib.types import Anbieter, Immobilie, Openimmo
@@ -758,7 +758,7 @@ class RealEstateSieve:
         self.real_estates = real_estates
         self.filters = filters
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Immobilie]:
         """Sieve real estates by the given filters."""
         if self.filters:
             for orm, dom in self.real_estates:
