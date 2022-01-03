@@ -6,10 +6,13 @@ from enum import Enum
 from typing import Any, Iterator
 
 
-__all__ = ['BOOLEAN', 'Operator', 'pdate', 'tags', 'cast']
+__all__ = ['BOOLEAN', 'Operator', 'tags', 'cast']
 
 
-BOOLEAN = {'true': True, 'false': False}
+BOOLEAN = {
+    'true'.casefold(): True,
+    'false'.casefold(): False
+}
 
 
 class Delim(Enum):
@@ -39,12 +42,6 @@ class Operator(Enum):
     NI = '∉'    # Element not in iterable
     CO = '∋'    # List contains element
     CN = '∌'    # List does not contain element
-
-
-def pdate(string: str) -> datetime:
-    """Parse a datetime string."""
-
-    return datetime.strptime(string, '%Y-%m-%dT%H:%M:%S')
 
 
 def tags(template: str, tag_open: str = '<%',
@@ -95,12 +92,8 @@ def cast(value: str, typ: type = None) -> Any:  # pylint: disable=R0911
     if typ is not None:
         return typ(value)
 
-    if value.startswith(Delim.SL.value):
-        if value.endswith(Delim.EL.value):
-            return [
-                cast(elem.strip()) for elem in
-                value[1:-1].split(Delim.IS.value)
-            ]
+    if value.startswith(Delim.SL.value) and value.endswith(Delim.EL.value):
+        return [cast(e.strip()) for e in value[1:-1].split(Delim.IS.value)]
 
     with suppress(ValueError):
         return int(value)
@@ -109,9 +102,9 @@ def cast(value: str, typ: type = None) -> Any:  # pylint: disable=R0911
         return float(value)
 
     with suppress(KeyError):
-        return BOOLEAN[value.lower()]
+        return BOOLEAN[value.casefold()]
 
     with suppress(ValueError):
-        return pdate(value)
+        return datetime.fromisoformat(value)
 
     return value
