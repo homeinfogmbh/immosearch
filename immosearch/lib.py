@@ -3,10 +3,10 @@
 from contextlib import suppress
 from datetime import datetime
 from enum import Enum
-from typing import Any, Iterator
+from typing import Any
 
 
-__all__ = ['BOOLEAN', 'Operator', 'tags', 'cast']
+__all__ = ['BOOLEAN', 'Operator', 'cast']
 
 
 BOOLEAN = {
@@ -42,47 +42,6 @@ class Operator(Enum):
     NI = '∉'    # Element not in iterable
     CO = '∋'    # List contains element
     CN = '∌'    # List does not contain element
-
-
-def tags(template: str, tag_open: str = '<%',
-         tag_close: str = '%>') -> Iterator[str]:
-    """Yields tags found in a template."""
-
-    record = False
-    window = ''
-    token = tag_open
-    tag = ''
-
-    for char in template:
-        # Records tag content iff in record mode
-        if record:
-            tag += char
-
-        # Increase window size
-        if len(window) < len(token):
-            window += char
-        else:   # Move window
-            window = window[1:len(token)] + char
-
-        # Check for opening tag
-        if not record and window == tag_open:
-            # Reset window, record and token
-            record = True
-            window = ''
-            token = tag_close
-
-        # Check for closing tag
-        elif record and window == tag_close:
-            # Remove current window from end of tag
-            tag_content = tag[:-len(window)]
-
-            # Reset window, record, token and tag
-            window = ''
-            record = False
-            token = tag_open
-            tag = ''
-
-            yield tag_content
 
 
 def cast(value: str, typ: type = None) -> Any:  # pylint: disable=R0911
