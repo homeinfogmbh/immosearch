@@ -2,6 +2,7 @@
 
 from enum import Enum
 from operator import itemgetter
+from typing import Any
 
 from .filter import FilterableRealEstate
 from .errors import InvalidSortingOption
@@ -67,16 +68,16 @@ OPTIONS = {
 class Key:
     """A key, that can be sorted."""
 
-    def __init__(self, val, desc=False):
+    def __init__(self, val: Any, desc: bool = False):
         """Sets the actual value."""
         self.val = val
         self.desc = desc
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any):
         """Equality check."""
         return self.val == other.val
 
-    def _gt(self, other):
+    def _gt(self, other: Any) -> bool:
         """Greater-than check."""
         if self.val is None:
             return False
@@ -86,7 +87,7 @@ class Key:
 
         return self.val > other.val
 
-    def _lt(self, other):
+    def _lt(self, other: Any) -> bool:
         """Less-than check."""
         if self.val is None:
             return True
@@ -96,19 +97,19 @@ class Key:
 
         return self.val < other.val
 
-    def __gt__(self, other):
+    def __gt__(self, other: Any):
         """Greater-than check."""
         return not self._gt(other) if self.desc else self._gt(other)
 
-    def __lt__(self, other):
+    def __lt__(self, other: Any):
         """Less-than check."""
         return not self._lt(other) if self.desc else self._lt(other)
 
-    def __ge__(self, other):
+    def __ge__(self, other: Any):
         """Greater-or-equal check."""
         return self.__eq__(other) or self.__gt__(other)
 
-    def __le__(self, other):
+    def __le__(self, other: Any):
         """Less-or-equal check."""
         return self.__eq__(other) or self.__lt__(other)
 
