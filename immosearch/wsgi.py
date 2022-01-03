@@ -1,7 +1,6 @@
 """WSGI app."""
 
 from enum import Enum
-from subprocess import CalledProcessError, check_output
 from urllib.parse import unquote
 
 from flask import request
@@ -153,18 +152,6 @@ def _set_paging(anbieter, paging):  # pylint: disable=W0621
             user_defined_simplefield(page_num, feldname='page_num'))
 
 
-def _set_fortune(anbieter):     # pylint: disable=W0621
-    """Sets a random message of the day (easter egg)."""
-
-    try:
-        fortune = check_output('/usr/games/fortune').decode().strip()
-    except (FileNotFoundError, CalledProcessError, ValueError):
-        pass
-    else:
-        anbieter.user_defined_simplefield.append(
-            user_defined_simplefield(fortune, feldname='motd'))
-
-
 def _gen_anbieter(customer, paging):
     """Generates an openimmo.anbieter DOM."""
 
@@ -172,7 +159,6 @@ def _gen_anbieter(customer, paging):
         anbieternr=repr(customer), firma=str(customer),
         openimmo_anid=repr(customer))
     _set_paging(result, paging)
-    _set_fortune(result)
     return result
 
 
