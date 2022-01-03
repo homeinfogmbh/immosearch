@@ -4,8 +4,8 @@ from enum import Enum
 from operator import itemgetter
 from typing import Any
 
-from .filter import FilterableRealEstate
-from .errors import InvalidSortingOption
+from immosearch.filter import FilterableRealEstate
+from immosearch.errors import InvalidSortingOption
 
 
 __all__ = ['Sorting', 'RealEstateSorter']
