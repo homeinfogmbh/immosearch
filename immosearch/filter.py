@@ -95,21 +95,6 @@ OPTIONS = {
 }
 
 
-class DontCare(Exception):
-    """Indicates that a filtering option
-    does not care for the compared value.
-    """
-
-    def __init__(self, val: bool):
-        """Sets the avaluated boolean value."""
-        super().__init__(val)
-        self._val = val
-
-    def __bool__(self):
-        """Returns the value"""
-        return self._val
-
-
 class FilterableRealEstate:
     """Wrapper class for an OpenImmo™-immobilie
     that can be filtered by certain attributes.
@@ -749,11 +734,7 @@ class FilterableRealEstate:
         option, operator, operation_func, raw_value = parse_operation(
             operation)
         option_func, option_format = get_option(option)
-
-        try:
-            value = cast(raw_value, typ=option_format)
-        except DontCare as dont_care:
-            return bool(dont_care)
+        value = cast(raw_value, typ=option_format)
 
         try:
             return bool(operation_func(option_func(self), value))
