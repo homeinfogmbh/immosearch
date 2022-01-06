@@ -14,14 +14,24 @@ __all__ = ['Selections', 'RealEstateDataSelector']
 
 BASE_URL = 'https://backend.homeinfo.de/immosearch/attachment/{}'
 TITLEPIC_SEARCH_GROUPS = (
-    'TITELBILD', 'AUSSENANSICHTEN', 'INNENANSICHTEN', None)
+    'TITELBILD', 'AUSSENANSICHTEN', 'INNENANSICHTEN', None
+)
+
+
+def set_attachment(real_estate, attachment):
+    """Adds an attachment to the real estate."""
+
+    dom = attachment.to_dom()
+    dom.location = 'REMOTE'
+    dom.daten.pfad = BASE_URL.format(attachment.id)
+    real_estate.anhaenge.anhang.append(dom)
 
 
 def set_all_attachments(orm_id, real_estate):
     """Sets all attachments to the real estate."""
 
     for attachment in Anhang.by_immobilie(orm_id):
-        real_estate.anhaenge.anhang.append(attachment.remote(BASE_URL))
+        set_attachment(real_estate, attachment)
 
 
 def set_attachments(orm_id, real_estate, attachments):
@@ -31,7 +41,7 @@ def set_attachments(orm_id, real_estate, attachments):
         if number >= attachments:
             break
 
-        real_estate.anhaenge.anhang.append(attachment.remote(BASE_URL))
+        set_attachment(real_estate, attachment)
 
 
 def set_titlepic(orm_id, real_estate):
@@ -48,7 +58,7 @@ def set_titlepic(orm_id, real_estate):
         except Anhang.DoesNotExist:
             continue
 
-        real_estate.anhaenge.anhang.append(anhang.remote(BASE_URL))
+        set_attachment(real_estate, anhang)
         break
 
 
@@ -131,6 +141,6 @@ class RealEstateDataSelector:
                 try:
                     return int(match.group(1))
                 except ValueError:
-                    raise InvalidAttachmentLimit(selection)
+                    raise InvalidAttachmentLimit(selection) from None
 
         return None
