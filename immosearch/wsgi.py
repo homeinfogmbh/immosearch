@@ -27,37 +27,37 @@ from immosearch.selector import RealEstateDataSelector
 from immosearch.sort import RealEstateSorter
 
 
-__all__ = ['APPLICATION']
+__all__ = ["APPLICATION"]
 
 
-APPLICATION = Application('ImmoSearch', cors=True, debug=True)
+APPLICATION = Application("ImmoSearch", cors=True, debug=True)
 
 
 class Separators(Enum):
     """Special separation characters."""
 
-    QUERY = '&'
-    ASS = '='
-    OPTION = ','
-    ATTR = ':'
-    PATH = '/'
+    QUERY = "&"
+    ASS = "="
+    OPTION = ","
+    ATTR = ":"
+    PATH = "/"
 
 
 class Operations(Enum):
     """Valid query operations."""
 
-    FILTER = 'filter'
-    INCLUDE = 'include'
-    SORT = 'sort'
-    PAGING = 'paging'
-    NOCACHE = 'nocache'
+    FILTER = "filter"
+    INCLUDE = "include"
+    SORT = "sort"
+    PAGING = "paging"
+    NOCACHE = "nocache"
 
 
 class PathNodes(Enum):
     """Valid path nodes."""
 
-    OPENIMMO = 'openimmo'
-    CUSTOMER = 'customer'
+    OPENIMMO = "openimmo"
+    CUSTOMER = "customer"
 
 
 def _get_includes(value):
@@ -77,7 +77,7 @@ def _get_sorting(value):
             key = sort_option
             desc = False
         else:
-            desc = mode == 'desc'
+            desc = mode == "desc"
 
         yield (key, desc)
 
@@ -97,12 +97,12 @@ def _get_paging(value):
         option, *values = paging_opt.split(Separators.ATTR.value)
         value = Separators.ATTR.value.join(values)
 
-        if option == 'limit':
+        if option == "limit":
             try:
                 limit = int(value)
             except (ValueError, TypeError):
                 raise NotAnInteger(value) from None
-        elif option == 'page':
+        elif option == "page":
             try:
                 page = int(value)
             except (ValueError, TypeError):
@@ -147,17 +147,19 @@ def _set_paging(anbieter, paging):  # pylint: disable=W0621
     if paging is not None:
         page_size, page_num = paging
         anbieter.user_defined_simplefield.append(
-            user_defined_simplefield(page_size, feldname='page_size'))
+            user_defined_simplefield(page_size, feldname="page_size")
+        )
         anbieter.user_defined_simplefield.append(
-            user_defined_simplefield(page_num, feldname='page_num'))
+            user_defined_simplefield(page_num, feldname="page_num")
+        )
 
 
 def _gen_anbieter(customer, paging):
     """Generates an openimmo.anbieter DOM."""
 
     result = anbieter(
-        anbieternr=repr(customer), firma=str(customer),
-        openimmo_anid=repr(customer))
+        anbieternr=repr(customer), firma=str(customer), openimmo_anid=repr(customer)
+    )
     _set_paging(result, paging)
     return result
 
@@ -206,8 +208,7 @@ def _get_customer(cid):
         raise NoSuchCustomer(cid) from None
 
 
-def _set_validated_real_estates(
-        anbieter, real_estates):    # pylint: disable=W0621
+def _set_validated_real_estates(anbieter, real_estates):  # pylint: disable=W0621
     """Sets validated real estates."""
     flawed = user_defined_extend()
     count = 0
@@ -217,7 +218,7 @@ def _set_validated_real_estates(
             dom.toxml()
         except PyXBException as error:
             value = str(dom.verwaltung_techn.objektnr_extern)
-            feld_ = feld(name='Flawed real estate', wert=value)
+            feld_ = feld(name="Flawed real estate", wert=value)
             feld_.typ.append(str(error))
             flawed.feld.append(feld_)
         else:
@@ -227,23 +228,24 @@ def _set_validated_real_estates(
         anbieter.user_defined_extend.append(flawed)
 
     anbieter.user_defined_simplefield.append(
-        user_defined_simplefield(count, feldname='count'))
+        user_defined_simplefield(count, feldname="count")
+    )
     return anbieter
 
 
-@APPLICATION.route('/attachment/<int:ident>', strict_slashes=False)
+@APPLICATION.route("/attachment/<int:ident>", strict_slashes=False)
 def get_attachment(ident):
     """Returns the respective attachment."""
 
     try:
-        request.args['sha256sum']
+        request.args["sha256sum"]
     except KeyError:
         return Binary(_get_attachment(ident).bytes)
 
     return OK(_get_attachment(ident).metadata.sha256sum)
 
 
-@APPLICATION.route('/customer/<int:cid>', strict_slashes=False)
+@APPLICATION.route("/customer/<int:cid>", strict_slashes=False)
 def get_customer(cid):
     """Returns the respective customer's real estates."""
 
@@ -254,7 +256,8 @@ def get_customer(cid):
         Blacklist.get(Blacklist.customer == customer)
     except Blacklist.DoesNotExist:
         real_estates = _filter_real_estates(
-            _get_real_estates(customer), filters, sort, paging, includes)
+            _get_real_estates(customer), filters, sort, paging, includes
+        )
         anbieter = _gen_anbieter(customer, paging)  # pylint: disable=W0621
         return XML(_set_validated_real_estates(anbieter, real_estates))
 

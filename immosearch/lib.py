@@ -6,42 +6,39 @@ from enum import Enum
 from typing import Any
 
 
-__all__ = ['BOOLEAN', 'Operator', 'cast']
+__all__ = ["BOOLEAN", "Operator", "cast"]
 
 
-BOOLEAN = {
-    'true'.casefold(): True,
-    'false'.casefold(): False
-}
+BOOLEAN = {"true".casefold(): True, "false".casefold(): False}
 
 
 class Delim(Enum):
     """Delimiters."""
 
-    SL = '['    # Start list
-    EL = ']'    # End list
-    IS = ';'    # Item separator
-    BEGIN_INDEX = '['
-    END_INDEX = ']'
+    SL = "["  # Start list
+    EL = "]"  # End list
+    IS = ";"  # Item separator
+    BEGIN_INDEX = "["
+    END_INDEX = "]"
 
 
 class Operator(Enum):
     """Filtering operators."""
 
-    EQ = '=='   # Equals
-    EG = '~='   # Equals glob
-    EC = '%='   # Equals case-insensitive
-    NE = '!='   # Does not equal
-    NG = '!~'   # Does not glob
-    NC = '!%'   # Does not equal case-insensitive
-    LT = '<'    # Less-than
-    LE = '<='   # Less-than or equal
-    GT = '>'    # Greater-than
-    GE = '>='   # Greater-than or equal
-    IN = '∈'    # Element in iterable
-    NI = '∉'    # Element not in iterable
-    CO = '∋'    # List contains element
-    CN = '∌'    # List does not contain element
+    EQ = "=="  # Equals
+    EG = "~="  # Equals glob
+    EC = "%="  # Equals case-insensitive
+    NE = "!="  # Does not equal
+    NG = "!~"  # Does not glob
+    NC = "!%"  # Does not equal case-insensitive
+    LT = "<"  # Less-than
+    LE = "<="  # Less-than or equal
+    GT = ">"  # Greater-than
+    GE = ">="  # Greater-than or equal
+    IN = "∈"  # Element in iterable
+    NI = "∉"  # Element not in iterable
+    CO = "∋"  # List contains element
+    CN = "∌"  # List does not contain element
 
 
 def cast(value: str, typ: type = None) -> Any:  # pylint: disable=R0911

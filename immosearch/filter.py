@@ -13,7 +13,7 @@ from immosearch.errors import SievingError
 from immosearch.lib import Operator, cast
 
 
-__all__ = ['RealEstateSieve']
+__all__ = ["RealEstateSieve"]
 
 
 Operation = tuple[str, Operator, Callable[[Any, Any], bool], str]
@@ -33,65 +33,65 @@ OPERATIONS = {
     Operator.IN: lambda x, y: x in y,
     Operator.NI: lambda x, y: x not in y,
     Operator.CO: lambda x, y: y in x,
-    Operator.CN: lambda x, y: y not in x
+    Operator.CN: lambda x, y: y not in x,
 }
 
 OPTIONS = {
-    'objektart': lambda fre: fre.objektart,
-    'objekttyp': lambda fre: fre.objekttypen,
-    'land': lambda fre: fre.land,
-    'ort': lambda fre: fre.ort,
-    'ortsteil': lambda fre: fre.ortsteil,
-    'plz': lambda fre: fre.plz,
-    'strasse': lambda fre: fre.strasse,
-    'hausnummer': lambda fre: fre.hausnummer,
-    'zimmer': lambda fre: fre.zimmer,
-    'etage': lambda fre: fre.etage,
-    'etagen': lambda fre: fre.etagen,
-    'wohnflaeche': lambda fre: fre.wohnflaeche,
-    'grundstuecksflaeche': lambda fre: fre.grundstuecksflaeche,
-    'balkone': lambda fre: fre.balkone,
-    'terrassen': lambda fre: fre.terrassen,
-    'kaltmiete': lambda fre: fre.kaltmiete or fre.nettokaltmiete,
-    'warmmiete': lambda fre: fre.warmmiete or fre.gesamtmiete,
-    'nebenkosten': lambda fre: fre.nebenkosten,
-    'kaufpreis': lambda fre: fre.kaufpreis,
-    'pacht': lambda fre: fre.pacht,
-    'erbpacht': lambda fre: fre.erbpacht,
-    'aussen_courtage': lambda fre: fre.aussen_courtage,
-    'innen_courtage': lambda fre: fre.innen_courtage,
-    'openimmo_obid': (str, lambda fre: fre.openimmo_obid),
-    'objektnr_intern': (str, lambda fre: fre.objektnr_intern),
-    'objektnr_extern': (str, lambda fre: fre.objektnr_extern),
-    'barrierefrei': lambda fre: fre.barrierefrei,
-    'rollstuhlgerecht': lambda fre: fre.rollstuhlgerecht,
-    'haustiere': lambda fre: fre.haustiere,
-    'raucher': lambda fre: fre.raucher,
-    'kaufbar': lambda fre: fre.kaufbar,
-    'mietbar': lambda fre: fre.mietbar,
-    'erbpachtbar': lambda fre: fre.erbpachtbar,
-    'leasing': lambda fre: fre.leasing,
-    'verfuegbar_ab': lambda fre: fre.verfuegbar_ab,
-    'abdatum': lambda fre: fre.abdatum,
-    'moebliert': lambda fre: fre.moebliert,
-    'seniorengerecht': lambda fre: fre.seniorengerecht,
-    'baujahr': (str, lambda fre: fre.baujahr),
-    'zustand': lambda fre: fre.zustand,
-    'epart': lambda fre: fre.epart,
-    'energieverbrauchkennwert': lambda fre: fre.energieverbrauchkennwert,
-    'endenergiebedarf': lambda fre: fre.endenergiebedarf,
-    'primaerenergietraeger': lambda fre: fre.primaerenergietraeger,
-    'stromwert': lambda fre: fre.stromwert,
-    'waermewert': lambda fre: fre.waermewert,
-    'wertklasse': lambda fre: fre.wertklasse,
-    'min_mietdauer': lambda fre: fre.min_mietdauer,
-    'max_mietdauer': lambda fre: fre.max_mietdauer,
-    'laufzeit': lambda fre: fre.laufzeit,
-    'max_personen': lambda fre: fre.max_personen,
-    'weitergabe_generell': lambda fre: fre.weitergabe_generell,
-    'weitergabe_negativ': lambda fre: fre.weitergabe_negativ,
-    'weitergabe_positiv': lambda fre: fre.weitergabe_positiv,
-    'aktiv': lambda fre: fre.active
+    "objektart": lambda fre: fre.objektart,
+    "objekttyp": lambda fre: fre.objekttypen,
+    "land": lambda fre: fre.land,
+    "ort": lambda fre: fre.ort,
+    "ortsteil": lambda fre: fre.ortsteil,
+    "plz": lambda fre: fre.plz,
+    "strasse": lambda fre: fre.strasse,
+    "hausnummer": lambda fre: fre.hausnummer,
+    "zimmer": lambda fre: fre.zimmer,
+    "etage": lambda fre: fre.etage,
+    "etagen": lambda fre: fre.etagen,
+    "wohnflaeche": lambda fre: fre.wohnflaeche,
+    "grundstuecksflaeche": lambda fre: fre.grundstuecksflaeche,
+    "balkone": lambda fre: fre.balkone,
+    "terrassen": lambda fre: fre.terrassen,
+    "kaltmiete": lambda fre: fre.kaltmiete or fre.nettokaltmiete,
+    "warmmiete": lambda fre: fre.warmmiete or fre.gesamtmiete,
+    "nebenkosten": lambda fre: fre.nebenkosten,
+    "kaufpreis": lambda fre: fre.kaufpreis,
+    "pacht": lambda fre: fre.pacht,
+    "erbpacht": lambda fre: fre.erbpacht,
+    "aussen_courtage": lambda fre: fre.aussen_courtage,
+    "innen_courtage": lambda fre: fre.innen_courtage,
+    "openimmo_obid": (str, lambda fre: fre.openimmo_obid),
+    "objektnr_intern": (str, lambda fre: fre.objektnr_intern),
+    "objektnr_extern": (str, lambda fre: fre.objektnr_extern),
+    "barrierefrei": lambda fre: fre.barrierefrei,
+    "rollstuhlgerecht": lambda fre: fre.rollstuhlgerecht,
+    "haustiere": lambda fre: fre.haustiere,
+    "raucher": lambda fre: fre.raucher,
+    "kaufbar": lambda fre: fre.kaufbar,
+    "mietbar": lambda fre: fre.mietbar,
+    "erbpachtbar": lambda fre: fre.erbpachtbar,
+    "leasing": lambda fre: fre.leasing,
+    "verfuegbar_ab": lambda fre: fre.verfuegbar_ab,
+    "abdatum": lambda fre: fre.abdatum,
+    "moebliert": lambda fre: fre.moebliert,
+    "seniorengerecht": lambda fre: fre.seniorengerecht,
+    "baujahr": (str, lambda fre: fre.baujahr),
+    "zustand": lambda fre: fre.zustand,
+    "epart": lambda fre: fre.epart,
+    "energieverbrauchkennwert": lambda fre: fre.energieverbrauchkennwert,
+    "endenergiebedarf": lambda fre: fre.endenergiebedarf,
+    "primaerenergietraeger": lambda fre: fre.primaerenergietraeger,
+    "stromwert": lambda fre: fre.stromwert,
+    "waermewert": lambda fre: fre.waermewert,
+    "wertklasse": lambda fre: fre.wertklasse,
+    "min_mietdauer": lambda fre: fre.min_mietdauer,
+    "max_mietdauer": lambda fre: fre.max_mietdauer,
+    "laufzeit": lambda fre: fre.laufzeit,
+    "max_personen": lambda fre: fre.max_personen,
+    "weitergabe_generell": lambda fre: fre.weitergabe_generell,
+    "weitergabe_negativ": lambda fre: fre.weitergabe_negativ,
+    "weitergabe_positiv": lambda fre: fre.weitergabe_positiv,
+    "aktiv": lambda fre: fre.active,
 }
 
 
@@ -123,43 +123,43 @@ class FilterableRealEstate:
         objektart = self.immobilie.objektkategorie.objektart
 
         if objektart.zimmer:
-            return 'zimmer'
+            return "zimmer"
 
         if objektart.wohnung:
-            return 'wohnung'
+            return "wohnung"
 
         if objektart.haus:
-            return 'haus'
+            return "haus"
 
         if objektart.grundstueck:
-            return 'grundstueck'
+            return "grundstueck"
 
         if objektart.buero_praxen:
-            return 'buero_praxen'
+            return "buero_praxen"
 
         if objektart.einzelhandel:
-            return 'einzelhandel'
+            return "einzelhandel"
 
         if objektart.gastgewerbe:
-            return 'gastgewerbe'
+            return "gastgewerbe"
 
         if objektart.hallen_lager_prod:
-            return 'hallen_lager_prod'
+            return "hallen_lager_prod"
 
         if objektart.land_und_forstwirtschaft:
-            return 'land_und_forstwirtschaft'
+            return "land_und_forstwirtschaft"
 
         if objektart.parken:
-            return 'parken'
+            return "parken"
 
         if objektart.sonstige:
-            return 'sonstige'
+            return "sonstige"
 
         if objektart.freizeitimmobilie_gewerblich:
-            return 'freizeitimmobilie_gewerblich'
+            return "freizeitimmobilie_gewerblich"
 
         if objektart.zinshaus_renditeobjekt:
-            return 'zinshaus_renditeobjekt'
+            return "zinshaus_renditeobjekt"
 
         return None
 
@@ -201,8 +201,7 @@ class FilterableRealEstate:
         for sonstige in objektart.sonstige:
             if sonstige.sonstige_typ:
                 yield str(sonstige.sonstige_typ)
-        for freizeitimmobilie_gewerblich in \
-                objektart.freizeitimmobilie_gewerblich:
+        for freizeitimmobilie_gewerblich in objektart.freizeitimmobilie_gewerblich:
             if freizeitimmobilie_gewerblich.freizeit_typ:
                 yield str(freizeitimmobilie_gewerblich.freizeit_typ)
         for zinshaus_renditeobjekt in objektart.zinshaus_renditeobjekt:
@@ -591,8 +590,8 @@ class FilterableRealEstate:
         """Returns the energy consumption characteristic value."""
         try:
             energieverbrauchkennwert = (
-                self.immobilie.zustand_angaben.energiepass
-                .energieverbrauchkennwert)
+                self.immobilie.zustand_angaben.energiepass.energieverbrauchkennwert
+            )
         except AttributeError:
             return None
 
@@ -606,7 +605,8 @@ class FilterableRealEstate:
         """Returns the energy consumption value."""
         try:
             endenergiebedarf = (
-                self.immobilie.zustand_angaben.energiepass.endenergiebedarf)
+                self.immobilie.zustand_angaben.energiepass.endenergiebedarf
+            )
         except AttributeError:
             return None
 
@@ -617,8 +617,8 @@ class FilterableRealEstate:
         """Returns the energy certificate type."""
         try:
             primaerenergietraeger = (
-                self.immobilie.zustand_angaben.energiepass
-                .primaerenergietraeger)
+                self.immobilie.zustand_angaben.energiepass.primaerenergietraeger
+            )
         except AttributeError:
             return None
 
@@ -667,7 +667,7 @@ class FilterableRealEstate:
 
         if min_mietdauer:
             if min_mietdauer.min_dauer:
-                return f'{min_mietdauer} {min_mietdauer.min_dauer}'
+                return f"{min_mietdauer} {min_mietdauer.min_dauer}"
 
             return str(min_mietdauer)
 
@@ -683,7 +683,7 @@ class FilterableRealEstate:
 
         if max_mietdauer:
             if max_mietdauer.max_dauer:
-                return f'{max_mietdauer} {max_mietdauer.max_dauer}'
+                return f"{max_mietdauer} {max_mietdauer.max_dauer}"
 
             return str(max_mietdauer)
 
@@ -731,8 +731,7 @@ class FilterableRealEstate:
 
     def evaluate(self, operation: str) -> bool:
         """Real estate evaluation callback."""
-        option, operator, operation_func, raw_value = parse_operation(
-            operation)
+        option, operator, operation_func, raw_value = parse_operation(operation)
         option_func, option_format = get_option(option)
         value = cast(raw_value, typ=option_format)
 
@@ -764,7 +763,8 @@ class RealEstateSieve:
             for orm, dom in self.real_estates:
                 filterable_real_estate = FilterableRealEstate(dom)
                 applicable = evaluate(
-                    self.filters, callback=filterable_real_estate.evaluate)
+                    self.filters, callback=filterable_real_estate.evaluate
+                )
 
                 try:
                     if applicable:
@@ -790,9 +790,9 @@ def parse_operation(operation: str) -> Operation:
         raise InvalidFilterOption(operation)
 
     # Compensate for ">", "<", "=>" and "<="
-    if option in ('>', '<'):
-        if value.startswith('='):
-            option += '='
+    if option in (">", "<"):
+        if value.startswith("="):
+            option += "="
             value = value[1:]
         # Compensate for legacy ">>" → ">" and "<<" → "<"
         elif value.startswith(option):

@@ -9,20 +9,18 @@ from openimmodb import Anhang
 from .errors import InvalidAttachmentLimit
 
 
-__all__ = ['Selections', 'RealEstateDataSelector']
+__all__ = ["Selections", "RealEstateDataSelector"]
 
 
-BASE_URL = 'https://backend.homeinfo.de/immosearch/attachment/{}'
-TITLEPIC_SEARCH_GROUPS = (
-    'TITELBILD', 'AUSSENANSICHTEN', 'INNENANSICHTEN', None
-)
+BASE_URL = "https://backend.homeinfo.de/immosearch/attachment/{}"
+TITLEPIC_SEARCH_GROUPS = ("TITELBILD", "AUSSENANSICHTEN", "INNENANSICHTEN", None)
 
 
 def set_attachment(real_estate, attachment):
     """Adds an attachment to the real estate."""
 
     dom = attachment.to_dom()
-    dom.location = 'REMOTE'
+    dom.location = "REMOTE"
     dom.daten.pfad = BASE_URL.format(attachment.id)
     real_estate.anhaenge.anhang.append(dom)
 
@@ -70,8 +68,9 @@ def set_free_texts(real_estate, freitexte):
         # replace it with the three-liner.
         if real_estate.freitexte:
             if not real_estate.freitexte.objektbeschreibung:
-                real_estate.freitexte.objektbeschreibung = \
+                real_estate.freitexte.objektbeschreibung = (
                     real_estate.freitexte.dreizeiler
+                )
     else:
         real_estate.freitexte = None
 
@@ -79,10 +78,10 @@ def set_free_texts(real_estate, freitexte):
 class Selections(Enum):
     """Specifies sleection options."""
 
-    FREITEXTE = 'freitexte'
-    TITLEPIC = 'titlepic'
-    N_ATTS = 'atts'  # Some attachments
-    ALLATTS = 'allatts'  # All attachments
+    FREITEXTE = "freitexte"
+    TITLEPIC = "titlepic"
+    N_ATTS = "atts"  # Some attachments
+    ALLATTS = "allatts"  # All attachments
 
 
 class RealEstateDataSelector:
@@ -94,7 +93,7 @@ class RealEstateDataSelector:
         """
         self.real_estates = real_estates
         self.selections = selections or tuple()
-        self.natts = compile_('(\\d)' + Selections.N_ATTS.value)
+        self.natts = compile_("(\\d)" + Selections.N_ATTS.value)
 
     def __iter__(self):
         """Returns real estates limited to the selections."""

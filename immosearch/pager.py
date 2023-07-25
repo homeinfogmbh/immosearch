@@ -3,14 +3,18 @@
 from typing import Any, Iterable, Optional
 
 
-__all__ = ['Pager']
+__all__ = ["Pager"]
 
 
-class Pager:    # pylint: disable=R0903
+class Pager:  # pylint: disable=R0903
     """Browses through pages"""
 
-    def __init__(self, items: Iterable[Any], limit: Optional[int] = None,
-                 page: Optional[int] = None):
+    def __init__(
+        self,
+        items: Iterable[Any],
+        limit: Optional[int] = None,
+        page: Optional[int] = None,
+    ):
         """Sets the respective items and the page size limit"""
         self.items = items
         self.limit = limit
