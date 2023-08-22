@@ -109,7 +109,7 @@ class RealEstateDataSelector:
         titlepic = self.titlepic
 
         for orm, dom in self.real_estates:
-            # Discard previouly cached attachments.
+            # Discard previously cached attachments.
             dom.anhaenge = anhaenge()
 
             if allatts:
