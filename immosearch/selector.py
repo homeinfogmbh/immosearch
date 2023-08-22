@@ -2,6 +2,7 @@
 
 from enum import Enum
 from re import compile as compile_
+from typing import Iterable, Iterator
 
 from openimmo import anhaenge
 from openimmodb import Anhang
@@ -28,14 +29,14 @@ def set_attachment(real_estate, attachment):
 def set_all_attachments(orm_id, real_estate):
     """Sets all attachments to the real estate."""
 
-    for attachment in Anhang.by_immobilie(orm_id):
+    for attachment in filter_images(Anhang.by_immobilie(orm_id)):
         set_attachment(real_estate, attachment)
 
 
 def set_attachments(orm_id, real_estate, attachments):
     """Sets desired amount of attachments."""
 
-    for number, attachment in enumerate(Anhang.by_immobilie(orm_id)):
+    for number, attachment in enumerate(filter_images(Anhang.by_immobilie(orm_id))):
         if number >= attachments:
             break
 
@@ -58,6 +59,12 @@ def set_titlepic(orm_id, real_estate):
 
         set_attachment(real_estate, anhang)
         break
+
+
+def filter_images(attachments: Iterable[Anhang]) -> Iterator[Anhang]:
+    """Filter attachments that are images."""
+
+    return filter(lambda anhang: anhang.gruppe == "BILD", attachments)
 
 
 def set_free_texts(real_estate, freitexte):
