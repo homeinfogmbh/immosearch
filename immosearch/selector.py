@@ -64,7 +64,7 @@ def set_titlepic(orm_id, real_estate):
 def filter_images(attachments: Iterable[Anhang]) -> Iterator[Anhang]:
     """Filter attachments that are images."""
 
-    return filter(lambda anhang: anhang.gruppe == "BILD", attachments)
+    return filter(lambda anhang: anhang.gruppe in TITLEPIC_SEARCH_GROUPS, attachments)
 
 
 def set_free_texts(real_estate, freitexte):
